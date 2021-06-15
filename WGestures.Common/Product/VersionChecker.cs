@@ -6,6 +6,9 @@ using System.Diagnostics;
 
 namespace WGestures.Common.Product
 {
+    /// <summary>
+    /// 检查新版本
+    /// </summary>
     public class VersionChecker : IDisposable
     {
         private string _url;

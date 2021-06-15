@@ -42,46 +42,51 @@
             // pictureBox1
             // 
             this.pictureBox1.Image = global::WGestures.App.Properties.Resources.Alert;
-            this.pictureBox1.Location = new System.Drawing.Point(12, 12);
+            this.pictureBox1.Location = new System.Drawing.Point(18, 20);
+            this.pictureBox1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(39, 35);
+            this.pictureBox1.Size = new System.Drawing.Size(58, 59);
             this.pictureBox1.TabIndex = 0;
             this.pictureBox1.TabStop = false;
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Microsoft YaHei", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label1.Location = new System.Drawing.Point(57, 12);
+            this.label1.Font = new System.Drawing.Font("微软雅黑", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label1.Location = new System.Drawing.Point(86, 20);
+            this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(225, 25);
+            this.label1.Size = new System.Drawing.Size(283, 31);
             this.label1.TabIndex = 1;
             this.label1.Text = "WGestures兼容性警告！";
             // 
             // label2
             // 
-            this.label2.Font = new System.Drawing.Font("Microsoft YaHei", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label2.Location = new System.Drawing.Point(59, 40);
+            this.label2.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label2.Location = new System.Drawing.Point(89, 67);
+            this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(360, 41);
+            this.label2.Size = new System.Drawing.Size(540, 68);
             this.label2.TabIndex = 1;
             this.label2.Text = "您正在运行“360安全卫士”，已知其可能导致WGestures在某些情况下失效甚至崩溃。";
             // 
             // label3
             // 
-            this.label3.Font = new System.Drawing.Font("Microsoft YaHei", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label3.Location = new System.Drawing.Point(59, 81);
+            this.label3.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label3.Location = new System.Drawing.Point(89, 135);
+            this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(360, 59);
+            this.label3.Size = new System.Drawing.Size(540, 99);
             this.label3.TabIndex = 1;
             this.label3.Text = " 要避免此问题，请确保将 WGestures.exe 添加到360的“信任列表”中，并重启360。\r\n（若上一版本已添加过，请删除记录后重新添加）";
             // 
             // linkLabel1
             // 
             this.linkLabel1.AutoSize = true;
-            this.linkLabel1.Location = new System.Drawing.Point(250, 198);
+            this.linkLabel1.Location = new System.Drawing.Point(375, 331);
+            this.linkLabel1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.linkLabel1.Name = "linkLabel1";
-            this.linkLabel1.Size = new System.Drawing.Size(77, 12);
+            this.linkLabel1.Size = new System.Drawing.Size(99, 20);
             this.linkLabel1.TabIndex = 2;
             this.linkLabel1.TabStop = true;
             this.linkLabel1.Text = "查看具体操作";
@@ -89,9 +94,10 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(333, 193);
+            this.button1.Location = new System.Drawing.Point(500, 321);
+            this.button1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(86, 23);
+            this.button1.Size = new System.Drawing.Size(129, 39);
             this.button1.TabIndex = 3;
             this.button1.Text = "明白了";
             this.button1.UseVisualStyleBackColor = true;
@@ -100,27 +106,29 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Font = new System.Drawing.Font("Microsoft YaHei", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label4.Location = new System.Drawing.Point(59, 140);
+            this.label4.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label4.Location = new System.Drawing.Point(89, 233);
+            this.label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(95, 17);
+            this.label4.Size = new System.Drawing.Size(118, 20);
             this.label4.TabIndex = 1;
             this.label4.Text = "WGestures位于";
             // 
             // tb_wgPath
             // 
-            this.tb_wgPath.Font = new System.Drawing.Font("SimSun", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.tb_wgPath.Location = new System.Drawing.Point(160, 140);
+            this.tb_wgPath.Font = new System.Drawing.Font("宋体", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.tb_wgPath.Location = new System.Drawing.Point(240, 233);
+            this.tb_wgPath.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.tb_wgPath.Name = "tb_wgPath";
             this.tb_wgPath.ReadOnly = true;
-            this.tb_wgPath.Size = new System.Drawing.Size(259, 20);
+            this.tb_wgPath.Size = new System.Drawing.Size(386, 23);
             this.tb_wgPath.TabIndex = 4;
             // 
             // Warn360
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(431, 228);
+            this.ClientSize = new System.Drawing.Size(647, 380);
             this.Controls.Add(this.tb_wgPath);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.linkLabel1);
@@ -129,7 +137,9 @@
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.pictureBox1);
+            this.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "Warn360";

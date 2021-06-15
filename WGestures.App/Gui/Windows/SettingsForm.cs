@@ -1027,7 +1027,11 @@ namespace WGestures.App.Gui.Windows
 
             return base.ProcessCmdKey(ref msg, keyData);
         }
-
+        /// <summary>
+        /// 点击手势tab栏
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void tabControl_SelectedIndexChanged(object sender, EventArgs e)
         {
             lb_info.Text = Equals(tabControl.SelectedTab.Tag, "about") ? "Copyright (c) " + DateTime.Now.Year+" 应元东" : "*改动将自动保存并立即生效";
@@ -1292,6 +1296,11 @@ namespace WGestures.App.Gui.Windows
         }
 
         #region HotCorner & RubEdge
+        /// <summary>
+        /// 右上角
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void radio_corner_1_CheckedChanged(object sender, EventArgs e)
         {
             if (!(sender as RadioButton).Checked) return;
