@@ -26,7 +26,10 @@ namespace WGestures.Core
             Dirs = new List<GestureDir>(defaultCapacity);
             Modifier = GestureModifier.None;
         }
-
+        /// <summary>
+        /// 添加鼠标手势
+        /// </summary>
+        /// <param name="newDirs"></param>
         public void Add(params GestureDir[] newDirs)
         {
             foreach (var d in newDirs)
@@ -63,8 +66,7 @@ namespace WGestures.Core
 
         }
 
-        public override int GetHashCode()
-        {
+        public override int GetHashCode(){
             var hash = 19;
             hash += hash*31 + GestureButton.GetHashCode();
             foreach (var d in Dirs)
