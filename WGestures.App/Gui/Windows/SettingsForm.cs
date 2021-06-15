@@ -1139,7 +1139,7 @@ namespace WGestures.App.Gui.Windows
 
             var saveTo = selectSaveToPath.FileName;
 
-            //先应用列表中的顺序，然后保存，然后备份
+            //先应用列表中的顺序，然后保存，最后备份
             ApplyListAppsOrder();
             Controller.IntentStore.Save();
             Controller.Config.Save();

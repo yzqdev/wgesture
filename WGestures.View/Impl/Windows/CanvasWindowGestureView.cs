@@ -219,7 +219,10 @@ namespace WGestures.View.Impl.Windows
 
             BeginView();
         }
-
+        /// <summary>
+        /// 鼠标右键乱画
+        /// </summary>
+        /// <param name="args"></param>
         private void HandlePathGrow(PathEventArgs args)
         {
             if (!ShowPath && !ShowCommandName) return;
