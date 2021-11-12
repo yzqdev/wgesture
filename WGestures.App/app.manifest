@@ -4,12 +4,11 @@
   <trustInfo xmlns="urn:schemas-microsoft-com:asm.v2">
     <security>
       <requestedPrivileges xmlns="urn:schemas-microsoft-com:asm.v3">
-
         <requestedExecutionLevel level="asInvoker" uiAccess="false" />
       </requestedPrivileges>
       <applicationRequestMinimum>
         <defaultAssemblyRequest permissionSetReference="Custom" />
-        <PermissionSet ID="Custom" SameSite="site" Unrestricted="false" />
+        <PermissionSet ID="Custom" SameSite="site" />
       </applicationRequestMinimum>
     </security>
   </trustInfo>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs" 
-     xmlns:utils="http://wixtoolset.org/schemas/v4/wxs/util" 
-     xmlns:netfx="http://wixtoolset.org/schemas/v4/wxs/netfx">
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:utils="http://schemas.microsoft.com/wix/2006/wi/util" 
+     xmlns:netfx="http://schemas.microsoft.com/wix/2006/wi/netfx">
 
   <!-- UPgrade Code 不能改变 -->
   <Product Id="*" Name="WGestures 1.8" Language="2052" 
