@@ -1027,7 +1027,11 @@ namespace WGestures.App.Gui.Windows
 
             return base.ProcessCmdKey(ref msg, keyData);
         }
-
+        /// <summary>
+        /// 点击手势tab栏
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void tabControl_SelectedIndexChanged(object sender, EventArgs e)
         {
             lb_info.Text = Equals(tabControl.SelectedTab.Tag, "about") ? "Copyright (c) " + DateTime.Now.Year+" 应元东" : "*改动将自动保存并立即生效";
@@ -1139,7 +1143,7 @@ namespace WGestures.App.Gui.Windows
 
             var saveTo = selectSaveToPath.FileName;
 
-            //先应用列表中的顺序，然后保存，然后备份
+            //先应用列表中的顺序，然后保存，最后备份
             ApplyListAppsOrder();
             Controller.IntentStore.Save();
             Controller.Config.Save();
@@ -1292,6 +1296,11 @@ namespace WGestures.App.Gui.Windows
         }
 
         #region HotCorner & RubEdge
+        /// <summary>
+        /// 右上角
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void radio_corner_1_CheckedChanged(object sender, EventArgs e)
         {
             if (!(sender as RadioButton).Checked) return;
