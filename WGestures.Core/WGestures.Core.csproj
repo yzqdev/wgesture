@@ -1,121 +1,24 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{F26BE916-F318-47B5-87EB-1D67B7F30FDC}</ProjectGuid>
+    <TargetFrameworks>net6.0-windows </TargetFrameworks>
     <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>WGestures.Core</RootNamespace>
-    <AssemblyName>WGestures.Core</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>none</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject />
-  </PropertyGroup>
-  <PropertyGroup>
-    <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>
     </AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Web" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Commands\IGestureContextAware.cs" />
-    <Compile Include="Commands\IGestureModifiersAware.cs" />
-    <Compile Include="Commands\Impl\ChangeAudioVolumeCommand.cs" />
-    <Compile Include="Commands\Impl\CmdCommand.cs" />
-    <Compile Include="Commands\Impl\DoNothingCommand.cs" />
-    <Compile Include="Commands\Impl\GotoUrlCommand.cs" />
-    <Compile Include="Commands\Impl\HotKeyCommand.cs" />
-    <Compile Include="Commands\Impl\OpenFileCommand.cs" />
-    <Compile Include="Commands\Impl\PauseWGesturesCommand.cs" />
-    <Compile Include="Commands\Impl\ScriptCommand.cs" />
-    <Compile Include="Commands\Impl\SearchBox.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Commands\Impl\SearchBox.Designer.cs">
-      <DependentUpon>SearchBox.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Commands\Impl\SendTextCommand.cs" />
-    <Compile Include="Commands\Impl\Sim.cs" />
-    <Compile Include="Commands\Impl\TaskSwitcherCommand.cs" />
-    <Compile Include="Commands\Impl\WebSearchCommand.cs" />
-    <Compile Include="Commands\Impl\WindowControlCommand.cs" />
-    <Compile Include="Commands\INeedInit.cs" />
-    <Compile Include="GestureButton.cs" />
-    <Compile Include="GestureContext.cs" />
-    <Compile Include="GestureModifier.cs" />
-    <Compile Include="Impl\Windows\ScreenEdgeInteractDetector.cs" />
-    <Compile Include="Impl\Windows\TouchHook.cs" />
-    <Compile Include="ScreenCornerAndEdge.cs" />
-    <Compile Include="Impl\Windows\MouseHook.cs" />
-    <Compile Include="Impl\Windows\Win32GestureContext.cs" />
-    <Compile Include="Impl\Windows\Win32MousePathTracker2.cs" />
-    <Compile Include="Persistence\AbstractGestureIntentFinder.cs" />
-    <Compile Include="App.cs" />
-    <Compile Include="Commands\AbstractCommand.cs" />
-    <Compile Include="Gesture.cs" />
-    <Compile Include="GestureIntent.cs" />
-    <Compile Include="GestureParser.cs" />
-    <Compile Include="IGestureIntentFinder.cs" />
-    <Compile Include="Persistence\IGestureIntentStore.cs" />
-    <Compile Include="Commands\IGestureParserAware.cs" />
-    <Compile Include="IPathTracker.cs" />
-    <Compile Include="Persistence\Impl\JsonGestureIntentStore.cs" />
-    <Compile Include="Persistence\Impl\Windows\Win32GestrueIntentFinder.cs" />
-    <Compile Include="Properties\Annotations.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\WGestures.Common\WGestures.Common.csproj">
-      <Project>{bb6528eb-c4ea-49b5-ac7f-a0645126f1a8}</Project>
-      <Name>WGestures.Common</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\WindowsInput\WindowsInput.csproj">
-      <Project>{3549CD6F-80F8-450F-B99E-CF0A736B1F2A}</Project>
-      <Name>WindowsInput</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Commands\Impl\SearchBox.resx">
-      <DependentUpon>SearchBox.cs</DependentUpon>
-    </EmbeddedResource>
+    <ProjectReference Include="..\WGestures.Common\WGestures.Common.csproj" />
+    <ProjectReference Include="..\WindowsInput\WindowsInput.csproj" />
   </ItemGroup>
   <ItemGroup>
     <COMReference Include="SHDocVw">
@@ -129,23 +32,18 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json">
-      <Version>13.0.1</Version>
-    </PackageReference>
     <PackageReference Include="NLua">
       <Version>1.5.9</Version>
     </PackageReference>
+    <PackageReference Include="Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers" Version="0.3.255803">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net6.0-windows|AnyCPU'">
+    <WarningLevel>3</WarningLevel>
   </PropertyGroup>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net6.0-windows|AnyCPU'">
+    <WarningLevel>3</WarningLevel>
+  </PropertyGroup>
+   
 </Project>

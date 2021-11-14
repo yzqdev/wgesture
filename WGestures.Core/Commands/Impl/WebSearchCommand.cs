@@ -1,23 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Net.Mime;
-using System.Security.Policy;
-using System.Text;
 using System.Threading;
-using System.Web;
 using System.Windows.Forms;
-using WindowsInput;
 using WindowsInput.Native;
 using WGestures.Common.Annotation;
 using WGestures.Common.OsSpecific.Windows;
 using Timer = System.Windows.Forms.Timer;
 using Microsoft.Win32;
+using System.Web;
 
-namespace WGestures.Core.Commands.Impl
-{
+namespace WGestures.Core.Commands.Impl {
     [Named("Web搜索"), Serializable]
     public class WebSearchCommand : AbstractCommand, IGestureContextAware
     {
@@ -136,7 +129,7 @@ namespace WGestures.Core.Commands.Impl
 
         private string PopulateSearchEngingUrl(string param)
         {
-            return HttpUtility.UrlPathEncode(string.Format(SearchEngineUrl, param));
+            return System.Web.HttpUtility.UrlPathEncode(string.Format(SearchEngineUrl, param));
         }
 
         public override string Description()

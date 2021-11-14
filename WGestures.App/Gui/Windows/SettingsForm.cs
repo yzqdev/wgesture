@@ -1,17 +1,11 @@
 ﻿using System;
-using System.Collections;
-using System.Configuration;
 using System.Diagnostics;
 using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Windows.Forms;
 using WGestures.App.Gui.Model;
 using WGestures.App.Gui.Windows.CommandViews;
-using WGestures.App.Gui.Windows.Controls;
 using WGestures.App.Properties;
 using WGestures.Common.Annotation;
 using WGestures.Common.OsSpecific.Windows;
@@ -19,10 +13,8 @@ using WGestures.Common.Product;
 using WGestures.Core;
 using WGestures.Core.Commands;
 using WGestures.Core.Commands.Impl;
-using WGestures.Core.Persistence;
 
-namespace WGestures.App.Gui.Windows
-{
+namespace WGestures.App.Gui.Windows {
     internal partial class SettingsForm : Form
     {
         private readonly float _dpiF = Native.GetScreenDpi() / 96f;
@@ -34,14 +26,14 @@ namespace WGestures.App.Gui.Windows
 
         public SettingsForm(SettingsFormController controller)
         {
-            Controller = controller;
+             Controller = controller;
             InitializeComponent();
 
             Icon = Resources.icon;
 
             SuspendDrawingControl.SuspendDrawing(this);
 
-            settingsFormControllerBindingSource.Add(Controller);
+            settingsFormControllerBindingSource.Add( Controller);
 
             DpiFix();
             ControlFixes();
@@ -627,7 +619,7 @@ namespace WGestures.App.Gui.Windows
             }
 
             var sel = listApps.SelectedItems[0];
-            var found = (OrderableExeApp) Controller.IntentStore.GetExeApp((listApps.SelectedItems[0].Tag as ExeApp).ExecutablePath);
+            var found = (OrderableExeApp)Controller.IntentStore.GetExeApp((listApps.SelectedItems[0].Tag as ExeApp).ExecutablePath);
 
             using (var frm = new EditAppForm(found, Controller.IntentStore))
             {
@@ -968,7 +960,7 @@ namespace WGestures.App.Gui.Windows
 
         private void LoadHotCornerCommands()
         {
-            for(var i=0; i<Controller.IntentStore.HotCornerCommands.Length; i++)
+            for(var i=0; i< Controller.IntentStore.HotCornerCommands.Length; i++)
             {
                 var cmd = Controller.IntentStore.HotCornerCommands[i];
                 if (cmd == null)
@@ -1356,7 +1348,7 @@ namespace WGestures.App.Gui.Windows
             {
                 cmd = currentCmd;
             }
-            
+
             Controller.IntentStore.HotCornerCommands[corner] = cmd;
             LoadHotCornerCmdView(cmd);
             cornerBtn.Text = cmd.Description();

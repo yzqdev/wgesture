@@ -44,5 +44,11 @@ namespace WGestures.App.Gui.Windows
                 Application.ExecutablePath + "\r\n=======================\r\n";
         }
 
+        private void copy_error_Click(object sender, EventArgs e)
+        {
+            Clipboard.SetText(tb_Detail.Text);
+            MessageBox.Show("复制成功!","信息");
+              
+        }
     }
 }

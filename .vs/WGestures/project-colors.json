@@ -45,7 +45,17 @@
       "ProjectGuid": "457bbcaf-3f8c-4f65-b34e-547f57a0d877",
       "DisplayName": "NativeMultiFileArchiveLib",
       "ColorIndex": 7
+    },
+    "af58b37e-6d47-400d-8f4a-16073661ae99": {
+      "ProjectGuid": "af58b37e-6d47-400d-8f4a-16073661ae99",
+      "DisplayName": "charp-dotnet-form",
+      "ColorIndex": 8
+    },
+    "cf776b5d-1088-47f3-bd2d-1274cc5941aa": {
+      "ProjectGuid": "cf776b5d-1088-47f3-bd2d-1274cc5941aa",
+      "DisplayName": "Solution Items",
+      "ColorIndex": 9
     }
   },
-  "NextColorIndex": 8
+  "NextColorIndex": 10
 }

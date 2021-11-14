@@ -49,5 +49,10 @@ namespace WGestures.App.Gui.Windows
 
             return base.ProcessCmdKey(ref msg, keyData);
         }
+
+        private void UpdateInfoForm_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }
