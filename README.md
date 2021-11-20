@@ -1,6 +1,7 @@
 # WGestures
 
-fork自  https://github.com/yingDev/WGestures
+> fork自  https://github.com/yingDev/WGestures
+
 WGestures鼠标手势 for Windows.
 一个更简单, 更现代的全局鼠标手势, 支持Windows 7/8/10。
 官方网站 [www.yingDev.com/projects/wgestures](http://www.yingdev.com/projects/wgestures) 
@@ -15,6 +16,7 @@ _______________________
 ## 改进 WGestures...  
 ### 环境
 * Visual Studio 2022, dotnet6.0
+* 使用winform进行开发,准备用wpf或者qt重构
  
 
  
