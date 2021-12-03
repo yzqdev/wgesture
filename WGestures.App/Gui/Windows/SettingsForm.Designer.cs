@@ -32,7 +32,7 @@ namespace WGestures.App.Gui.Windows
                 Icon = null;
 
                 //循环引用会造成内存泄漏
-                 Controller = null;
+                 settingFormController = null;
                 imglistAppIcons = null;
                 dummyImgLstForLstViewHeightFix = null;
 

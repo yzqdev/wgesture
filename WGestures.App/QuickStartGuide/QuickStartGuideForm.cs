@@ -31,6 +31,7 @@ namespace WGestures.App.Gui.Windows
 
         private void QuickStartGuidForm_Load(object sender, EventArgs e)
         {
+
             web_container.Navigate(new Uri(
                 string.Format(@"{0}\QuickStartGuide\index.html",
                 Path.GetDirectoryName(Application.ExecutablePath))));
