@@ -9,7 +9,9 @@ namespace WGestures.Common.Config.Impl
     {
         public string FileVersion
         {
-            get { return Get<string>("$$FileVersion", null); }
+            get { 
+                return Get<string>("$$FileVersion", null); 
+            }
             set
             {
                 Set("$$FileVersion",value);

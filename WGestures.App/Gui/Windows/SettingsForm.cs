@@ -1,17 +1,11 @@
 ﻿using System;
-using System.Collections;
-using System.Configuration;
 using System.Diagnostics;
 using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Windows.Forms;
 using WGestures.App.Gui.Model;
 using WGestures.App.Gui.Windows.CommandViews;
-using WGestures.App.Gui.Windows.Controls;
 using WGestures.App.Properties;
 using WGestures.Common.Annotation;
 using WGestures.Common.OsSpecific.Windows;
@@ -19,10 +13,8 @@ using WGestures.Common.Product;
 using WGestures.Core;
 using WGestures.Core.Commands;
 using WGestures.Core.Commands.Impl;
-using WGestures.Core.Persistence;
 
-namespace WGestures.App.Gui.Windows
-{
+namespace WGestures.App.Gui.Windows {
     internal partial class SettingsForm : Form
     {
         private readonly float _dpiF = Native.GetScreenDpi() / 96f;
@@ -30,18 +22,18 @@ namespace WGestures.App.Gui.Windows
         private VersionChecker _versionChecker;
         private RadioButton[] _hotCornerRadioBtns;
 
-        public SettingsFormController Controller { get; set; }
+        public SettingsFormController settingFormController { get; set; }
 
         public SettingsForm(SettingsFormController controller)
         {
-            Controller = controller;
+             settingFormController = controller;
             InitializeComponent();
 
             Icon = Resources.icon;
 
             SuspendDrawingControl.SuspendDrawing(this);
 
-            settingsFormControllerBindingSource.Add(Controller);
+            settingsFormControllerBindingSource.Add( settingFormController);
 
             DpiFix();
             ControlFixes();
@@ -72,11 +64,11 @@ namespace WGestures.App.Gui.Windows
         private void InitControlValues()
         {
             #region tab options
-            lb_pause_shortcut.DataBindings.Add("Text", Controller, "PauseResumeHotKey", false, DataSourceUpdateMode.OnPropertyChanged, "无");
+            lb_pause_shortcut.DataBindings.Add("Text", settingFormController, "PauseResumeHotKey", false, DataSourceUpdateMode.OnPropertyChanged, "无");
 
             lb_Version.Text = Application.ProductVersion;
 
-            var gestBtns = Controller.PathTrackerTriggerButton;
+            var gestBtns = settingFormController.PathTrackerTriggerButton;
             if((gestBtns & GestureTriggerButton.Right) != 0)
             {
                 check_gestBtn_Right.Checked = true;
@@ -228,10 +220,10 @@ namespace WGestures.App.Gui.Windows
 
                 hk.key = (Keys) e.Keys[0];
 
-                Controller.PauseResumeHotkey = hk;
+                settingFormController.PauseResumeHotkey = hk;
             } else
             {
-                Controller.PauseResumeHotkey = null;
+                settingFormController.PauseResumeHotkey = null;
             }
         }
 
@@ -304,7 +296,7 @@ namespace WGestures.App.Gui.Windows
 
         private void btnAddApp_Click(object sender, EventArgs e)
         {
-            using (var frm = new EditAppForm(Controller.IntentStore))
+            using (var frm = new EditAppForm(settingFormController.IntentStore))
             {
                 var result = frm.ShowDialog();
 
@@ -313,7 +305,7 @@ namespace WGestures.App.Gui.Windows
                 var appPath = frm.AppPath;
                 ExeApp found;
 
-                if (Controller.IntentStore.TryGetExeApp(appPath, out found))
+                if (settingFormController.IntentStore.TryGetExeApp(appPath, out found))
                 {
                     HighlightAppInList(found);
                 }
@@ -323,7 +315,7 @@ namespace WGestures.App.Gui.Windows
                     
                     AddAppToList(app);
                     HighlightAppInList(app);
-                    Controller.IntentStore.Add(app);
+                    settingFormController.IntentStore.Add(app);
                 }
             }
         }
@@ -341,7 +333,7 @@ namespace WGestures.App.Gui.Windows
             var ret = MessageBox.Show(string.Format("您确定删除项目 \"{0}\" 及其所有手势吗?", item.Name), "确认删除", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
             if (ret == DialogResult.Yes)
             {
-                Controller.IntentStore.Remove(item.ExecutablePath);
+                settingFormController.IntentStore.Remove(item.ExecutablePath);
                 RemoveSelectedAppFromList();
             }
 
@@ -390,7 +382,7 @@ namespace WGestures.App.Gui.Windows
             var app = GetSelectedAppOrGlobal();
             if (app == null) return;
 
-            using (var addGestureForm = new EditGestureForm(Controller.GestureParser,app))
+            using (var addGestureForm = new EditGestureForm(settingFormController.GestureParser,app))
             {
 
                 var ok = addGestureForm.ShowDialog();
@@ -495,7 +487,7 @@ namespace WGestures.App.Gui.Windows
             var app = GetSelectedAppOrGlobal();
             var intent = GetSelectedGestureIntent();
 
-            using (var editFrm = new EditGestureForm(Controller.GestureParser, app, intent))
+            using (var editFrm = new EditGestureForm(settingFormController.GestureParser, app, intent))
             {
                 var result = editFrm.ShowDialog();
                 if (result == DialogResult.OK)
@@ -552,15 +544,15 @@ namespace WGestures.App.Gui.Windows
         private void LoadApps()
         {
             //如果有不是OrderableExeApp的，则转换并替换
-            var appsArray = Controller.IntentStore.ToArray();
+            var appsArray = settingFormController.IntentStore.ToArray();
             for(var i=0; i<appsArray.Length; i++)
             {
                 var app = appsArray[i];
                 if (!(app is OrderableExeApp))
                 {
                     appsArray[i] = new OrderableExeApp(app);
-                    Controller.IntentStore.Remove(app);
-                    Controller.IntentStore.Add(appsArray[i]);
+                    settingFormController.IntentStore.Remove(app);
+                    settingFormController.IntentStore.Add(appsArray[i]);
                 }
             }
 
@@ -627,9 +619,9 @@ namespace WGestures.App.Gui.Windows
             }
 
             var sel = listApps.SelectedItems[0];
-            var found = (OrderableExeApp) Controller.IntentStore.GetExeApp((listApps.SelectedItems[0].Tag as ExeApp).ExecutablePath);
+            var found = (OrderableExeApp)settingFormController.IntentStore.GetExeApp((listApps.SelectedItems[0].Tag as ExeApp).ExecutablePath);
 
-            using (var frm = new EditAppForm(found, Controller.IntentStore))
+            using (var frm = new EditAppForm(found, settingFormController.IntentStore))
             {
                 var ret = frm.ShowDialog();
 
@@ -648,7 +640,7 @@ namespace WGestures.App.Gui.Windows
                     else
                     {
                         ExeApp existed;
-                        if (Controller.IntentStore.TryGetExeApp(frm.AppPath, out existed))
+                        if (settingFormController.IntentStore.TryGetExeApp(frm.AppPath, out existed))
                         {
                             HighlightAppInList(existed);
                         }
@@ -656,12 +648,12 @@ namespace WGestures.App.Gui.Windows
                         {
                             RemoveSelectedAppFromList();
 
-                            Controller.IntentStore.Remove(found.ExecutablePath);
+                            settingFormController.IntentStore.Remove(found.ExecutablePath);
 
                             found.ExecutablePath = frm.AppPath;
                             found.Name = frm.AppName;
 
-                            Controller.IntentStore.Add(found);
+                            settingFormController.IntentStore.Add(found);
 
                             AddAppToList(found);
                         }
@@ -754,9 +746,9 @@ namespace WGestures.App.Gui.Windows
 
             //第0个项目，必须是(全局)
             var globalAppItem = new ListViewItem("(全局)");//listApps.Items[0];
-            globalAppItem.ImageKey = Controller.IntentStore.GlobalApp.IsGesturingEnabled ? "icon" : "icon_bw";
-            globalAppItem.ForeColor = Controller.IntentStore.GlobalApp.IsGesturingEnabled ? Color.DodgerBlue : Color.Firebrick;
-            globalAppItem.Tag = Controller.IntentStore.GlobalApp;
+            globalAppItem.ImageKey = settingFormController.IntentStore.GlobalApp.IsGesturingEnabled ? "icon" : "icon_bw";
+            globalAppItem.ForeColor = settingFormController.IntentStore.GlobalApp.IsGesturingEnabled ? Color.DodgerBlue : Color.Firebrick;
+            globalAppItem.Tag = settingFormController.IntentStore.GlobalApp;
             listApps.Items.Add(globalAppItem);
 
             listApps.Items[0].Selected = true;
@@ -934,7 +926,7 @@ namespace WGestures.App.Gui.Windows
         private void LoadCommandTypes()
         {
             combo_CommandTypes.BeginUpdate();
-            foreach (var kv in Controller.SupportedCommands)
+            foreach (var kv in settingFormController.SupportedCommands)
             {
                 combo_CommandTypes.Items.Add(new CommandTypesComboBoxItem() { Name = kv.Key, CommandType = kv.Value });
             }
@@ -943,7 +935,7 @@ namespace WGestures.App.Gui.Windows
 
         private void LoadCommandView(GestureIntent intent)
         {
-            var cmdView = Controller.CommandViewFactory.GetCommandView(intent.Command);
+            var cmdView = settingFormController.CommandViewFactory.GetCommandView(intent.Command);
             
             if (cmdView != null)
             {
@@ -968,13 +960,13 @@ namespace WGestures.App.Gui.Windows
 
         private void LoadHotCornerCommands()
         {
-            for(var i=0; i<Controller.IntentStore.HotCornerCommands.Length; i++)
+            for(var i=0; i< settingFormController.IntentStore.HotCornerCommands.Length; i++)
             {
-                var cmd = Controller.IntentStore.HotCornerCommands[i];
+                var cmd = settingFormController.IntentStore.HotCornerCommands[i];
                 if (cmd == null)
                 {
                     cmd = new DoNothingCommand();
-                    Controller.IntentStore.HotCornerCommands[i] = cmd;
+                    settingFormController.IntentStore.HotCornerCommands[i] = cmd;
                 }
 
                 _hotCornerRadioBtns[i].Text = cmd.Description();
@@ -986,7 +978,7 @@ namespace WGestures.App.Gui.Windows
 
         private void LoadHotCornerCommandTypes()
         {
-            var cmdTypes = Controller.SupportedHotCornerCommands;
+            var cmdTypes = settingFormController.SupportedHotCornerCommands;
 
             combo_hotcornerCmdTypes.Items.AddRange(cmdTypes.Keys.ToArray());
         }
@@ -1027,7 +1019,11 @@ namespace WGestures.App.Gui.Windows
 
             return base.ProcessCmdKey(ref msg, keyData);
         }
-
+        /// <summary>
+        /// 点击手势tab栏
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void tabControl_SelectedIndexChanged(object sender, EventArgs e)
         {
             lb_info.Text = Equals(tabControl.SelectedTab.Tag, "about") ? "Copyright (c) " + DateTime.Now.Year+" 应元东" : "*改动将自动保存并立即生效";
@@ -1038,9 +1034,9 @@ namespace WGestures.App.Gui.Windows
                 {
                     //第0个项目，必须是(全局)
                     var globalAppItem = new ListViewItem("(全局)");//listApps.Items[0];
-                    globalAppItem.ImageKey = Controller.IntentStore.GlobalApp.IsGesturingEnabled ? "icon" : "icon_bw";
-                    globalAppItem.ForeColor = Controller.IntentStore.GlobalApp.IsGesturingEnabled ? Color.DodgerBlue : Color.Firebrick;
-                    globalAppItem.Tag = Controller.IntentStore.GlobalApp;
+                    globalAppItem.ImageKey = settingFormController.IntentStore.GlobalApp.IsGesturingEnabled ? "icon" : "icon_bw";
+                    globalAppItem.ForeColor = settingFormController.IntentStore.GlobalApp.IsGesturingEnabled ? Color.DodgerBlue : Color.Firebrick;
+                    globalAppItem.Tag = settingFormController.IntentStore.GlobalApp;
                     listApps.Items.Add(globalAppItem);
 
                     LoadApps();
@@ -1105,7 +1101,7 @@ namespace WGestures.App.Gui.Windows
                 SuspendDrawingControl.SuspendDrawing(this);
                 try
                 {
-                    Controller.Import(args.ConfigAndGestures, importConfig, importGestures, mergeGestures);
+                    settingFormController.Import(args.ConfigAndGestures, importConfig, importGestures, mergeGestures);
                     //如果还没有切换到“手势”tab，则listApps没有app加载。
                     if(listApps.Items.Count > 0) LoadApps();
                     LoadHotCornerCommands();
@@ -1139,14 +1135,14 @@ namespace WGestures.App.Gui.Windows
 
             var saveTo = selectSaveToPath.FileName;
 
-            //先应用列表中的顺序，然后保存，然后备份
+            //先应用列表中的顺序，然后保存，最后备份
             ApplyListAppsOrder();
-            Controller.IntentStore.Save();
-            Controller.Config.Save();
+            settingFormController.IntentStore.Save();
+            settingFormController.Config.Save();
 
             try
             {
-                Controller.ExportTo(saveTo);
+                settingFormController.ExportTo(saveTo);
                 MessageBox.Show("导出成功。", "WGestures导出", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
             } catch (Exception ex)
@@ -1231,7 +1227,7 @@ namespace WGestures.App.Gui.Windows
 
         private void check_gestBtns_checkedChanged(object sender, EventArgs e)
         {
-            var gestBtns = Controller.PathTrackerTriggerButton;
+            var gestBtns = settingFormController.PathTrackerTriggerButton;
             var checkbox = sender as CheckBox;
 
             var tag = (GestureTriggerButton)int.Parse((string)checkbox.Tag);
@@ -1244,7 +1240,7 @@ namespace WGestures.App.Gui.Windows
                 gestBtns &= ~tag;
             }
 
-            Controller.PathTrackerTriggerButton = gestBtns;
+            settingFormController.PathTrackerTriggerButton = gestBtns;
         }
 
         private void listGestureIntents_DoubleClick(object sender, EventArgs e)
@@ -1284,7 +1280,7 @@ namespace WGestures.App.Gui.Windows
 
             if(confirm == DialogResult.Yes)
             {
-                Controller.RestoreDefaultGestures();
+                settingFormController.RestoreDefaultGestures();
                 if (listApps.Items.Count > 0) LoadApps();
 
                 LoadHotCornerCommands();
@@ -1292,12 +1288,17 @@ namespace WGestures.App.Gui.Windows
         }
 
         #region HotCorner & RubEdge
+        /// <summary>
+        /// 右上角
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void radio_corner_1_CheckedChanged(object sender, EventArgs e)
         {
             if (!(sender as RadioButton).Checked) return;
 
             var tag = int.Parse((string)(sender as RadioButton).Tag);
-            var cmd = Controller.IntentStore.HotCornerCommands[tag];
+            var cmd = settingFormController.IntentStore.HotCornerCommands[tag];
 
             combo_hotcornerCmdTypes.SelectedItem = NamedAttribute.GetNameOf(cmd.GetType());
 
@@ -1306,7 +1307,7 @@ namespace WGestures.App.Gui.Windows
 
         private void LoadHotCornerCmdView(AbstractCommand cmd)
         {
-            var cmdView = Controller.HotCornerCommandViewFactory.GetCommandView(cmd);
+            var cmdView = settingFormController.HotCornerCommandViewFactory.GetCommandView(cmd);
             panel_cornorCmdView.Controls.Clear();
             panel_cornorCmdView.Controls.Add(cmdView);
 
@@ -1336,8 +1337,8 @@ namespace WGestures.App.Gui.Windows
             var cornerBtn = (from btn in _hotCornerRadioBtns where btn.Checked select btn).Single();
             var corner = int.Parse((string) cornerBtn.Tag);
 
-            var currentCmd = Controller.IntentStore.HotCornerCommands[corner];
-            var cmdType = Controller.SupportedHotCornerCommands[(string) combo_hotcornerCmdTypes.SelectedItem];
+            var currentCmd = settingFormController.IntentStore.HotCornerCommands[corner];
+            var cmdType = settingFormController.SupportedHotCornerCommands[(string) combo_hotcornerCmdTypes.SelectedItem];
 
             AbstractCommand cmd;
             if (currentCmd.GetType() != cmdType)
@@ -1347,8 +1348,8 @@ namespace WGestures.App.Gui.Windows
             {
                 cmd = currentCmd;
             }
-            
-            Controller.IntentStore.HotCornerCommands[corner] = cmd;
+
+            settingFormController.IntentStore.HotCornerCommands[corner] = cmd;
             LoadHotCornerCmdView(cmd);
             cornerBtn.Text = cmd.Description();
 

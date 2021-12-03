@@ -1,17 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Configuration;
 using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
 using WGestures.App.Gui.Windows.CommandViews;
 using WGestures.App.Migrate;
-using WGestures.Common;
 using WGestures.Common.Annotation;
 using WGestures.Common.Config;
 using WGestures.Common.OsSpecific.Windows;
-using WGestures.Common.Product;
 using WGestures.Core;
 using WGestures.Core.Annotations;
 using WGestures.Core.Commands.Impl;
@@ -20,8 +17,7 @@ using WGestures.Core.Persistence;
 using WGestures.Core.Persistence.Impl;
 using WGestures.View.Impl.Windows;
 
-namespace WGestures.App.Gui.Windows
-{
+namespace WGestures.App.Gui.Windows {
     internal class SettingsFormController : IDisposable, INotifyPropertyChanged
     {
         private Form _form;

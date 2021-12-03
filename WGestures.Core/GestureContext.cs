@@ -5,6 +5,7 @@ namespace WGestures.Core
 {
     public abstract class GestureContext// : MarshalByRefObject
     {
+
         public Point StartPoint;
         public Point EndPoint;
 

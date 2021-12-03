@@ -53,11 +53,11 @@
             // 
             // txt_filePath
             // 
-            this.txt_filePath.Location = new System.Drawing.Point(0, 3);
-            this.txt_filePath.Margin = new System.Windows.Forms.Padding(0, 3, 3, 3);
+            this.txt_filePath.Location = new System.Drawing.Point(0, 4);
+            this.txt_filePath.Margin = new System.Windows.Forms.Padding(0, 4, 4, 4);
             this.txt_filePath.Name = "txt_filePath";
             this.txt_filePath.ReadOnly = true;
-            this.txt_filePath.Size = new System.Drawing.Size(193, 21);
+            this.txt_filePath.Size = new System.Drawing.Size(240, 27);
             this.txt_filePath.TabIndex = 0;
             this.txt_filePath.TabStop = false;
             this.txt_filePath.Text = "请选择要导入的文件";
@@ -65,10 +65,10 @@
             // 
             // btn_selectWgb
             // 
-            this.btn_selectWgb.Location = new System.Drawing.Point(199, 3);
-            this.btn_selectWgb.Margin = new System.Windows.Forms.Padding(3, 3, 0, 3);
+            this.btn_selectWgb.Location = new System.Drawing.Point(248, 4);
+            this.btn_selectWgb.Margin = new System.Windows.Forms.Padding(4, 4, 0, 4);
             this.btn_selectWgb.Name = "btn_selectWgb";
-            this.btn_selectWgb.Size = new System.Drawing.Size(75, 21);
+            this.btn_selectWgb.Size = new System.Drawing.Size(94, 26);
             this.btn_selectWgb.TabIndex = 1;
             this.btn_selectWgb.Text = "选择...";
             this.btn_selectWgb.UseVisualStyleBackColor = true;
@@ -80,9 +80,10 @@
             this.flowLayoutPanel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.flowLayoutPanel1.Controls.Add(this.txt_filePath);
             this.flowLayoutPanel1.Controls.Add(this.btn_selectWgb);
-            this.flowLayoutPanel1.Location = new System.Drawing.Point(11, 11);
+            this.flowLayoutPanel1.Location = new System.Drawing.Point(14, 14);
+            this.flowLayoutPanel1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(274, 27);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(342, 35);
             this.flowLayoutPanel1.TabIndex = 3;
             // 
             // flowLayoutPanel2
@@ -95,9 +96,10 @@
             this.flowLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel2.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.flowLayoutPanel2.Location = new System.Drawing.Point(0, 0);
+            this.flowLayoutPanel2.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
-            this.flowLayoutPanel2.Padding = new System.Windows.Forms.Padding(8);
-            this.flowLayoutPanel2.Size = new System.Drawing.Size(302, 197);
+            this.flowLayoutPanel2.Padding = new System.Windows.Forms.Padding(10, 10, 10, 10);
+            this.flowLayoutPanel2.Size = new System.Drawing.Size(378, 247);
             this.flowLayoutPanel2.TabIndex = 4;
             // 
             // group_importOptions
@@ -105,10 +107,11 @@
             this.group_importOptions.Controls.Add(this.check_importConfig);
             this.group_importOptions.Controls.Add(this.check_importGestures);
             this.group_importOptions.Controls.Add(this.combo_importGesturesOption);
-            this.group_importOptions.Location = new System.Drawing.Point(11, 57);
-            this.group_importOptions.Margin = new System.Windows.Forms.Padding(3, 16, 3, 3);
+            this.group_importOptions.Location = new System.Drawing.Point(14, 73);
+            this.group_importOptions.Margin = new System.Windows.Forms.Padding(4, 20, 4, 4);
             this.group_importOptions.Name = "group_importOptions";
-            this.group_importOptions.Size = new System.Drawing.Size(274, 90);
+            this.group_importOptions.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.group_importOptions.Size = new System.Drawing.Size(342, 112);
             this.group_importOptions.TabIndex = 4;
             this.group_importOptions.TabStop = false;
             this.group_importOptions.Text = "导入方式";
@@ -117,9 +120,10 @@
             // check_importConfig
             // 
             this.check_importConfig.AutoSize = true;
-            this.check_importConfig.Location = new System.Drawing.Point(17, 58);
+            this.check_importConfig.Location = new System.Drawing.Point(21, 72);
+            this.check_importConfig.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.check_importConfig.Name = "check_importConfig";
-            this.check_importConfig.Size = new System.Drawing.Size(126, 16);
+            this.check_importConfig.Size = new System.Drawing.Size(170, 24);
             this.check_importConfig.TabIndex = 2;
             this.check_importConfig.Text = "导入WGestures选项";
             this.check_importConfig.UseVisualStyleBackColor = true;
@@ -128,9 +132,10 @@
             // check_importGestures
             // 
             this.check_importGestures.AutoSize = true;
-            this.check_importGestures.Location = new System.Drawing.Point(17, 27);
+            this.check_importGestures.Location = new System.Drawing.Point(21, 34);
+            this.check_importGestures.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.check_importGestures.Name = "check_importGestures";
-            this.check_importGestures.Size = new System.Drawing.Size(72, 16);
+            this.check_importGestures.Size = new System.Drawing.Size(91, 24);
             this.check_importGestures.TabIndex = 2;
             this.check_importGestures.Text = "导入手势";
             this.check_importGestures.UseVisualStyleBackColor = true;
@@ -144,9 +149,10 @@
             this.combo_importGesturesOption.Items.AddRange(new object[] {
             "合并现有手势",
             "替换现有手势"});
-            this.combo_importGesturesOption.Location = new System.Drawing.Point(95, 25);
+            this.combo_importGesturesOption.Location = new System.Drawing.Point(119, 31);
+            this.combo_importGesturesOption.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.combo_importGesturesOption.Name = "combo_importGesturesOption";
-            this.combo_importGesturesOption.Size = new System.Drawing.Size(152, 20);
+            this.combo_importGesturesOption.Size = new System.Drawing.Size(189, 28);
             this.combo_importGesturesOption.TabIndex = 1;
             this.combo_importGesturesOption.SelectedIndexChanged += new System.EventHandler(this.combo_importGesturesOption_SelectedIndexChanged);
             // 
@@ -155,19 +161,20 @@
             this.flowAlert.AutoSize = true;
             this.flowAlert.Controls.Add(this.pictureBox1);
             this.flowAlert.Controls.Add(this.lb_errMsg);
-            this.flowAlert.Location = new System.Drawing.Point(11, 158);
-            this.flowAlert.Margin = new System.Windows.Forms.Padding(3, 8, 3, 3);
+            this.flowAlert.Location = new System.Drawing.Point(14, 199);
+            this.flowAlert.Margin = new System.Windows.Forms.Padding(4, 10, 4, 4);
             this.flowAlert.Name = "flowAlert";
-            this.flowAlert.Size = new System.Drawing.Size(57, 21);
+            this.flowAlert.Size = new System.Drawing.Size(75, 28);
             this.flowAlert.TabIndex = 8;
             this.flowAlert.Visible = false;
             // 
             // pictureBox1
             // 
             this.pictureBox1.Image = global::WGestures.App.Properties.Resources.Alert;
-            this.pictureBox1.Location = new System.Drawing.Point(3, 3);
+            this.pictureBox1.Location = new System.Drawing.Point(4, 4);
+            this.pictureBox1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(16, 15);
+            this.pictureBox1.Size = new System.Drawing.Size(20, 19);
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pictureBox1.TabIndex = 6;
             this.pictureBox1.TabStop = false;
@@ -177,10 +184,10 @@
             this.lb_errMsg.AutoSize = true;
             this.lb_errMsg.ForeColor = System.Drawing.Color.Red;
             this.lb_errMsg.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.lb_errMsg.Location = new System.Drawing.Point(25, 3);
-            this.lb_errMsg.Margin = new System.Windows.Forms.Padding(3);
+            this.lb_errMsg.Location = new System.Drawing.Point(32, 4);
+            this.lb_errMsg.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.lb_errMsg.Name = "lb_errMsg";
-            this.lb_errMsg.Size = new System.Drawing.Size(29, 12);
+            this.lb_errMsg.Size = new System.Drawing.Size(39, 20);
             this.lb_errMsg.TabIndex = 4;
             this.lb_errMsg.Text = "错误";
             // 
@@ -192,20 +199,20 @@
             this.flowLayoutPanel4.Controls.Add(this.btnCancel);
             this.flowLayoutPanel4.Controls.Add(this.btnOk);
             this.flowLayoutPanel4.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.flowLayoutPanel4.Location = new System.Drawing.Point(0, 197);
-            this.flowLayoutPanel4.Margin = new System.Windows.Forms.Padding(8, 18, 8, 8);
+            this.flowLayoutPanel4.Location = new System.Drawing.Point(0, 247);
+            this.flowLayoutPanel4.Margin = new System.Windows.Forms.Padding(10, 22, 10, 10);
             this.flowLayoutPanel4.Name = "flowLayoutPanel4";
-            this.flowLayoutPanel4.Padding = new System.Windows.Forms.Padding(6);
+            this.flowLayoutPanel4.Padding = new System.Windows.Forms.Padding(8, 8, 8, 8);
             this.flowLayoutPanel4.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.flowLayoutPanel4.Size = new System.Drawing.Size(302, 42);
+            this.flowLayoutPanel4.Size = new System.Drawing.Size(378, 52);
             this.flowLayoutPanel4.TabIndex = 6;
             // 
             // btnCancel
             // 
-            this.btnCancel.Location = new System.Drawing.Point(216, 8);
-            this.btnCancel.Margin = new System.Windows.Forms.Padding(2, 2, 10, 2);
+            this.btnCancel.Location = new System.Drawing.Point(270, 10);
+            this.btnCancel.Margin = new System.Windows.Forms.Padding(2, 2, 12, 2);
             this.btnCancel.Name = "btnCancel";
-            this.btnCancel.Size = new System.Drawing.Size(72, 26);
+            this.btnCancel.Size = new System.Drawing.Size(90, 32);
             this.btnCancel.TabIndex = 3;
             this.btnCancel.Text = "取消";
             this.btnCancel.UseVisualStyleBackColor = true;
@@ -214,10 +221,10 @@
             // btnOk
             // 
             this.btnOk.Enabled = false;
-            this.btnOk.Location = new System.Drawing.Point(132, 8);
+            this.btnOk.Location = new System.Drawing.Point(166, 10);
             this.btnOk.Margin = new System.Windows.Forms.Padding(2);
             this.btnOk.Name = "btnOk";
-            this.btnOk.Size = new System.Drawing.Size(72, 26);
+            this.btnOk.Size = new System.Drawing.Size(90, 32);
             this.btnOk.TabIndex = 4;
             this.btnOk.Text = "导入";
             this.btnOk.UseVisualStyleBackColor = true;
@@ -231,14 +238,16 @@
             // 
             // ImportForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(120F, 120F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(302, 239);
+            this.ClientSize = new System.Drawing.Size(378, 299);
             this.Controls.Add(this.flowLayoutPanel2);
             this.Controls.Add(this.flowLayoutPanel4);
+            this.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "ImportForm";

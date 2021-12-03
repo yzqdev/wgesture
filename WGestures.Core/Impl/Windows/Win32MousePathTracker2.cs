@@ -376,7 +376,7 @@ namespace WGestures.Core.Impl.Windows
             if( HandleSpecialButtonCombination(e) ) return;
             if (_isPaused) return;
 
-            var mouseData = (Native.MSLLHOOKSTRUCT)Marshal.PtrToStructure(e.lParam, typeof(Native.MSLLHOOKSTRUCT));
+            var mouseData = Marshal.PtrToStructure<Native.MSLLHOOKSTRUCT>(e.lParam);
             //fixme: 判断是否在模拟事件， 为什么不一定可靠？
             if (_simulatingInput || mouseData.dwExtraInfo.ToInt64() == SIMULATED_EVENT_TAG)
             {

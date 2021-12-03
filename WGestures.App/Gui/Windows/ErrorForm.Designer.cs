@@ -39,6 +39,7 @@
             this.flowLayoutPanel3 = new System.Windows.Forms.FlowLayoutPanel();
             this.label1 = new System.Windows.Forms.Label();
             this.tb_mail = new System.Windows.Forms.TextBox();
+            this.copy_error = new System.Windows.Forms.Button();
             this.flowLayoutPanel1.SuspendLayout();
             this.flowLayoutPanel2.SuspendLayout();
             this.flowLayoutPanel4.SuspendLayout();
@@ -48,7 +49,7 @@
             // 
             // lb_Message
             // 
-            this.lb_Message.Font = new System.Drawing.Font("Microsoft YaHei", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lb_Message.Font = new System.Drawing.Font("微软雅黑", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.lb_Message.ForeColor = System.Drawing.Color.Red;
             this.lb_Message.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.lb_Message.Location = new System.Drawing.Point(79, 0);
@@ -68,7 +69,7 @@
             this.tb_Detail.Multiline = true;
             this.tb_Detail.Name = "tb_Detail";
             this.tb_Detail.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.tb_Detail.Size = new System.Drawing.Size(381, 174);
+            this.tb_Detail.Size = new System.Drawing.Size(798, 399);
             this.tb_Detail.TabIndex = 1;
             // 
             // flowLayoutPanel1
@@ -77,16 +78,16 @@
             this.flowLayoutPanel1.BackColor = System.Drawing.SystemColors.ButtonFace;
             this.flowLayoutPanel1.Controls.Add(this.btn_close);
             this.flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
-            this.flowLayoutPanel1.Location = new System.Drawing.Point(0, 305);
+            this.flowLayoutPanel1.Location = new System.Drawing.Point(4, 534);
             this.flowLayoutPanel1.Margin = new System.Windows.Forms.Padding(0, 12, 0, 0);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
             this.flowLayoutPanel1.Padding = new System.Windows.Forms.Padding(8);
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(391, 50);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(801, 50);
             this.flowLayoutPanel1.TabIndex = 2;
             // 
             // btn_close
             // 
-            this.btn_close.Location = new System.Drawing.Point(285, 9);
+            this.btn_close.Location = new System.Drawing.Point(695, 9);
             this.btn_close.Margin = new System.Windows.Forms.Padding(1);
             this.btn_close.Name = "btn_close";
             this.btn_close.Size = new System.Drawing.Size(89, 30);
@@ -107,7 +108,7 @@
             this.flowLayoutPanel2.Margin = new System.Windows.Forms.Padding(2);
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
             this.flowLayoutPanel2.Padding = new System.Windows.Forms.Padding(3);
-            this.flowLayoutPanel2.Size = new System.Drawing.Size(391, 300);
+            this.flowLayoutPanel2.Size = new System.Drawing.Size(806, 525);
             this.flowLayoutPanel2.TabIndex = 3;
             // 
             // flowLayoutPanel4
@@ -135,16 +136,17 @@
             // 
             this.flowLayoutPanel3.Controls.Add(this.label1);
             this.flowLayoutPanel3.Controls.Add(this.tb_mail);
+            this.flowLayoutPanel3.Controls.Add(this.copy_error);
             this.flowLayoutPanel3.Location = new System.Drawing.Point(5, 87);
             this.flowLayoutPanel3.Margin = new System.Windows.Forms.Padding(2, 7, 2, 2);
             this.flowLayoutPanel3.Name = "flowLayoutPanel3";
-            this.flowLayoutPanel3.Size = new System.Drawing.Size(379, 32);
+            this.flowLayoutPanel3.Size = new System.Drawing.Size(487, 32);
             this.flowLayoutPanel3.TabIndex = 2;
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Microsoft YaHei", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label1.Font = new System.Drawing.Font("微软雅黑", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.label1.ForeColor = System.Drawing.SystemColors.WindowFrame;
             this.label1.Location = new System.Drawing.Point(1, 0);
             this.label1.Margin = new System.Windows.Forms.Padding(1, 0, 1, 0);
@@ -158,7 +160,7 @@
             // 
             this.tb_mail.BackColor = System.Drawing.SystemColors.ButtonHighlight;
             this.tb_mail.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.tb_mail.Font = new System.Drawing.Font("Microsoft YaHei", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.tb_mail.Font = new System.Drawing.Font("微软雅黑", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.tb_mail.ForeColor = System.Drawing.Color.DodgerBlue;
             this.tb_mail.HideSelection = false;
             this.tb_mail.Location = new System.Drawing.Point(184, 2);
@@ -167,8 +169,18 @@
             this.tb_mail.ReadOnly = true;
             this.tb_mail.Size = new System.Drawing.Size(193, 25);
             this.tb_mail.TabIndex = 1;
-            this.tb_mail.Text = "Ying@YingDev.com";
+            this.tb_mail.Text = "yzqdev@outlook.com";
             this.tb_mail.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // copy_error
+            // 
+            this.copy_error.Location = new System.Drawing.Point(382, 3);
+            this.copy_error.Name = "copy_error";
+            this.copy_error.Size = new System.Drawing.Size(91, 23);
+            this.copy_error.TabIndex = 2;
+            this.copy_error.Text = "复制错误信息";
+            this.copy_error.UseVisualStyleBackColor = true;
+            this.copy_error.Click += new System.EventHandler(this.copy_error_Click);
             // 
             // ErrorForm
             // 
@@ -177,10 +189,10 @@
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(391, 353);
+            this.ClientSize = new System.Drawing.Size(812, 593);
             this.Controls.Add(this.flowLayoutPanel2);
             this.Controls.Add(this.flowLayoutPanel1);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(1);
             this.MaximizeBox = false;
@@ -214,5 +226,6 @@
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel4;
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.TextBox tb_mail;
+        private System.Windows.Forms.Button copy_error;
     }
 }
