@@ -13,6 +13,7 @@ using WGestures.Common.OsSpecific.Windows;
 using Win32;
 using Screen = WGestures.Common.OsSpecific.Windows.Screen;
 using ThreadState = System.Diagnostics.ThreadState;
+using WindowsInput.Events;
 
 namespace WGestures.Core.Commands.Impl
 {
@@ -21,21 +22,25 @@ namespace WGestures.Core.Commands.Impl
     {
         public HotKeyCommand()
         {
-            Modifiers = new List<VirtualKeyCode>();
-            Keys = new List<VirtualKeyCode>();
+            Modifiers = new List<KeyCode>();
+            Keys = new List<KeyCode>();
         }
 
-        public List<VirtualKeyCode> Modifiers { get; set; }
+        public List<KeyCode> Modifiers { get; set; }
 
-        public List<VirtualKeyCode> Keys { get; set; }
+        public List<KeyCode> Keys { get; set; }
 
-
+        /// <summary>
+        /// 执行快捷键
+        /// </summary>
         public override void Execute()
         {
-            if (Keys.Count + Modifiers.Count == 0) return;
 
-            if (Keys.Count == 1 && (Keys[0] == VirtualKeyCode.VK_L) &&
-                Modifiers.Count == 1 && (Modifiers[0] == VirtualKeyCode.LWIN || Modifiers[0] == VirtualKeyCode.RWIN))
+           
+            if (Keys.Count + Modifiers.Count == 0) return;
+            //锁定windows(锁屏)
+            if (Keys.Count == 1 && (Keys[0] == KeyCode.L) &&
+                Modifiers.Count == 1 && (Modifiers[0] == KeyCode.LWin || Modifiers[0] == KeyCode.RWin))
             {
                 User32.LockWorkStation();
                 return;
@@ -104,18 +109,19 @@ namespace WGestures.Core.Commands.Impl
             Debug.WriteLine("pid=" + pid);
 
             //失败可能原因之一：被杀毒软件或系统拦截
-
+            Debug.WriteLine("第一个按键=" + String.Join(",", Modifiers.ToArray()));
+            Debug.WriteLine("第二个按键=" + String.Join(",", Keys.ToArray()));
             try
             {
                 foreach (var k in Modifiers)
                 {
-                    Debug.Write(k);
+                    Debug.WriteLine("modifier"+k);
                     PerformKey(pid, fgThread, k);
                 }
 
                 foreach (var k in Keys)
                 {
-                    Debug.Write(k);
+                    Debug.WriteLine("keys="+k);
                     PerformKey(pid, fgThread, k);
                 }
 
@@ -129,7 +135,7 @@ namespace WGestures.Core.Commands.Impl
 
                 foreach (var k in Modifiers)
                 {
-                    Debug.Write(k + " Up:");
+                    Debug.WriteLine(k + " Up:");
 
                     PerformKey(pid, fgThread, k, true);
                 }
@@ -155,8 +161,14 @@ namespace WGestures.Core.Commands.Impl
 
             return (int)User32.WS.WS_MINIMIZE == (style & (int)User32.WS.WS_MINIMIZE);
         }
-
-        private void PerformKey(uint pid, uint tid, VirtualKeyCode key, bool isUp = false)
+        /// <summary>
+        /// 执行按键命令
+        /// </summary>
+        /// <param name="pid">process id</param>
+        /// <param name="tid"></param>
+        /// <param name="key">按下的键的code</param>
+        /// <param name="isUp"></param>
+        private void PerformKey(uint pid, uint tid, KeyCode key, bool isUp = false)
         {
 
             //Native.WaitForInputIdle(pid, tid, 100);
@@ -230,8 +242,13 @@ namespace WGestures.Core.Commands.Impl
             if (windowThread != currentThread)
                 User32.AttachThreadInput(windowThread, currentThread, false);
         }
-
-        public static string HotKeyToString(ICollection<VirtualKeyCode> modifiers, ICollection<VirtualKeyCode> keys)
+        /// <summary>
+        /// 这里传入modifier和key(入口)
+        /// </summary>
+        /// <param name="modifiers"></param>
+        /// <param name="keys"></param>
+        /// <returns></returns>
+        public static string HotKeyToString(ICollection<KeyCode> modifiers, ICollection<KeyCode> keys)
         {
             if (keys.Count != 0 || modifiers.Count != 0)
             {
@@ -241,23 +258,23 @@ namespace WGestures.Core.Commands.Impl
                     string str = "";
                     switch (k)
                     {
-                        case VirtualKeyCode.MENU:
-                        case VirtualKeyCode.RMENU:
-                        case VirtualKeyCode.LMENU:
+                        case KeyCode.Menu:
+                        case KeyCode.RMenu:
+                        case KeyCode.LMenu:
                             str = "Alt";
                             break;
-                        case VirtualKeyCode.LCONTROL:
-                        case VirtualKeyCode.RCONTROL:
-                        case VirtualKeyCode.CONTROL:
+                        case KeyCode.LControl:
+                        case KeyCode.RControl:
+                        case KeyCode.Control:
                             str = "Ctrl";
                             break;
-                        case VirtualKeyCode.RWIN:
-                        case VirtualKeyCode.LWIN:
+                        case KeyCode.RWin:
+                        case KeyCode.LWin:
                             str = "Win";
                             break;
-                        case VirtualKeyCode.SHIFT:
-                        case VirtualKeyCode.LSHIFT:
-                        case VirtualKeyCode.RSHIFT:
+                        case KeyCode.Shift:
+                        case KeyCode.LShift:
+                        case KeyCode.RShift:
                             str = "Shift";
                             break;
                         default:

@@ -9,6 +9,7 @@ using WGestures.Common.OsSpecific.Windows;
 using Timer = System.Windows.Forms.Timer;
 using Microsoft.Win32;
 using System.Web;
+using WindowsInput.Events;
 
 namespace WGestures.Core.Commands.Impl {
     [Named("Web搜索"), Serializable]
@@ -53,17 +54,17 @@ namespace WGestures.Core.Commands.Impl {
 
                     try
                     {
-                        Sim.KeyDown(VirtualKeyCode.CONTROL);
-                        Sim.KeyDown(VirtualKeyCode.VK_C);
+                        Sim.KeyDown(KeyCode.Control);
+                        Sim.KeyDown(KeyCode.C);
                         
-                        Sim.KeyUp(VirtualKeyCode.VK_C);
-                        Sim.KeyUp(VirtualKeyCode.CONTROL);
-                        //_sim.Keyboard.ModifiedKeyStroke(VirtualKeyCode.CONTROL, new[] { VirtualKeyCode.VK_C });
+                        Sim.KeyUp(KeyCode.C);
+                        Sim.KeyUp(KeyCode.Control);
+                        //_sim.Keyboard.ModifiedKeyStroke(KeyCode.Control, new[] { KeyCode.VK_C });
                     }
                     catch (Exception ex)
                     {
                         Debug.WriteLine("发送按键失败:" + ex);
-                        Native.TryResetKeys(new []{VirtualKeyCode.CONTROL, VirtualKeyCode.VK_C});
+                        Native.TryResetKeys(new []{KeyCode.Control, KeyCode.C});
 #if DEBUG
                         //throw;
 #endif

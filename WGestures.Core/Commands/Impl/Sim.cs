@@ -3,32 +3,33 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using WindowsInput;
+using WindowsInput.Events;
 using WindowsInput.Native;
 
 namespace WGestures.Core.Commands.Impl
 {
     static internal class Sim
     {
-        public static InputSimulator Simulator = new InputSimulator() { ExtraInfo = new IntPtr(19900620) };
+         
 
-        public static void KeyDown(VirtualKeyCode k)
+        public static void KeyDown(KeyCode k)
         {
-            Simulator.Keyboard.KeyDown(k);
+            EventBuilder.Create().Release(k).Invoke();
         }
 
-        public static void KeyUp(VirtualKeyCode k)
+        public static void KeyUp(KeyCode k)
         {
-            Simulator.Keyboard.KeyUp(k);
+            EventBuilder.Create().Release(k).Invoke();
         }
 
-        public static void KeyPress(VirtualKeyCode k)
+        public static void KeyPress(KeyCode k)
         {
-            Simulator.Keyboard.KeyPress(k);
+            EventBuilder.Create().Click(k).Invoke();
         }
 
         public static void TextEntry(string s)
         {
-            Simulator.Keyboard.TextEntry(s);
+            EventBuilder.Create().Click(s).Invoke();
         }
     }
 }

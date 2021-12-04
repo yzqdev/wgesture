@@ -237,7 +237,10 @@ namespace WGestures.Core
             return gestureChanged;
         }
 
-        //决定是否应该开始路径
+        /// <summary>
+        /// 决定是否应该开始路径
+        /// </summary>
+        /// <param name="args"></param>
         private void PathTrackerOnBeforePathStart(BeforePathStartEventArgs args)
         {
             if (IsInCaptureMode) return;
@@ -279,7 +282,7 @@ namespace WGestures.Core
 
             if (_effectiveIntent != null)
             {
-                Debug.WriteLine("Call IntentRecognized");
+                Debug.WriteLine("Call IntentRecognized(识别手势)");
                 if (IntentRecognized != null) IntentRecognized(_effectiveIntent);
             }
             else if (lastEffectiveIntent != null)
@@ -289,7 +292,10 @@ namespace WGestures.Core
 
             Debug.WriteLine("Gesture:" + _gesture);
         }
-
+        /// <summary>
+        /// 开始做手势执行
+        /// </summary>
+        /// <param name="args"></param>
         private void PathTrackerOnPathEnd(PathEventArgs args)
         {
             if (IsInCaptureMode)
@@ -380,7 +386,7 @@ namespace WGestures.Core
                     //todo: 这个逻辑似乎应该放在GestureIntent中
                     if (modifierStateAwareCommand != null)
                     {
-                        var shouldInit = modifierStateAwareCommand as INeedInit;
+                        INeedInit shouldInit = modifierStateAwareCommand as INeedInit;
                         if (shouldInit != null && !shouldInit.IsInitialized)
                         {
                             shouldInit.Init();
@@ -488,7 +494,7 @@ namespace WGestures.Core
 
         protected void OnIntentReadyToExecute(GestureIntent intent)
         {
-            if (IntentReadyToExecute != null) IntentReadyToExecute(intent);
+            if (IntentReadyToExecute != null) { IntentReadyToExecute(intent); }
         }
 
         protected void OnIntentReadyToExecuteOnModifier(GestureModifier modifier)

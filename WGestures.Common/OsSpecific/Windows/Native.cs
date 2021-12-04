@@ -14,6 +14,7 @@ using WindowsInput.Native;
 using Win32;
 using ThreadState = System.Diagnostics.ThreadState;
 using System.IO;
+using WindowsInput.Events;
 
 namespace WGestures.Common.OsSpecific.Windows
 {
@@ -396,7 +397,7 @@ namespace WGestures.Common.OsSpecific.Windows
         /// </summary>
         /// <param name="c"></param>
         /// <param name="allKeys"></param>
-        public static void TryResetKeys(params IEnumerable<VirtualKeyCode>[] allKeys)
+        public static void TryResetKeys(params IEnumerable<KeyCode>[] allKeys)
         {
             var dummyWnd = new NativeWindow();
 
@@ -406,15 +407,15 @@ namespace WGestures.Common.OsSpecific.Windows
                 dummyWnd.CreateHandle(new CreateParams(){ExStyle = (int) (User32.WS_EX.WS_EX_LAYERED | User32.WS_EX.WS_EX_TOOLWINDOW)});
                 User32.ShowWindow(dummyWnd.Handle, User32.SW.SW_SHOWNORMAL);
 
-                var sim = new InputSimulator() { ExtraInfo = new IntPtr(19900620) };
-                sim.Keyboard.Sleep(10);
+                var sim = EventBuilder.Create();
+                sim.Wait(10);
 
                 foreach (var keys in allKeys)
                 {
                      foreach (var k in keys)
                     {
                         User32.SetForegroundWindow(dummyWnd.Handle);
-                        sim.Keyboard.KeyUp(k);
+                        sim.Click(k).Invoke();
                     }
                 }
 
@@ -811,7 +812,12 @@ namespace WGestures.Common.OsSpecific.Windows
 
         [DllImport("user32.dll")]
         public static extern IntPtr GetForegroundWindow();
-
+        /// <summary>
+        /// 获取进程pid
+        /// </summary>
+        /// <param name="hWnd"></param>
+        /// <param name="lpdwProcessId"></param>
+        /// <returns></returns>
         [DllImport("user32.dll")]
         public static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
 

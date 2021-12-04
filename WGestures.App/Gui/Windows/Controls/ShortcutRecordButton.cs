@@ -6,6 +6,8 @@ using System.Text;
 using System.Windows.Forms;
 using WGestures.Common.OsSpecific.Windows;
 using Win32;
+using WindowsInput;
+using WindowsInput.Events;
 using WindowsInput.Native;
 
 namespace WGestures.App.Gui.Windows.Controls
@@ -14,23 +16,23 @@ namespace WGestures.App.Gui.Windows.Controls
     {
         internal class ShortcutRecordEventArgs : EventArgs
         {
-            public IList<VirtualKeyCode> Modifiers { get; set; }
-            public IList<VirtualKeyCode> Keys { get; set; }
+            public IList<KeyCode> Modifiers { get; set; }
+            public IList<KeyCode> Keys { get; set; }
         }
 
-        private static readonly VirtualKeyCode[] modifierKeys = { VirtualKeyCode.CONTROL, VirtualKeyCode.LCONTROL,VirtualKeyCode.RCONTROL,
-                                                                    VirtualKeyCode.MENU, VirtualKeyCode.LMENU,VirtualKeyCode.RMENU,
-                                                                    VirtualKeyCode.SHIFT, VirtualKeyCode.LSHIFT, VirtualKeyCode.RSHIFT,
-                                                                    VirtualKeyCode.RWIN, VirtualKeyCode.LWIN};
+        private static readonly KeyCode[] modifierKeys = { KeyCode.Control, KeyCode.LControl,KeyCode.RControl,
+                                                                    KeyCode.Menu, KeyCode.LMenu,KeyCode.RMenu,
+                                                                    KeyCode.Shift, KeyCode.LShift, KeyCode.RShift,
+                                                                    KeyCode.RWin, KeyCode.LWin};
 
         public event EventHandler BeginRecord;
         public event EventHandler<ShortcutRecordEventArgs> EndRecord;
 
         private GlobalKeyboardHook hook = new GlobalKeyboardHook();
 
-        private List<VirtualKeyCode> _keys = new List<VirtualKeyCode>();
-        private List<VirtualKeyCode> _modifiers = new List<VirtualKeyCode>();
-        private HashSet<VirtualKeyCode> _pressedKeys = new HashSet<VirtualKeyCode>();
+        private List<KeyCode> _keys = new List<KeyCode>();
+        private List<KeyCode> _modifiers = new List<KeyCode>();
+        private HashSet<KeyCode> _pressedKeys = new HashSet<KeyCode>();
 
         private bool _isRecording;
         private string _oldText;
@@ -68,9 +70,9 @@ namespace WGestures.App.Gui.Windows.Controls
         {
             args.Handled = true;
 
-            if (!Enum.IsDefined(typeof(VirtualKeyCode), args.KeyValue)) return;
+            if (!Enum.IsDefined(typeof(KeyCode), args.KeyValue)) return;
 
-            var key = (VirtualKeyCode)args.KeyValue;
+            var key = (KeyCode)args.KeyValue;
             if (!_pressedKeys.Add(key)) return;
 
             if (modifierKeys.Contains(key) && !_modifiers.Contains(key))
@@ -88,9 +90,9 @@ namespace WGestures.App.Gui.Windows.Controls
             args.Handled = true;
             if (args.KeyValue == _lastKey) _lastKey = -1;
 
-            if (Enum.IsDefined(typeof(VirtualKeyCode), args.KeyValue))
+            if (Enum.IsDefined(typeof(KeyCode), args.KeyValue))
             {
-                var key = (VirtualKeyCode)args.KeyValue;
+                var key = (KeyCode)args.KeyValue;
 
                 if (_modifiers.Contains(key) || _keys.Contains(key))
                 {
@@ -144,7 +146,7 @@ namespace WGestures.App.Gui.Windows.Controls
 
         }
 
-        public static string HotKeyToString(IList<VirtualKeyCode> modifiers, IList<VirtualKeyCode> keys)
+        public static string HotKeyToString(IList<KeyCode> modifiers, IList<KeyCode> keys)
         {
             if (keys.Count != 0 || modifiers.Count != 0)
             {
@@ -154,23 +156,23 @@ namespace WGestures.App.Gui.Windows.Controls
                     string str = "";
                     switch (k)
                     {
-                        case VirtualKeyCode.MENU:
-                        case VirtualKeyCode.RMENU:
-                        case VirtualKeyCode.LMENU:
+                        case KeyCode.Menu:
+                        case KeyCode.RMenu:
+                        case KeyCode.LMenu:
                             str = "Alt";
                             break;
-                        case VirtualKeyCode.LCONTROL:
-                        case VirtualKeyCode.RCONTROL:
-                        case VirtualKeyCode.CONTROL:
+                        case KeyCode.LControl:
+                        case KeyCode.RControl:
+                        case KeyCode.Control:
                             str = "Ctrl";
                             break;
-                        case VirtualKeyCode.RWIN:
-                        case VirtualKeyCode.LWIN:
+                        case KeyCode.RWin:
+                        case KeyCode.LWin:
                             str = "Win";
                             break;
-                        case VirtualKeyCode.SHIFT:
-                        case VirtualKeyCode.LSHIFT:
-                        case VirtualKeyCode.RSHIFT:
+                        case KeyCode.Shift:
+                        case KeyCode.LShift:
+                        case KeyCode.RShift:
                             str = "Shift";
                             break;
                         default:

@@ -11,6 +11,7 @@ using WindowsInput.Native;
 using WGestures.Common.Annotation;
 using WGestures.Common.OsSpecific.Windows;
 using Win32;
+using WindowsInput.Events;
 
 namespace WGestures.Core.Commands.Impl
 {
@@ -23,17 +24,17 @@ namespace WGestures.Core.Commands.Impl
 
             try
             {
-                Sim.KeyDown(VirtualKeyCode.LMENU);
+                Sim.KeyDown(KeyCode.LMenu);
 
                 //Thread.Sleep(50);
-                Sim.KeyDown(VirtualKeyCode.TAB);
+                Sim.KeyDown(KeyCode.Tab);
 
                 //如果不延迟，foxitreader等ctrl+C可能失效！
                 Thread.Sleep(20);
 
-                Sim.KeyUp(VirtualKeyCode.TAB);
+                Sim.KeyUp(KeyCode.Tab);
 
-                Sim.KeyUp(VirtualKeyCode.LMENU);
+                Sim.KeyUp(KeyCode.LMenu);
             }
             catch (Exception ex)
             {
@@ -56,8 +57,8 @@ namespace WGestures.Core.Commands.Impl
 
             try
             {
-                Sim.KeyDown(VirtualKeyCode.LMENU);
-                Sim.KeyPress(VirtualKeyCode.TAB);
+                Sim.KeyDown(KeyCode.LMenu);
+                Sim.KeyPress(KeyCode.Tab);
 
 
             }
@@ -79,7 +80,7 @@ namespace WGestures.Core.Commands.Impl
         {
             try
             {
-                Sim.KeyUp(VirtualKeyCode.LMENU);
+                Sim.KeyUp(KeyCode.LMenu);
 
             }
             catch (Exception ex)
@@ -94,7 +95,7 @@ namespace WGestures.Core.Commands.Impl
         private void TryRecoverAltTab()
         {
             Debug.WriteLine("尝试恢复Alt Tab的状态...");
-            Native.TryResetKeys(new []{VirtualKeyCode.LMENU, VirtualKeyCode.TAB });
+            Native.TryResetKeys(new []{KeyCode.LMenu, KeyCode.Tab});
         }
     }
 }

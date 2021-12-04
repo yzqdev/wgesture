@@ -6,6 +6,7 @@ using NLua.Event;
 using System.Diagnostics;
 using Newtonsoft.Json;
 using System.Windows.Forms;
+using WindowsInput.Events;
 
 namespace WGestures.Core.Commands.Impl
 {
@@ -66,11 +67,11 @@ namespace WGestures.Core.Commands.Impl
                               luanet.load_assembly('WGestures.Common');
 
                               GestureModifier=luanet.import_type('WGestures.Core.GestureModifier');  
-                              VK=luanet.import_type('WindowsInput.Native.VirtualKeyCode');
+                              VK=luanet.import_type('WindowsInput.Native.KeyCode');
                               Native=luanet.import_type('WGestures.Common.OsSpecific.Windows.Native');
                             ", "_init");
 
-            _state["Input"] = Sim.Simulator;
+            _state["Input"] = EventBuilder.Create();
             _state.RegisterFunction("ReportStatus", this, typeof(ScriptCommand).GetMethod("OnReportStatus"));
 
             if(InitScript != null)
