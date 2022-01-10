@@ -152,6 +152,12 @@
 	  <Content Include="QuickStartGuide\**\*.*">
 		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </Content>
+     
+	  <Content Include="Gui\Windows\QuickStartGuideForm.cs" />
+     
+	  <Content Include="Gui\Windows\QuickStartGuideForm.Designer.cs" />
+     
+	  <Content Include="Gui\Windows\QuickStartGuideForm.resx" />
 	  <Content Include="UpdateLog.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

@@ -38,6 +38,6 @@
     <PackageReference Include="Newtonsoft.Json">
       <Version>13.0.1</Version>
     </PackageReference>
-   
+	  <PackageReference Include="WindowsInput" Version="6.3.0" />
   </ItemGroup>
 </Project>
