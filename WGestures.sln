@@ -11,10 +11,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WGestures.Core", "WGestures
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WGestures.View", "WGestures.View\WGestures.View.csproj", "{62FB7A5C-E917-4405-942C-677A265685D6}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Main", "Main", "{2283FEDE-3BE7-4E4F-9885-C07036363485}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3rd", "3rd", "{6FDCF571-C9AF-4416-8C68-661F3E66FE6D}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NativeMultiFileArchiveLib", "NativeMultiFileArchiveLib\NativeMultiFileArchiveLib.csproj", "{457BBCAF-3F8C-4F65-B34E-547F57A0D877}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{CF776B5D-1088-47F3-BD2D-1274CC5941AA}"

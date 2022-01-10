@@ -32,9 +32,9 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="NLua">
-      <Version>1.6.0</Version>
+      <Version>1.5.9</Version>
     </PackageReference>
-    <PackageReference Include="WindowsInput" Version="6.3.0" />
+     
   </ItemGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net6.0-windows|AnyCPU'">
     <WarningLevel>3</WarningLevel>
