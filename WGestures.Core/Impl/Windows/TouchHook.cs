@@ -15,6 +15,7 @@ using System.ComponentModel;
 using System.Reflection;
 using TCD.System.TouchInjection;
 using System.Drawing;
+using WindowsInput.Events;
 
 namespace WGestures.Core.Impl.Windows
 {
@@ -86,8 +87,8 @@ namespace WGestures.Core.Impl.Windows
 
                 Native.MSG msg;
                 int ret;
-                
-                var sim = new InputSimulator();
+
+                var sim = EventBuilder.Create();
 
                 TouchInjector.InitializeTouchInjection();
                 var screenBounds = Rectangle.Empty;
@@ -126,7 +127,7 @@ namespace WGestures.Core.Impl.Windows
                                     User32.SetCursorPos(pos.X, pos.Y);
                                 }
                                 screenBounds = Native.GetScreenBounds();
-                                sim.Keyboard.KeyDown(WindowsInput.Native.VirtualKeyCode.LWIN);
+                                sim.Click( KeyCode.LWin).Invoke();
                                 continue;
                             }
                             ConvertToNewTouchInfo(contacts, PointerFlags.DOWN | PointerFlags.INRANGE | PointerFlags.INCONTACT);
@@ -154,7 +155,7 @@ namespace WGestures.Core.Impl.Windows
                                 {
                                     var absX = pos.Value.X * (65535.0 / screenBounds.Width);
                                     var absY = pos.Value.Y * (65535.0 / screenBounds.Height);
-                                    sim.Mouse.MoveMouseTo(absX, absY);
+                                    sim.MoveTo((int)absX, (int)absY).Invoke();
                                 }
                                 continue;
                             }
@@ -172,7 +173,7 @@ namespace WGestures.Core.Impl.Windows
                             Debug.WriteLine("Touch Up");
                             if (contactCount == 3)
                             {
-                                sim.Keyboard.KeyUp(WindowsInput.Native.VirtualKeyCode.LWIN);
+                                sim.Click( KeyCode.LWin).Invoke();
                                 continue;
                             }
                             ConvertToNewTouchInfo(contacts, PointerFlags.UP);

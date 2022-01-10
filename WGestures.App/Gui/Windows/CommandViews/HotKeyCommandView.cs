@@ -8,21 +8,22 @@ using WindowsInput.Native;
 using WGestures.Common.OsSpecific.Windows;
 using WGestures.Core.Commands;
 using WGestures.Core.Commands.Impl;
+using WindowsInput.Events;
 
 namespace WGestures.App.Gui.Windows.CommandViews
 {
     public partial class HotKeyCommandView : CommandViewUserControl
     {
 
-        private static readonly VirtualKeyCode[] modifierKeys = { VirtualKeyCode.CONTROL, VirtualKeyCode.LCONTROL,VirtualKeyCode.RCONTROL, 
-                                                                    VirtualKeyCode.MENU, VirtualKeyCode.LMENU,VirtualKeyCode.RMENU, 
-                                                                    VirtualKeyCode.SHIFT, VirtualKeyCode.LSHIFT, VirtualKeyCode.RSHIFT, 
-                                                                    VirtualKeyCode.RWIN, VirtualKeyCode.LWIN};
+        private static readonly KeyCode[] modifierKeys = { KeyCode.Control, KeyCode.LControl,KeyCode.RControl, 
+                                                                    KeyCode.Menu, KeyCode.LMenu,KeyCode.RMenu, 
+                                                                    KeyCode.Shift, KeyCode.LShift, KeyCode.RShift, 
+                                                                    KeyCode.RWin, KeyCode.LWin};
 
 
-        private List<VirtualKeyCode> _keys = new List<VirtualKeyCode>();
-        private List<VirtualKeyCode> _modifiers = new List<VirtualKeyCode>();
-        private HashSet<VirtualKeyCode> _pressedKeys = new HashSet<VirtualKeyCode>(); 
+        private List<KeyCode> _keys = new List<KeyCode>();
+        private List<KeyCode> _modifiers = new List<KeyCode>();
+        private HashSet<KeyCode> _pressedKeys = new HashSet<KeyCode>(); 
 
         private GlobalKeyboardHook hook = new GlobalKeyboardHook();
 
@@ -50,9 +51,9 @@ namespace WGestures.App.Gui.Windows.CommandViews
         {
             args.Handled = true;
 
-            if (!Enum.IsDefined(typeof (VirtualKeyCode), args.KeyValue)) return;
+            if (!Enum.IsDefined(typeof (KeyCode), args.KeyValue)) return;
             
-            var key = (VirtualKeyCode)args.KeyValue;
+            var key = (KeyCode)args.KeyValue;
             if(!_pressedKeys.Add(key)) return;
                 
             if (modifierKeys.Contains(key) && !_modifiers.Contains(key))
@@ -70,9 +71,9 @@ namespace WGestures.App.Gui.Windows.CommandViews
             args.Handled = true;
             if(args.KeyValue == _lastKey) _lastKey = -1;
 
-            if (Enum.IsDefined(typeof(VirtualKeyCode), args.KeyValue))
+            if (Enum.IsDefined(typeof(KeyCode), args.KeyValue))
             {
-                var key = (VirtualKeyCode)args.KeyValue;
+                var key = (KeyCode)args.KeyValue;
 
                 if (_modifiers.Contains(key) || _keys.Contains(key))
                 {
@@ -134,7 +135,9 @@ namespace WGestures.App.Gui.Windows.CommandViews
 
             hook.hook();
         }
-
+        /// <summary>
+        /// 录入快捷键
+        /// </summary>
         private void EndRecord()
         {
             hook.unhook();

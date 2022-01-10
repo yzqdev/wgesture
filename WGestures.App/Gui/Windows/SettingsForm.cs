@@ -13,6 +13,7 @@ using WGestures.Common.Product;
 using WGestures.Core;
 using WGestures.Core.Commands;
 using WGestures.Core.Commands.Impl;
+using WindowsInput.Events;
 
 namespace WGestures.App.Gui.Windows {
     internal partial class SettingsForm : Form
@@ -195,24 +196,24 @@ namespace WGestures.App.Gui.Windows {
 
                     switch (k)
                     {
-                        case WindowsInput.Native.VirtualKeyCode.CONTROL:
-                        case WindowsInput.Native.VirtualKeyCode.LCONTROL:
-                        case WindowsInput.Native.VirtualKeyCode.RCONTROL:
+                        case KeyCode.Control:
+                        case KeyCode.LControl:
+                        case KeyCode.RControl:
                             hk.modifiers |= GlobalHotKeyManager.ModifierKeys.Control;
                             break;
-                        case WindowsInput.Native.VirtualKeyCode.MENU:
-                        case WindowsInput.Native.VirtualKeyCode.LMENU:
-                        case WindowsInput.Native.VirtualKeyCode.RMENU:
+                        case KeyCode.Menu:
+                        case KeyCode.LMenu:
+                        case KeyCode.RMenu:
                             hk.modifiers |= GlobalHotKeyManager.ModifierKeys.Alt;
                             break;
-                        case WindowsInput.Native.VirtualKeyCode.SHIFT:
-                        case WindowsInput.Native.VirtualKeyCode.LSHIFT:
-                        case WindowsInput.Native.VirtualKeyCode.RSHIFT:
+                        case KeyCode.Shift:
+                        case KeyCode.LShift:
+                        case KeyCode.RShift:
                             hk.modifiers |= GlobalHotKeyManager.ModifierKeys.Shift;
                             break;
 
-                        case WindowsInput.Native.VirtualKeyCode.LWIN:
-                        case WindowsInput.Native.VirtualKeyCode.RWIN:
+                        case KeyCode.LWin:
+                        case KeyCode.RWin:
                             hk.modifiers |= GlobalHotKeyManager.ModifierKeys.Win;
                             break;
                     }

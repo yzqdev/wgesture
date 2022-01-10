@@ -3,6 +3,7 @@ using WindowsInput;
 using WindowsInput.Native;
 using WGestures.Common.Annotation;
 using WGestures.Common.OsSpecific.Windows;
+using WindowsInput.Events;
 
 namespace WGestures.Core.Commands.Impl
 {
@@ -15,12 +16,12 @@ namespace WGestures.Core.Commands.Impl
         {
             try
             {
-                Sim.KeyPress(VirtualKeyCode.VOLUME_MUTE);
+                Sim.KeyPress(KeyCode.VolumeMute);
 
             }
             catch (Exception)
             {
-                Native.TryResetKeys(new[] { VirtualKeyCode.VOLUME_MUTE });
+                Native.TryResetKeys(new[] { KeyCode.VolumeMute });
             }
         }
 
@@ -28,13 +29,13 @@ namespace WGestures.Core.Commands.Impl
         {
             try
             {
-                Sim.KeyPress(VirtualKeyCode.VOLUME_UP);
-                Sim.KeyPress(VirtualKeyCode.VOLUME_DOWN);
+                Sim.KeyPress(KeyCode.VolumeUp);
+                Sim.KeyPress(KeyCode.VolumeDown);
             }
             catch (Exception)
             {
 
-                Native.TryResetKeys(new[] { VirtualKeyCode.VOLUME_UP, VirtualKeyCode.VOLUME_DOWN });
+                Native.TryResetKeys(new[] { KeyCode.VolumeUp, KeyCode.VolumeDown });
             }
 
 
@@ -50,22 +51,22 @@ namespace WGestures.Core.Commands.Impl
                 {
                     case GestureModifier.WheelForward:
                         ReportStatus("+");
-                        Delta.Times(() => Sim.KeyPress(VirtualKeyCode.VOLUME_UP));
+                        Delta.Times(() => Sim.KeyPress(KeyCode.VolumeUp));
                         break;
                     case GestureModifier.WheelBackward:
                         ReportStatus("-");
-                        Delta.Times(() => Sim.KeyPress(VirtualKeyCode.VOLUME_DOWN));
+                        Delta.Times(() => Sim.KeyPress(KeyCode.VolumeDown));
                         break;
                     case GestureModifier.MiddleButtonDown:
                         ReportStatus("x");
-                        Sim.KeyPress(VirtualKeyCode.VOLUME_MUTE);
+                        Sim.KeyPress(KeyCode.VolumeMute);
                         break;
 
                 }
             }
             catch (Exception)
             {
-                Native.TryResetKeys(new[] { VirtualKeyCode.VOLUME_UP, VirtualKeyCode.VOLUME_DOWN, VirtualKeyCode.VOLUME_MUTE });
+                Native.TryResetKeys(new[] { KeyCode.VolumeUp, KeyCode.VolumeDown, KeyCode.VolumeMute });
             }
 
         }

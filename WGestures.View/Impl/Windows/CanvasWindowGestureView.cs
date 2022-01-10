@@ -109,6 +109,7 @@ namespace WGestures.View.Impl.Windows
         Color _systemColor;
         Color _labelBgColor;
         bool _labelChanged;
+  
         GraphicsPath _labelPath = new GraphicsPath();
         Font _labelFont = new Font("微软雅黑", 32);
 
@@ -120,7 +121,7 @@ namespace WGestures.View.Impl.Windows
         const byte FadeOutDelta = 60;
         byte _canvasOpacity;
         #endregion
-
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         public CanvasWindowGestureView(GestureParser gestureParser)
         {
             _gestureParser = gestureParser;
@@ -163,7 +164,7 @@ namespace WGestures.View.Impl.Windows
 
             
         }
-
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         private void InitDefaultProperties()
         {
             //defaults
@@ -202,7 +203,7 @@ namespace WGestures.View.Impl.Windows
         {
             if (!ShowPath && !ShowCommandName) return;
             
-            Debug.WriteLine("WhenPathStart");
+            Debug.WriteLine("手势开始啦");
 
             _screenBounds = Screen.ScreenBoundsFromPoint(args.Location).Value;//Screen.FromPoint(args.Location);
            
@@ -267,7 +268,10 @@ namespace WGestures.View.Impl.Windows
 
             _prevPoint = curPos;//args.Location;//ToUpLeftCoord(args.Location);
         }
-
+        /// <summary>
+        /// 如果手势被识别
+        /// </summary>
+        /// <param name="intent"></param>
         private void HandleIntentRecognized(GestureIntent intent)
         {
             if (!ShowPath && !ShowCommandName) return;
@@ -297,6 +301,10 @@ namespace WGestures.View.Impl.Windows
         }
 
         //todo: 合并为IntentRecogChanged?
+        /// <summary>
+        /// 手势无法被识别
+        /// </summary>
+        /// <param name="gesture"></param>
         private void HandleIntentInvalid(Gesture gesture)
         {
             if (!ShowPath && !ShowCommandName) return;
@@ -337,7 +345,10 @@ namespace WGestures.View.Impl.Windows
             //if (ShowPath) ResetPathDirtyRect();
             EndView();
         }
-
+        /// <summary>
+        /// 手势等待执行
+        /// </summary>
+        /// <param name="intent"></param>
         private void HandleIntentReadyToExecute(GestureIntent intent)
         {
             if (!ShowPath && !ShowCommandName) return;
@@ -514,7 +525,7 @@ namespace WGestures.View.Impl.Windows
             #region 2) 绘制标签
             if (labelAffected) //ShowCommandName && _labelVisible)
             {
-                Debug.WriteLine("Label Redraw");
+                Debug.WriteLine("绘制标签");
                 using (var pen = new Pen(Color.White, 1.5f * _dpiFactor))
                 //using (var shadow = new Pen(Color.FromArgb(40, 0, 0, 0), 3f * _dpiFactor))
                 {
@@ -632,7 +643,12 @@ namespace WGestures.View.Impl.Windows
             _labelVisible = false;
             _labelChanged = true;
         }
-
+        /// <summary>
+        /// 显示提示框
+        /// </summary>
+        /// <param name="color">文字颜色</param>
+        /// <param name="text">文字</param>
+        /// <param name="bgColor">背景色</param>
         private void ShowLabel(Color color, string text, Color bgColor)
         {
             _labelVisible = true;
@@ -655,7 +671,9 @@ namespace WGestures.View.Impl.Windows
 
             _labelRect = RectangleF.Inflate(_labelPath.GetBounds(), 25 * _dpiFactor, 15 * _dpiFactor);
         }
-
+        /// <summary>
+        /// 注册手势事件
+        /// </summary>
         private void RegisterEventHandlers()
         {
             _gestureParser.IntentRecognized += HandleIntentRecognized;

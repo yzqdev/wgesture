@@ -114,12 +114,6 @@
     <ProjectReference Include="..\WGestures.Common\WGestures.Common.csproj" />
     <ProjectReference Include="..\WGestures.Core\WGestures.Core.csproj" />
     <ProjectReference Include="..\WGestures.View\WGestures.View.csproj" />
-    <ProjectReference Include="..\WindowsInput\WindowsInput.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Update="app.manifest">
-      <SubType>Designer</SubType>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\**\*.*" />
@@ -147,6 +141,12 @@
   </ItemGroup>
   
   <ItemGroup>
+	  <Content Include="defaults\config.plist">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="defaults\gestures.wg2">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
 	  <Content Include="externalResource\**\*.*" />
      
 	  <Content Include="QuickStartGuide\**\*.*">

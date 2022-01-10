@@ -7,7 +7,7 @@ using System.Linq;
 using Newtonsoft.Json;
 using WGestures.Core.Commands;
 
-//using Newtonsoft.Json;
+ 
 
 namespace WGestures.Core.Persistence.Impl
 {
