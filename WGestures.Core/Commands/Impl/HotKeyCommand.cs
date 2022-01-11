@@ -17,6 +17,9 @@ using WindowsInput.Events;
 
 namespace WGestures.Core.Commands.Impl
 {
+    /// <summary>
+    /// 执行快捷键
+    /// </summary>
     [Named("执行快捷键"), Serializable]
     public class HotKeyCommand : AbstractCommand, IGestureContextAware
     {

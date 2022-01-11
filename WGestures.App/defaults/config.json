@@ -1,9 +1,9 @@
 {
-  "$$FileVersion": "1",
+  "FileVersion": "1",
   "IsFirstRun": true,
   "AutoCheckForUpdate": false,
   "AutoStart": false,
-  "PathTrackerTriggerButton": 15,
+  "PathTrackerTriggerButton": 1,
   "PathTrackerStayTimeout": false,
   "PathTrackerInitialStayTimoutMillis": 200,
   "GestureViewMainPathColor": -14165512,

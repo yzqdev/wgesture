@@ -188,21 +188,24 @@ namespace WGestures.App {
         static void CheckAndDoFirstRunStuff()
         {
             //是否是第一次运行
-            var maybeFirstRun = config.Get<bool?>(ConfigKeys.IsFirstRun);
-            isFirstRun = !maybeFirstRun.HasValue || maybeFirstRun.Value;
+            bool isFirstRun = config.Dict.IsFirstRun;
+             
 
             if (isFirstRun)
             {
                 //默认值
-                config.Set(ConfigKeys.GestureParserEnableHotCorners, true);
-
+                //config.Set(ConfigKeys.GestureParserEnableHotCorners, true);
+                config.Dict.GestureParserEnableHotCorners = true;
                 ImportPrevousVersion();
 
                 //强制值
-                config.Set(ConfigKeys.IsFirstRun, false);
-                config.Set(ConfigKeys.AutoCheckForUpdate, true);
-                config.Set(ConfigKeys.AutoStart, true);
-                config.Set(ConfigKeys.PathTrackerTriggerButton, (int)(GestureTriggerButton.Right | GestureTriggerButton.Middle | GestureTriggerButton.X));
+                config.Dict.IsFirstRun = false;
+                //config.Set(ConfigKeys.IsFirstRun, false);
+                config.Dict.AutoCheckForUpdate = true;
+                //config.Set(ConfigKeys.AutoCheckForUpdate, true);
+                config.Dict.AutoStart = true;
+              
+                config.Dict.PathTrackerTriggerButton=(int)(GestureTriggerButton.Right | GestureTriggerButton.Middle | GestureTriggerButton.X);
 
                 config.Save();
 
@@ -237,7 +240,7 @@ namespace WGestures.App {
         {
             if (!File.Exists(AppSettings.ConfigFilePath))
             {
-                File.Copy(string.Format("{0}/defaults/config.plist", Path.GetDirectoryName(Application.ExecutablePath)), AppSettings.ConfigFilePath);
+                File.Copy(string.Format("{0}/defaults/config.json", Path.GetDirectoryName(Application.ExecutablePath)), AppSettings.ConfigFilePath);
             }
             if (!File.Exists(AppSettings.GesturesFilePath))
             {
@@ -253,7 +256,7 @@ namespace WGestures.App {
             {
                 Debug.WriteLine("Program.Main: config文件损坏！");
                 File.Delete(AppSettings.ConfigFilePath);
-                File.Copy(string.Format("{0}/defaults/config.plist", Path.GetDirectoryName(Application.ExecutablePath)), AppSettings.ConfigFilePath);
+                File.Copy(string.Format("{0}/defaults/config.json", Path.GetDirectoryName(Application.ExecutablePath)), AppSettings.ConfigFilePath);
 
                 config = new PlistConfig(AppSettings.ConfigFilePath);
             }
@@ -262,7 +265,7 @@ namespace WGestures.App {
             {
                 intentStore = new JsonGestureIntentStore(AppSettings.GesturesFilePath, AppSettings.GesturesFileVersion);
 
-                if (config.FileVersion != AppSettings.ConfigFileVersion ||
+                if (config.Dict.FileVersion != AppSettings.ConfigFileVersion ||
                 intentStore.FileVersion != AppSettings.GesturesFileVersion)
                 {
                     throw new Exception("配置文件版本不正确");
@@ -304,6 +307,16 @@ namespace WGestures.App {
 #endif
             }
         }
+        public static string Base64Encode(string plainText)
+        {
+            var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(plainText);
+            return System.Convert.ToBase64String(plainTextBytes);
+        }
+        public static string Base64Decode(string base64EncodedData)
+        {
+            var base64EncodedBytes = System.Convert.FromBase64String(base64EncodedData);
+            return System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
+        }
         [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         static void ConfigureComponents()
         {
@@ -321,34 +334,34 @@ namespace WGestures.App {
             #endregion
 
             #region pathTracker
-            pathTracker.DisableInFullscreen = config.Get(ConfigKeys.PathTrackerDisableInFullScreen, true);
-            pathTracker.PreferWindowUnderCursorAsTarget = config.Get(ConfigKeys.PathTrackerPreferCursorWindow, false);
-            pathTracker.TriggerButton = (GestureTriggerButton)config.Get(ConfigKeys.PathTrackerTriggerButton, GestureTriggerButton.Right);
-            pathTracker.InitialValidMove = config.Get(ConfigKeys.PathTrackerInitialValidMove, 4);
-            pathTracker.StayTimeout = config.Get(ConfigKeys.PathTrackerStayTimeout, true);
-            pathTracker.StayTimeoutMillis = config.Get(ConfigKeys.PathTrackerStayTimeoutMillis, 500);
-            pathTracker.InitialStayTimeout = config.Get(ConfigKeys.PathTrackerInitialStayTimeout, true);
-            pathTracker.InitialStayTimeoutMillis = config.Get(ConfigKeys.PathTrackerInitialStayTimoutMillis, 150);
+            pathTracker.DisableInFullscreen = config.Dict.PathTrackerDisableInFullScreen ;
+            pathTracker.PreferWindowUnderCursorAsTarget = config.Dict.PathTrackerPreferCursorWindow ;
+            pathTracker.TriggerButton = (GestureTriggerButton)config.Dict.PathTrackerTriggerButton ;
+            pathTracker.InitialValidMove = config.Dict.PathTrackerInitialValidMove;
+            pathTracker.StayTimeout = config.Dict.PathTrackerStayTimeout ;
+            pathTracker.StayTimeoutMillis = config.Dict.PathTrackerStayTimeoutMillis ;
+            pathTracker.InitialStayTimeout = config.Dict.PathTrackerInitialStayTimeout ;
+            pathTracker.InitialStayTimeoutMillis = config.Dict.PathTrackerInitialStayTimoutMillis ;
             pathTracker.RequestPauseResume += paused => menuItem_pause_Click(null, EventArgs.Empty);
-            pathTracker.EnableWindowsKeyGesturing = config.Get(ConfigKeys.EnableWindowsKeyGesturing, false);
+            pathTracker.EnableWindowsKeyGesturing = config.Dict.EnableWindowsKeyGesturing ;
             pathTracker.RequestShowHideTray += ToggleTrayIconVisibility;
 
             #endregion
 
             #region gestureView
-            gestureView.ShowPath = config.Get(ConfigKeys.GestureViewShowPath, true);
-            gestureView.ShowCommandName = config.Get(ConfigKeys.GestureViewShowCommandName, true);
-            gestureView.ViewFadeOut = config.Get(ConfigKeys.GestureViewFadeOut, true);
-            gestureView.PathMainColor = Color.FromArgb(config.Get(ConfigKeys.GestureViewMainPathColor, gestureView.PathMainColor.ToArgb()));
-            gestureView.PathAlternativeColor = Color.FromArgb(config.Get(ConfigKeys.GestureViewAlternativePathColor, gestureView.PathAlternativeColor.ToArgb()));
-            gestureView.PathMiddleBtnMainColor = Color.FromArgb(config.Get(ConfigKeys.GestureViewMiddleBtnMainColor, gestureView.PathMiddleBtnMainColor.ToArgb()));
-            gestureView.PathXBtnMainColor = Color.FromArgb(config.Get(ConfigKeys.GestureViewXBtnPathColor, gestureView.PathXBtnMainColor.ToArgb()));
+            gestureView.ShowPath = config.Dict.GestureViewShowPath ;
+            gestureView.ShowCommandName = config.Dict.GestureViewShowCommandName ;
+            gestureView.ViewFadeOut = config.Dict.GestureViewFadeOut ;
+            gestureView.PathMainColor = Color.FromArgb(config.Dict.GestureViewMainPathColor );
+            gestureView.PathAlternativeColor = Color.FromArgb(config.Dict.GestureViewAlternativePathColor );
+            gestureView.PathMiddleBtnMainColor = Color.FromArgb(config.Dict.GestureViewMiddleBtnMainColor  );
+            gestureView.PathXBtnMainColor = Color.FromArgb(config.Dict.GestureViewXBtnPathColor );
             #endregion
 
             #region GestureParser
-            gestureParser.EnableHotCorners = config.Get(ConfigKeys.GestureParserEnableHotCorners, true);
-            gestureParser.Enable8DirGesture = config.Get(ConfigKeys.GestureParserEnable8DirGesture, true);
-            gestureParser.EnableRubEdge = config.Get(ConfigKeys.GestureParserEnableRubEdges, true);
+            gestureParser.EnableHotCorners = config.Dict.GestureParserEnableHotCorners ;
+            gestureParser.Enable8DirGesture = config.Dict.GestureParserEnable8DirGesture ;
+            gestureParser.EnableRubEdge = config.Dict.GestureParserEnableRubEdges ;
 
             #endregion
             //HOt key
@@ -358,7 +371,12 @@ namespace WGestures.App {
             byte[] pauseHotKey = null;
 
             //workaround for bug introduced last version
-            try { pauseHotKey = config.Get<byte[]>(ConfigKeys.PauseResumeHotKey, null); }
+            try {
+                var t = Base64Decode(config.Dict.PauseResumeHotKey);
+                Console.WriteLine(t);
+                pauseHotKey = System.Text.Encoding.Default.GetBytes(Base64Decode(config.Dict.PauseResumeHotKey)) ;
+                Console.WriteLine(config.Dict.PauseResumeHotKey);
+            }
             catch (InvalidCastException e)
             {
                 Debug.WriteLine(e);
@@ -418,7 +436,7 @@ namespace WGestures.App {
                 timer.Tick += (sender_1, args_1) =>
                 {
                     timer.Stop();
-                    trayIcon.Visible = config.Get(ConfigKeys.TrayIconVisible, true);
+                    trayIcon.Visible = config.Dict.TrayIconVisible ;
                 };
                 timer.Start();
             };
@@ -433,15 +451,15 @@ namespace WGestures.App {
             }
             else
             {
-                var showIcon = config.Get<bool?>(ConfigKeys.TrayIconVisible);
-                if (showIcon.HasValue && !showIcon.Value) //隐藏
+                var showIcon = config.Dict.TrayIconVisible ;
+                if (!showIcon) //隐藏
                 {
                     ToggleTrayIconVisibility();
                     //trayIcon.ShowBalloonTip(10* 1000, "WGestures图标将隐藏", "按 Shift+左键+中键 恢复\n再次运行WGestures可打开设置界面", ToolTipIcon.Info);
                 }
             }
             //是否检查更新
-            if (!config.Get<bool?>(ConfigKeys.AutoCheckForUpdate).HasValue || config.Get<bool>(ConfigKeys.AutoCheckForUpdate))
+            if ( config.Dict.AutoCheckForUpdate)
             {
                 var checkForUpdateTimer = new Timer { Interval = Constants.AutoCheckForUpdateInterval };
 
@@ -485,7 +503,7 @@ namespace WGestures.App {
         /// <param name="tray"></param>
         static void ScheduledUpdateCheck(object sender, NotifyIcon tray)
         {
-            if (!config.Get<bool>(ConfigKeys.AutoCheckForUpdate)) return;
+            if (!config.Dict.AutoCheckForUpdate ) return;
 
             var checker = new VersionChecker(AppSettings.CheckForUpdateUrl);
             checker.Finished += info =>
@@ -500,7 +518,7 @@ namespace WGestures.App {
                         using (var frm = new UpdateInfoForm(ConfigurationManager.AppSettings.Get(Constants.ProductHomePageAppSettingKey), info))
                         {
                             frm.ShowDialog();
-                            tray.Visible = config.Get(ConfigKeys.TrayIconVisible, true);
+                            tray.Visible = config.Dict.TrayIconVisible ;
                         }
                     };
                     if (!tray.Visible)
@@ -532,9 +550,9 @@ namespace WGestures.App {
         static void ToggleTrayIconVisibility()
         {
             //如果图标当前可见， 而config中设置的值是不可见， 则说明是临时显示; 如果不是临时显示， 才需要修改config
-            if (!(trayIcon.Visible && !config.Get(ConfigKeys.TrayIconVisible, true)))
+            if (!(trayIcon.Visible && !config.Dict.TrayIconVisible ))
             {
-                config.Set(ConfigKeys.TrayIconVisible, !trayIcon.Visible);
+                config.Dict.TrayIconVisible= !trayIcon.Visible ;
                 config.Save();
             }
 
@@ -572,7 +590,7 @@ namespace WGestures.App {
         static void SyncAutoStartState()
         {
             var fact = AutoStarter.IsRegistered(Constants.Identifier, Application.ExecutablePath);
-            var conf = config.Get<bool>(ConfigKeys.AutoStart);
+            var conf = config.Dict.AutoStart;
 
             if (fact == conf && !isFirstRun) return;
 

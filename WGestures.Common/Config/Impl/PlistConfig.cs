@@ -1,22 +1,27 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Windows.Forms.VisualStyles;
 
 namespace WGestures.Common.Config.Impl
 {
-    public class PlistConfig : AbstractDictConfig
+    public enum plistType {
+        Auto, Binary, Xml
+    }
+    public class PlistConfig  
     {
-        public string FileVersion
-        {
-            get { 
-                return Get<string>("$$FileVersion", null); 
-            }
-            set
-            {
-                Set("$$FileVersion",value);
-            }
-        }
+        //public string FileVersion
+        //{
+        //    get { 
+        //        return Get<string>("$$FileVersion", null); 
+        //    }
+        //    set
+        //    {
+        //        Set("$$FileVersion",value);
+        //    }
+        //}
+        public ConfigData Dict { get; set; }
 
         public string PlistPath { get; set; }
 
@@ -48,17 +53,21 @@ namespace WGestures.Common.Config.Impl
             {
                 return;
             }
-            Dict = ConfigList.readList(PlistPath);
+            
+            StreamReader reader = new StreamReader(PlistPath);
+            Dict=JsonConvert.DeserializeObject<ConfigData>(reader.ReadToEnd());
             //Dict = (Dictionary<string, object>)Plist.readPlist(PlistPath);
         }
-
+        
         private void Load(Stream stream, bool closeStream = false)
         {
             if(stream == null || !stream.CanRead) throw new ArgumentException("stream");
  
             try
             {
-                Dict = (Dictionary<string, object>)Plist.readPlist(stream, plistType.Auto);
+                StreamReader reader = new StreamReader(PlistPath);
+                Dict = JsonConvert.DeserializeObject<ConfigData>(reader.ReadToEnd());
+                
             }
             catch (Exception)
             {
@@ -71,13 +80,38 @@ namespace WGestures.Common.Config.Impl
 
         }
 
-        public override void Save()
+        public   void Save()
         {
             if (PlistPath == null)
                 throw new InvalidOperationException("未指定需要保存到的plist文件路径(PlistPath属性)");
-            Plist.writeXml(Dict, PlistPath);
+
+            JsonSerializer serializer = new JsonSerializer();
+
+            using (StreamWriter sw = new StreamWriter(PlistPath))
+            using (JsonWriter writer = new JsonTextWriter(sw))
+            {
+                serializer.Serialize(writer, Dict);
+                 
+            }
+            //Plist.writeXml(Dict, PlistPath);
         }
 
+        public void Import(PlistConfig config)
+        {
+            JsonSerializer serializer = new JsonSerializer();
+
+            using (StreamWriter sw = new StreamWriter(PlistPath))
+            using (JsonWriter writer = new JsonTextWriter(sw))
+            {
+                serializer.Serialize(writer, config.Dict);
+
+            }
+        }
+
+        public void Import(PlistConfig config1, PlistConfig config2)
+        {
+            throw new NotImplementedException();
+        }
     }
 
 }

@@ -54,7 +54,7 @@ namespace WGestures.App.Migrate
             var gesturesFileV1 = recent + @"\gestures.json";
             var gestureFileV2 = recent + @"\gestures.wg";
             var gestureFileV3 = recent + @"\gestures.wg2";
-            var configFile = recent + @"\config.plist";
+            var configFile = recent + @"\config.json";
 
             try
             {

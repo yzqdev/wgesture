@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using WGestures.Common.Config.Impl;
 
 namespace WGestures.Common.Config
 {
@@ -11,6 +12,6 @@ namespace WGestures.Common.Config
         void Set<T>(string key, T value);
         void Save();
 
-        void Import(params IConfig[] from);
+        void Import(  PlistConfig from);
     }
 }

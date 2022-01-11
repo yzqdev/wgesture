@@ -43,7 +43,7 @@ namespace WGestures.App
         /// </summary>
         public static string ConfigFilePath
         {
-            get { return UserDataDirectory + @"\config.plist"; }
+            get { return UserDataDirectory + @"\config.json"; }
         }
         /// <summary>
         /// C:\Users\yanni\AppData\Local\YingDev.com\WGestures\1.8.4.0\gestures.wg2
