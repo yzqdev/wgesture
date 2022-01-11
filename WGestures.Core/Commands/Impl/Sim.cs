@@ -11,25 +11,30 @@ namespace WGestures.Core.Commands.Impl
     static internal class Sim
     {
          
-
+        /// <summary>
+        /// hold==keydown
+        /// release==keyup
+        /// hold and release == click
+        /// </summary>
+        /// <param name="k"></param>
         public static void KeyDown(KeyCode k)
         {
-            EventBuilder.Create().Release(k).Invoke();
+            Simulate.Events().Hold(k).Wait(100).Invoke();
         }
 
         public static void KeyUp(KeyCode k)
         {
-            EventBuilder.Create().Release(k).Invoke();
+            Simulate.Events().Release(k).Wait(100).Invoke();
         }
 
         public static void KeyPress(KeyCode k)
         {
-            EventBuilder.Create().Click(k).Invoke();
+            Simulate.Events().Click(k).Wait(1000).Invoke();
         }
 
         public static void TextEntry(string s)
         {
-            EventBuilder.Create().Click(s).Invoke();
+            Simulate.Events().Click(s).Invoke();
         }
     }
 }

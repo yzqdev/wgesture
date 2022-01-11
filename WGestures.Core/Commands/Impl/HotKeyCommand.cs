@@ -116,6 +116,7 @@ namespace WGestures.Core.Commands.Impl
             Debug.WriteLine("第二个按键=" + String.Join(",", Keys.ToArray()));
             try
             {
+                //先keydown(hold按下)
                 foreach (var k in Modifiers)
                 {
                     Debug.WriteLine("modifier"+k);
@@ -128,7 +129,7 @@ namespace WGestures.Core.Commands.Impl
                     PerformKey(pid, fgThread, k);
                 }
 
-
+                //再松开 keyup(release)
                 foreach (var k in Keys)
                 {
                     Debug.Write(k + " Up:");

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Windows.Forms;
 using WGestures.App.Gui.Model;
 using WGestures.App.Gui.Windows.CommandViews;
+using WGestures.App.Gui.Windows.Controls;
 using WGestures.App.Properties;
 using WGestures.Common.Annotation;
 using WGestures.Common.OsSpecific.Windows;
@@ -183,8 +184,9 @@ namespace WGestures.App.Gui.Windows {
         }
 
 
-        private void shortcutRec_pause_EndRecord(object sender, Controls.ShortcutRecordButton.ShortcutRecordEventArgs e)
+        private void shortcutRec_pause_EndRecord(object sender,  ShortcutRecordButton.ShortcutRecordEventArgs e)
         {
+            Debug.WriteLine(e.Keys);
             if(e.Keys.Count > 0)
             {
                 //lb_pause_shortcut.Text = ShortcutRecordButton.HotKeyToString(e.Modifiers, e.Keys);
@@ -220,7 +222,8 @@ namespace WGestures.App.Gui.Windows {
                 }
 
                 hk.key = (Keys) e.Keys[0];
-
+                Debug.WriteLine(hk.key);
+                Debug.WriteLine("赋值");
                 settingFormController.PauseResumeHotkey = hk;
             } else
             {

@@ -36,8 +36,10 @@
   <PropertyGroup>
     <ApplicationIcon>Resources\icon.ico</ApplicationIcon>
   </PropertyGroup>
- 
-  
+
+	<PropertyGroup>
+		<BuildDir>Build</BuildDir>
+	</PropertyGroup>
   <PropertyGroup>
     <TargetZone>LocalIntranet</TargetZone>
   </PropertyGroup>

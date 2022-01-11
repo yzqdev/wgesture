@@ -111,9 +111,9 @@ namespace WGestures.App.Gui.Windows {
                     if (PauseResumeHotkey == null) return;
                     _hotkeyMgr.UnRegisterHotKey(ConfigKeys.PauseResumeHotKey);
                 }
-
+                Console.WriteLine(value.ToString());
                 _config.Dict.PauseResumeHotKey=value == null ? System.Text.Encoding.Default.GetString(new byte[0]) : System.Text.Encoding.Default.GetString(value.Value.ToBytes());
-
+                Console.WriteLine(System.Text.Encoding.Default.GetString(value.Value.ToBytes()));
                 OnPropertyChanged("PauseResumeHotKey");
             }
         }

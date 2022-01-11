@@ -70,7 +70,7 @@ namespace WGestures.App.Gui.Windows.Controls
         {
             args.Handled = true;
 
-            if (!Enum.IsDefined(typeof(KeyCode), args.KeyValue)) return;
+            if (!Enum.IsDefined(typeof(KeyCode),  (ushort)args.KeyValue)) return;
 
             var key = (KeyCode)args.KeyValue;
             if (!_pressedKeys.Add(key)) return;
@@ -90,7 +90,7 @@ namespace WGestures.App.Gui.Windows.Controls
             args.Handled = true;
             if (args.KeyValue == _lastKey) _lastKey = -1;
 
-            if (Enum.IsDefined(typeof(KeyCode), args.KeyValue))
+            if (Enum.IsDefined(typeof(KeyCode), (ushort)args.KeyValue))
             {
                 var key = (KeyCode)args.KeyValue;
 
