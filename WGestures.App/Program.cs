@@ -17,7 +17,7 @@ using WGestures.Core;
 using WGestures.Core.Impl.Windows;
 using WGestures.Core.Persistence.Impl;
 using WGestures.Core.Persistence.Impl.Windows;
-using WGestures.View.Impl.Windows;
+ 
 using Timer = System.Windows.Forms.Timer;
 
 namespace WGestures.App {
@@ -159,7 +159,10 @@ namespace WGestures.App {
             }, maxStackSize: 1)
             { Name = "Parser线程", Priority = ThreadPriority.Highest, IsBackground = false }.Start();
         }
-
+        /// <summary>
+        /// 再启动一个wgesture
+        /// </summary>
+        /// <returns></returns>
         static bool IsDuplicateInstance()
         {
             bool createdNew;
@@ -207,7 +210,9 @@ namespace WGestures.App {
                 Warning360Safe();
             }
         }
-
+        /// <summary>
+        /// 初始化
+        /// </summary>
         static void AppWideInit()
         {
             Application.EnableVisualStyles();
@@ -225,7 +230,9 @@ namespace WGestures.App {
 
             hotkeyMgr = new GlobalHotKeyManager();
         }
-
+        /// <summary>
+        /// 把defaults文件夹的配置文件复制到local文件夹
+        /// </summary>
         static void LoadFailSafeConfigFile()
         {
             if (!File.Exists(AppSettings.ConfigFilePath))
@@ -238,7 +245,8 @@ namespace WGestures.App {
             }
 
             try
-            { //如果文件损坏，则替换。
+            { 
+                //如果文件损坏，则替换。
                 config = new PlistConfig(AppSettings.ConfigFilePath);
             }
             catch (Exception)
@@ -558,7 +566,9 @@ namespace WGestures.App {
             settingsFormController = null;
         }
 
-        //用配置信息去同步自启动
+        /// <summary>
+        /// 用配置信息去同步自启动
+        /// </summary>
         static void SyncAutoStartState()
         {
             var fact = AutoStarter.IsRegistered(Constants.Identifier, Application.ExecutablePath);

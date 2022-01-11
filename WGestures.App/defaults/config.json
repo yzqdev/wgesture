@@ -1,0 +1,23 @@
+{
+  "$$FileVersion": "1",
+  "IsFirstRun": true,
+  "AutoCheckForUpdate": false,
+  "AutoStart": false,
+  "PathTrackerTriggerButton": 15,
+  "PathTrackerStayTimeout": false,
+  "PathTrackerInitialStayTimoutMillis": 200,
+  "GestureViewMainPathColor": -14165512,
+  "GestureViewMiddleBtnMainColor": -13771520,
+  "GestureViewAlternativePathColor": -10061415,
+  "GestureViewShowPath": true,
+  "GestureViewFadeOut": true,
+  "GestureViewShowCommandName": true,
+  "TrayIconVisible": true,
+  "GestureParserEnableHotCorners": true,
+  "PathTrackerPreferCursorWindow": false,
+  "GestureParserDisableInFullScreenMode": false,
+  "PauseResumeHotKey": "VwAAAAcAAAA=",
+  "PathTrackerInitialStayTimeout": false,
+  "GestureViewXBtnPathColor": -32704,
+  "GestureParserEnableRubEdges": true
+}

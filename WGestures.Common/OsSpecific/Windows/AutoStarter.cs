@@ -83,7 +83,11 @@ namespace WGestures.Common.OsSpecific.Windows
                 return ts.RootFolder.Tasks.Exists(identifier);
             }*/
         }
-
+        /// <summary>
+        /// 创建快捷方式
+        /// </summary>
+        /// <param name="shortcutPath">快捷方式路径</param>
+        /// <param name="targetFileLocation">文件路径</param>
         public static void CreateShortcut(string shortcutPath, string targetFileLocation)
         {
             try

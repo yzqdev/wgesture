@@ -151,7 +151,10 @@ namespace WGestures.Core.Commands.Impl
             }
         }
 
-        //获得活动的explore窗口的路径
+        /// <summary>
+        /// 获得活动的explore窗口的路径
+        /// </summary>
+        /// <returns></returns>
         private static string GetExplorerCurrentPath()
         {
             string path = null;

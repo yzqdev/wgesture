@@ -32,16 +32,22 @@ namespace WGestures.App
 
         public static string UserDataDirectory
         {
+            //C:\Users\UserName\AppData\Local\CompanyName\ProductName\ProductVersion
+            //C:\Users\yanni\AppData\Local\YingDev.com\WGestures\1.8.4.0
             get { return Application.LocalUserAppDataPath; }
         }
 
 
-
+        /// <summary>
+        /// C:\Users\yanni\AppData\Local\YingDev.com\WGestures\1.8.4.0\config.plist
+        /// </summary>
         public static string ConfigFilePath
         {
             get { return UserDataDirectory + @"\config.plist"; }
         }
-
+        /// <summary>
+        /// C:\Users\yanni\AppData\Local\YingDev.com\WGestures\1.8.4.0\gestures.wg2
+        /// </summary>
         public static string GesturesFilePath
         {
             get { return UserDataDirectory + @"\gestures.wg2"; }

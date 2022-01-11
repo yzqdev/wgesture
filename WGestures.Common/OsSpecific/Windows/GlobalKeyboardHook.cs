@@ -3,21 +3,18 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace WGestures.Common.OsSpecific.Windows
-{
+namespace WGestures.Common.OsSpecific.Windows {
     /// <summary>
     /// A class that manages a global low level keyboard hook
     /// </summary>
-    public class GlobalKeyboardHook : IDisposable
-    {
+    public class GlobalKeyboardHook : IDisposable {
         #region Constant, Structure and Delegate Definitions
         /// <summary>
         /// defines the callback type for the hook
         /// </summary>
         public delegate int keyboardHookProc(int code, int wParam, ref keyboardHookStruct lParam);
 
-        public struct keyboardHookStruct
-        {
+        public struct keyboardHookStruct {
             public int vkCode;
             public int scanCode;
             public int flags;
@@ -158,7 +155,7 @@ namespace WGestures.Common.OsSpecific.Windows
 
         protected void Dispose(bool disposing)
         {
-            //×ÜÊÇunhook
+            //unhook
             unhook();
         }
 

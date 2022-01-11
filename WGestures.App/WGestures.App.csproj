@@ -113,7 +113,6 @@
     <ProjectReference Include="..\NativeMultiFileArchiveLib\NativeMultiFileArchiveLib.csproj" />
     <ProjectReference Include="..\WGestures.Common\WGestures.Common.csproj" />
     <ProjectReference Include="..\WGestures.Core\WGestures.Core.csproj" />
-    <ProjectReference Include="..\WGestures.View\WGestures.View.csproj" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\**\*.*" />
@@ -141,12 +140,10 @@
   </ItemGroup>
   
   <ItemGroup>
-	  <Content Include="defaults\config.plist">
+	  <Content Include="defaults\**\*.*">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
-	  <Content Include="defaults\gestures.wg2">
-		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
+	  
 	  <Content Include="externalResource\**\*.*" />
      
 	  <Content Include="QuickStartGuide\**\*.*">

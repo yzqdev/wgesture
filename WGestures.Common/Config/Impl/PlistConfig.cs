@@ -48,7 +48,8 @@ namespace WGestures.Common.Config.Impl
             {
                 return;
             }
-            Dict = (Dictionary<string, object>)Plist.readPlist(PlistPath);
+            Dict = ConfigList.readList(PlistPath);
+            //Dict = (Dictionary<string, object>)Plist.readPlist(PlistPath);
         }
 
         private void Load(Stream stream, bool closeStream = false)

@@ -15,7 +15,7 @@ using WGestures.Core.Commands.Impl;
 using WGestures.Core.Impl.Windows;
 using WGestures.Core.Persistence;
 using WGestures.Core.Persistence.Impl;
-using WGestures.View.Impl.Windows;
+ 
 
 namespace WGestures.App.Gui.Windows {
     internal class SettingsFormController : IDisposable, INotifyPropertyChanged
