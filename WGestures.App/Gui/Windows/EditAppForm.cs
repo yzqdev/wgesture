@@ -363,7 +363,11 @@ namespace WGestures.App.Gui.Windows
                 Console.WriteLine("Aborted");
             }
         }
-
+        /// <summary>
+        /// 添加软件手势
+        /// </summary>
+        /// <param name="path">软件路径</param>
+        /// <param name="appName">软件名称</param>
         private void HandleSelectedApp(string path, string appName)
         {
             groupSelectedApp.Visible = true;
@@ -406,7 +410,10 @@ namespace WGestures.App.Gui.Windows
             txtSelectedAppNae.SelectAll();
             txtSelectedAppNae.Focus();
         }
-
+        /// <summary>
+        /// 加载exe的图标
+        /// </summary>
+        /// <param name="path"></param>
         private void LoadIcon(string path)
         {
             pictureSelectedAppIcon.Image = IconHelper.ExtractIconForPath(path, new Size(48, 48),true, 0);

@@ -19,7 +19,7 @@ namespace WGestures.App.Gui.Windows.Controls
                 _color = value;
                 mainPen.Color = _color;
                 Invalidate();
-                if (ColorChanged != null) ColorChanged(this, new EventArgs());
+                ColorChanged?.Invoke(this, new EventArgs());
             }
         }
 
@@ -73,18 +73,16 @@ namespace WGestures.App.Gui.Windows.Controls
         {
             base.OnClick(e);
 
-            using (var colorDlg = new ColorDialog())
-            {
-                colorDlg.AnyColor = true;
-                colorDlg.FullOpen = true;
-                
-                colorDlg.Color = Color;
+            using var colorDlg = new ColorDialog();
+            colorDlg.AnyColor = true;
+            colorDlg.FullOpen = true;
 
-                var ok = colorDlg.ShowDialog();
-                if (ok == DialogResult.OK)
-                {
-                    Color = colorDlg.Color;
-                }
+            colorDlg.Color = Color;
+
+            var ok = colorDlg.ShowDialog();
+            if (ok == DialogResult.OK)
+            {
+                Color = colorDlg.Color;
             }
 
         }

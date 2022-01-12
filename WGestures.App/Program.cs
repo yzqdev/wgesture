@@ -4,6 +4,7 @@ using System.Configuration;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Runtime.Versioning;
 using System.Threading;
 using System.Windows.Forms;
 using WGestures.App.Gui.Windows;
@@ -42,7 +43,7 @@ namespace WGestures.App {
         static ToolStripMenuItem menuItem_pause;
 
         [STAThread]
-        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+        [SupportedOSPlatform("windows")]
         static void Main(string[] args)
         {
             Trace.Listeners.Add(new DetailedConsoleListener());
@@ -200,9 +201,9 @@ namespace WGestures.App {
 
                 //强制值
                 config.Dict.IsFirstRun = false;
-                //config.Set(ConfigKeys.IsFirstRun, false);
+               
                 config.Dict.AutoCheckForUpdate = true;
-                //config.Set(ConfigKeys.AutoCheckForUpdate, true);
+                
                 config.Dict.AutoStart = true;
               
                 config.Dict.PathTrackerTriggerButton=(int)(GestureTriggerButton.Right | GestureTriggerButton.Middle | GestureTriggerButton.X);
@@ -587,6 +588,7 @@ namespace WGestures.App {
         /// <summary>
         /// 用配置信息去同步自启动
         /// </summary>
+          [SupportedOSPlatform("Windows")]
         static void SyncAutoStartState()
         {
             var fact = AutoStarter.IsRegistered(Constants.Identifier, Application.ExecutablePath);
@@ -597,7 +599,10 @@ namespace WGestures.App {
             try
             {
                 //可能被杀毒软件阻止
-                if (conf) AutoStarter.Register(Constants.Identifier, Application.ExecutablePath);
+                if (conf)
+                {
+                    AutoStarter.Register(Constants.Identifier, Application.ExecutablePath);
+                }
                 else
                 {
                     AutoStarter.Unregister(Constants.Identifier);
@@ -618,8 +623,7 @@ namespace WGestures.App {
         {
             var t = new Thread(() =>
             {
-                bool createdNew;
-                var mut = new Mutex(true, Constants.Identifier + "QuickStartGuideWindow", out createdNew);
+                var mut = new Mutex(true, Constants.Identifier + "QuickStartGuideWindow", out bool createdNew);
                 if (!createdNew) return;
 
                 using (var frm = new QuickStartGuideForm())

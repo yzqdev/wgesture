@@ -25,9 +25,8 @@ namespace WGestures.Core
 
         public virtual GestureIntent Find(Gesture key)
         {
-           // Console.WriteLine("Find("+key.ToString()+")");
-            GestureIntent val;
-            GestureIntents.TryGetValue(key,out val);
+            // Console.WriteLine("Find("+key.ToString()+")");
+            GestureIntents.TryGetValue(key, out GestureIntent val);
             //if(val!=null)Console.WriteLine("Found? "+val.ToString());
             return val;
         }
@@ -111,8 +110,13 @@ namespace WGestures.Core
     [Serializable]
     public class ExeApp : AbstractApp
     {
+        /// <summary>
+        /// 是否继承全局手势
+        /// </summary>
         public bool InheritGlobalGestures { get; set; }
-
+        /// <summary>
+        /// exe路径
+        /// </summary>
         public string ExecutablePath { get; set; }
 
         public override void Import(AbstractApp @from)

@@ -20,7 +20,7 @@ namespace WGestures.Common.Annotation
 
         public static string GetNameOf(Type t)
         {
-            var attr = t.GetCustomAttributes(typeof (NamedAttribute), false).FirstOrDefault() as NamedAttribute;
+            NamedAttribute attr = t.GetCustomAttributes(typeof (NamedAttribute), false).FirstOrDefault() as NamedAttribute;
             if (attr != null)
             {
                 return attr.Name;

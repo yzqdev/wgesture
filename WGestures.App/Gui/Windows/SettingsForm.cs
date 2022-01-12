@@ -462,7 +462,7 @@ namespace WGestures.App.Gui.Windows {
             var intent = GetSelectedGestureIntent();
             if (intent == null) return;
 
-            var selected = combo_CommandTypes.SelectedItem as CommandTypesComboBoxItem;
+            CommandTypesComboBoxItem selected = combo_CommandTypes.SelectedItem as CommandTypesComboBoxItem;
             if (selected == null) return;
 
 
@@ -578,7 +578,10 @@ namespace WGestures.App.Gui.Windows {
 
             AdjustListAppsColumnWidth();
         }
-
+        /// <summary>
+        /// 添加新的软件(并添加手势)
+        /// </summary>
+        /// <param name="app"></param>
         private void AddAppToList(ExeApp app)
         {
             var item = new ListViewItem(app.Name);
@@ -1002,11 +1005,16 @@ namespace WGestures.App.Gui.Windows {
             else
                 return vsVisible ? ScrollBars.Vertical : ScrollBars.None;
         }
-       
+
         #endregion
 
 
-        //处理快捷键
+        /// <summary>
+        /// 处理快捷键
+        /// </summary>
+        /// <param name="msg"></param>
+        /// <param name="keyData"></param>
+        /// <returns></returns>
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
             if (keyData == (Keys.Control | Keys.W))

@@ -1,6 +1,6 @@
 {
   "FileVersion": "1",
-  "IsFirstRun": true,
+  "IsFirstRun": false,
   "AutoCheckForUpdate": false,
   "AutoStart": false,
   "PathTrackerTriggerButton": 1,

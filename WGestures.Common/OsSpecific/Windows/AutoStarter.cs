@@ -7,18 +7,27 @@ using System.Text;
 using System.Windows.Forms;
 using Microsoft.Win32;
 using IWshRuntimeLibrary;
+using System.Runtime.Versioning;
 
 namespace WGestures.Common.OsSpecific.Windows
 {
+    /// <summary>
+    /// 注册开机自启
+    /// </summary>
     public static class AutoStarter
     {
         //private const string RunLocation = @"Software\Microsoft\Windows\CurrentVersion\Run";
-
+        /// <summary>
+        /// 创建启动的快捷方式
+        /// </summary>
+        /// <param name="identifier">应用id</param>
+        /// <returns>启动的快捷方式路径</returns>
         static string MakeShortcutPath(string identifier)
         {
+            //C:\Users\yanni\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup
             return Environment.GetFolderPath(Environment.SpecialFolder.Startup) + @"\" + identifier + ".lnk";
         }
-
+        [SupportedOSPlatform("Windows")]
         public static void Register(string identifier, string appPath)
         {
             Unregister(identifier);
@@ -50,7 +59,7 @@ namespace WGestures.Common.OsSpecific.Windows
                     LogonType: TaskLogonType.InteractiveToken);
             }*/
         }
-
+        [SupportedOSPlatform("Windows")]
         public static void Unregister(string identifier)
         {
             System.IO.File.Delete(MakeShortcutPath(identifier));

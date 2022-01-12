@@ -13,6 +13,14 @@ namespace WGestures.App.Gui.Windows
 {
     public static class IconHelper
     {
+        /// <summary>
+        /// 导出exe的图标
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="size"></param>
+        /// <param name="enabled"></param>
+        /// <param name="bias"></param>
+        /// <returns></returns>
         public static Bitmap ExtractIconForPath(string path, Size size, bool enabled = true, int bias=2)
         {
             var bmp = new Bitmap(size.Width, size.Height);
