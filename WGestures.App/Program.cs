@@ -18,7 +18,8 @@ using WGestures.Core;
 using WGestures.Core.Impl.Windows;
 using WGestures.Core.Persistence.Impl;
 using WGestures.Core.Persistence.Impl.Windows;
- 
+using WindowsInput;
+using WindowsInput.Events;
 using Timer = System.Windows.Forms.Timer;
 
 namespace WGestures.App {
@@ -667,6 +668,8 @@ namespace WGestures.App {
 
             menuItem_pause = new ToolStripMenuItem() { Text = "暂停" };
             menuItem_pause.Click += menuItem_pause_Click;
+          var  menuItem_resume = new ToolStripMenuItem() { Text = "解除按键死锁" };
+            menuItem_resume.Click += menuItem_resume_Click;
 
             var menuItem_settings = new ToolStripMenuItem() { Text = "设置" };
             menuItem_settings.Click += menuItem_settings_Click;
@@ -680,7 +683,7 @@ namespace WGestures.App {
                ToggleTrayIconVisibility();
             };*/
 
-            contextMenu1.Items.AddRange(new ToolStripItem[] { /*menuItem_toggleTray, */menuItem_pause, new ToolStripSeparator(), menuItem_settings, menuItem_showQuickStart, new ToolStripSeparator(), menuItem_exit });
+            contextMenu1.Items.AddRange(new ToolStripItem[] { /*menuItem_toggleTray, */menuItem_pause,menuItem_resume, new ToolStripSeparator(), menuItem_settings, menuItem_showQuickStart, new ToolStripSeparator(), menuItem_exit });
             notifyIcon.Icon = Resources.trayIcon;
             //notifyIcon.Text = Application.ProductName;
             notifyIcon.ContextMenuStrip = contextMenu1;
@@ -691,6 +694,12 @@ namespace WGestures.App {
 
 
             return notifyIcon;
+        }
+
+        private static void menuItem_resume_Click(object sender, EventArgs e)
+        {
+            Simulate.Events().Release( KeyCode.LWin).Wait(100).Invoke();
+             
         }
 
         private static void GestureParser_StateChanged(GestureParser.State s)
