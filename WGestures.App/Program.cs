@@ -487,7 +487,10 @@ namespace WGestures.App {
         {
             TogglePause();
         }
-
+        static void menuItem_restart_Click(object sender, EventArgs eventArgs)
+        {
+            Application.Restart();
+        }
         static void menuItem_exit_Click(object sender, EventArgs e)
         {
             gestureParser.Stop();
@@ -665,7 +668,8 @@ namespace WGestures.App {
 
             var menuItem_exit = new ToolStripMenuItem() { Text = "退出" };
             menuItem_exit.Click += menuItem_exit_Click;
-
+            var menuItem_restart = new ToolStripMenuItem() { Text = "重启" };
+            menuItem_restart.Click += menuItem_restart_Click;
             menuItem_pause = new ToolStripMenuItem() { Text = "暂停" };
             menuItem_pause.Click += menuItem_pause_Click;
           var  menuItem_resume = new ToolStripMenuItem() { Text = "解除按键死锁" };
@@ -683,7 +687,7 @@ namespace WGestures.App {
                ToggleTrayIconVisibility();
             };*/
 
-            contextMenu1.Items.AddRange(new ToolStripItem[] { /*menuItem_toggleTray, */menuItem_pause,menuItem_resume, new ToolStripSeparator(), menuItem_settings, menuItem_showQuickStart, new ToolStripSeparator(), menuItem_exit });
+            contextMenu1.Items.AddRange(new ToolStripItem[] { /*menuItem_toggleTray, */menuItem_pause,menuItem_resume,menuItem_restart, new ToolStripSeparator(), menuItem_settings, menuItem_showQuickStart, new ToolStripSeparator(), menuItem_exit });
             notifyIcon.Icon = Resources.trayIcon;
             //notifyIcon.Text = Application.ProductName;
             notifyIcon.ContextMenuStrip = contextMenu1;
