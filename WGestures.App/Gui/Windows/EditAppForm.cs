@@ -157,7 +157,7 @@ namespace WGestures.App.Gui.Windows
                 string target;
 
                 //Console.WriteLine("first Try");
-                target = GetLnkTargetSimple(path);
+                target = GetShortcutTarget(path);
                 /*Console.WriteLine(target);
                 if (target.Equals(""))
                 {
@@ -326,24 +326,44 @@ namespace WGestures.App.Gui.Windows
                 return "";
             }
         }
-
-        private static string GetLnkTargetSimple(string lnkPath)
+        private static readonly Guid CLSID_WshShell = new Guid("72C24DD5-D70A-438B-8A42-98424B88AFB8");
+        private static string GetShortCutTarget(string lnk)
         {
-            IWshRuntimeLibrary.IWshShell wsh = null;
-            IWshRuntimeLibrary.IWshShortcut sc = null;
-
-            try
+            if (System.IO.File.Exists(lnk))
             {
-                wsh = new IWshRuntimeLibrary.WshShell();
-                sc = (IWshRuntimeLibrary.IWshShortcut)wsh.CreateShortcut(lnkPath);
-                return sc.TargetPath;
+                dynamic objWshShell = null, objShortcut = null;
+                try
+                {
+                    objWshShell = Activator.CreateInstance(Type.GetTypeFromCLSID(CLSID_WshShell));
+                    objShortcut = objWshShell.CreateShortcut(lnk);
+                    return objShortcut.TargetPath;
+                }
+                finally
+                {
+                    Marshal.ReleaseComObject(objShortcut);
+                    Marshal.ReleaseComObject(objWshShell);
+                }
             }
-            finally
-            {
-                if (wsh != null) Marshal.ReleaseComObject(wsh);
-                if (sc != null) Marshal.ReleaseComObject(sc);
-            }
+            return null;
         }
+        //todo 使用com获取快捷方式所在文件夹
+        //private static string GetLnkTargetSimple(string lnkPath)
+        //{
+        //    IWshRuntimeLibrary.IWshShell wsh = null;
+        //    IWshRuntimeLibrary.IWshShortcut sc = null;
+
+        //    try
+        //    {
+        //        wsh = new IWshRuntimeLibrary.WshShell();
+        //        sc = (IWshRuntimeLibrary.IWshShortcut)wsh.CreateShortcut(lnkPath);
+        //        return sc.TargetPath;
+        //    }
+        //    finally
+        //    {
+        //        if (wsh != null) Marshal.ReleaseComObject(wsh);
+        //        if (sc != null) Marshal.ReleaseComObject(sc);
+        //    }
+        //}
 
         #endregion
 
@@ -499,7 +519,7 @@ namespace WGestures.App.Gui.Windows
                 string target;
 
                 //Console.WriteLine("first Try");
-                target = GetLnkTargetSimple(path);
+                target = GetShortcutTarget(path);
                 /*Console.WriteLine(target);
                 if (target.Equals(""))
                 {

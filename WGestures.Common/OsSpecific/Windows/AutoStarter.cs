@@ -101,15 +101,18 @@ namespace WGestures.Common.OsSpecific.Windows
         {
             try
             {
+                //在用户启动文件夹创建快捷方式C:\Users\yanni\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup
                 WshShell shell = new WshShell();
                 IWshShortcut shortcut = (IWshShortcut)shell.CreateShortcut(shortcutPath);
 
-                shortcut.TargetPath = targetFileLocation;                 // The path of the file that will launch when the shortcut is run
+                shortcut.TargetPath = targetFileLocation;
                 shortcut.Save();
-            }catch(Exception e)
+               
+            }
+            catch (Exception e)
             {
                 Debug.WriteLine(e);
-                //may be intercepted by 360 etc. ignore...
+                
             }
 
                                 

@@ -16,9 +16,10 @@ using WGestures.Core.Commands.Impl;
 using WGestures.Core.Impl.Windows;
 using WGestures.Core.Persistence;
 using WGestures.Core.Persistence.Impl;
- 
+using System.Runtime.Versioning;
 
 namespace WGestures.App.Gui.Windows {
+    [SupportedOSPlatform("windows")]
     internal class SettingsFormController : IDisposable, INotifyPropertyChanged
     {
         private Form _form;
@@ -134,8 +135,14 @@ namespace WGestures.App.Gui.Windows {
 
                 try
                 {
-                    if (value) AutoStarter.Register(Constants.Identifier, Application.ExecutablePath);
-                    else AutoStarter.Unregister(Constants.Identifier);
+                    if (value)
+                    {
+                        AutoStarter.Register(Constants.Identifier, Application.ExecutablePath);
+                    }
+                    else
+                    {
+                        AutoStarter.Unregister(Constants.Identifier);
+                    }
 
                     _config.Dict.AutoStart= value ;
                 }
