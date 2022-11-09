@@ -1,6 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<NoWarn>$(NoWarn);SYSLIB0011</NoWarn>
+	</PropertyGroup>
+	
   <PropertyGroup>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFramework>net7.0-windows</TargetFramework>
     <OutputType>Library</OutputType>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <UseWindowsForms>true</UseWindowsForms>
@@ -10,6 +14,8 @@
     <DebugType>none</DebugType>
   </PropertyGroup>
   <ItemGroup>
-   
+  </ItemGroup>
+  <ItemGroup>
+     
   </ItemGroup>
 </Project>

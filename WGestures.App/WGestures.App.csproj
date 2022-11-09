@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFramework>net7.0-windows</TargetFramework>
     <OutputType>WinExe</OutputType>
     <AssemblyName>WGestures</AssemblyName>
     <IsWebBootstrapper>false</IsWebBootstrapper>
@@ -23,7 +23,6 @@
     <UseWindowsForms>true</UseWindowsForms>
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
   </PropertyGroup>
-   
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>
     </AssemblyOriginatorKeyFile>
@@ -34,10 +33,9 @@
   <PropertyGroup>
     <ApplicationIcon>Resources\icon.ico</ApplicationIcon>
   </PropertyGroup>
-
-	<PropertyGroup>
-		<BuildDir>Build</BuildDir>
-	</PropertyGroup>
+  <PropertyGroup>
+    <BuildDir>Build</BuildDir>
+  </PropertyGroup>
   <PropertyGroup>
     <TargetZone>LocalIntranet</TargetZone>
   </PropertyGroup>
@@ -117,9 +115,7 @@
   <ItemGroup>
     <EmbeddedResource Include="Resources\**\*.*" />
   </ItemGroup>
- 
   <ItemGroup>
-     
     <COMReference Include="Shell32">
       <Guid>{50A7E9B0-70EF-11D1-B75A-00A0C90564FE}</Guid>
       <VersionMajor>1</VersionMajor>
@@ -130,32 +126,25 @@
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
   </ItemGroup>
-  
   <ItemGroup>
-	  <Content Include="defaults\**\*.*">
-		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
-	  
-	  <Content Include="externalResource\**\*.*" />
-     
-	  <Content Include="QuickStartGuide\**\*.*">
-		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </Content>
-     
-	  <Content Include="Gui\Windows\QuickStartGuideForm.cs" />
-     
-	  <Content Include="Gui\Windows\QuickStartGuideForm.Designer.cs" />
-     
-	  <Content Include="Gui\Windows\QuickStartGuideForm.resx" />
-	  <Content Include="UpdateLog.txt">
+    <Content Include="appsettings.json" />
+    <Content Include="defaults\**\*.*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="externalResource\**\*.*" />
+    <Content Include="QuickStartGuide\**\*.*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Gui\Windows\QuickStartGuideForm.cs" />
+    <Content Include="Gui\Windows\QuickStartGuideForm.Designer.cs" />
+    <Content Include="Gui\Windows\QuickStartGuideForm.resx" />
+    <Content Include="UpdateLog.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
- 
   <ItemGroup>
-     
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="7.0.0" />
+    
   </ItemGroup>
   <PropertyGroup />
-   
 </Project>
