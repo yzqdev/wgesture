@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using WGestures.Common.OsSpecific.Windows;
+using System.ComponentModel;
 
 namespace WGestures.App.Gui.Windows.Controls
 {
@@ -11,6 +12,8 @@ namespace WGestures.App.Gui.Windows.Controls
         private float _dpiFactor = Native.GetScreenDpi() / 96.0f;
 
         private Color _color = Color.Transparent;
+
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public Color Color
         {
             get { return _color; }

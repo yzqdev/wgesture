@@ -20,7 +20,7 @@ namespace WGestures.App.Gui.Windows.CommandViews
             InitializeComponent();
         }
 
-
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
         public override AbstractCommand Command
         {
             get { return _command; }

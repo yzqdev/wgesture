@@ -5,6 +5,7 @@ using System.Linq;
 using WGestures.Core.Commands;
 using WGestures.Core.Commands.Impl;
 using WGestures.Core.Persistence;
+using System.ComponentModel;
 
 namespace WGestures.App.Gui.Windows.CommandViews
 {
@@ -14,6 +15,7 @@ namespace WGestures.App.Gui.Windows.CommandViews
 
         private CmdCommand _command;
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public override AbstractCommand Command
         {
             get { return _command; }

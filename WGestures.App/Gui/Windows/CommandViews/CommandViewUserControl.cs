@@ -1,4 +1,5 @@
-﻿using System.Windows.Forms;
+﻿using System.ComponentModel;
+using System.Windows.Forms;
 using WGestures.Core.Commands;
 
 namespace WGestures.App.Gui.Windows.CommandViews
@@ -9,7 +10,7 @@ namespace WGestures.App.Gui.Windows.CommandViews
         {
             InitializeComponent();
         }
-
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
         public virtual AbstractCommand Command { get; set; }
 
         public event CommandValueChangedEventHandler CommandValueChanged;

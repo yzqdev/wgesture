@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Windows.Forms;
 using WGestures.Core;
+using System.ComponentModel;
 
 namespace WGestures.App.Gui.Windows
 {
@@ -34,6 +35,7 @@ namespace WGestures.App.Gui.Windows
 
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public Gesture CapturedGesture { get; set; }
 
         public string GestureName

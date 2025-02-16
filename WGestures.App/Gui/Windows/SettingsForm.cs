@@ -15,6 +15,7 @@ using WGestures.Core;
 using WGestures.Core.Commands;
 using WGestures.Core.Commands.Impl;
 using WindowsInput.Events;
+using System.ComponentModel;
 
 namespace WGestures.App.Gui.Windows {
     internal partial class SettingsForm : Form
@@ -24,6 +25,7 @@ namespace WGestures.App.Gui.Windows {
         private VersionChecker _versionChecker;
         private RadioButton[] _hotCornerRadioBtns;
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public SettingsFormController settingFormController { get; set; }
 
         public SettingsForm(SettingsFormController controller)

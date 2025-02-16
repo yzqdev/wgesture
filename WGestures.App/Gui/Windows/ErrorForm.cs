@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Windows.Forms;
+using System.ComponentModel;
 
 namespace WGestures.App.Gui.Windows
 {
     public partial class ErrorForm : Form
     {
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string ErrorText
         {
             get { return tb_Detail.Text; }

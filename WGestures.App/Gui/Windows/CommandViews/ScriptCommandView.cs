@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.ComponentModel;
+using System.Diagnostics;
 using System.Windows.Forms;
 using WGestures.Core.Commands;
 using WGestures.Core.Commands.Impl;
@@ -13,7 +14,7 @@ namespace WGestures.App.Gui.Windows.CommandViews
         {
             InitializeComponent();
         }
-
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
         public override AbstractCommand Command
         {
             get { return _cmd; }

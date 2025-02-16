@@ -157,34 +157,34 @@ namespace WGestures.Core.Commands.Impl
         /// <returns></returns>
         private static string GetExplorerCurrentPath()
         {
-            string path = null;
+            string path = "e:/tmp";
             
-            var shellWindows = new SHDocVw.ShellWindows();
+            //var shellWindows = new SHDocVw.ShellWindows();
 
             try
             {
 
-                foreach (SHDocVw.InternetExplorer ie in shellWindows)
-                {
-                    var filename = Path.GetFileNameWithoutExtension(ie.FullName).ToLower();
+                //foreach (SHDocVw.InternetExplorer ie in shellWindows)
+                //{
+                //    var filename = Path.GetFileNameWithoutExtension(ie.FullName).ToLower();
 
-                    var activeWindow = Native.GetForegroundWindow();
+                //    var activeWindow = Native.GetForegroundWindow();
 
-                    if (filename.Equals("explorer") && activeWindow == new IntPtr(ie.HWND))
-                    {
-                        var uri = ie.LocationURL;
-                        if (Uri.IsWellFormedUriString(uri, UriKind.Absolute))
-                        {
-                            path = new Uri(uri).LocalPath;
-                        }
-                    }
-                }
+                //    if (filename.Equals("explorer") && activeWindow == new IntPtr(ie.HWND))
+                //    {
+                //        var uri = ie.LocationURL;
+                //        if (Uri.IsWellFormedUriString(uri, UriKind.Absolute))
+                //        {
+                //            path = new Uri(uri).LocalPath;
+                //        }
+                //    }
+                //}
 
                 return path;
             }
             finally
             {
-                Marshal.ReleaseComObject(shellWindows);
+              
             }
 
         }

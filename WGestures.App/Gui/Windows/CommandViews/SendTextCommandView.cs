@@ -13,7 +13,7 @@ namespace WGestures.App.Gui.Windows.CommandViews
     public partial class SendTextCommandView : CommandViewUserControl
     {
         private SendTextCommand _command;
-
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
         public override AbstractCommand Command 
         {
             get { return _command; }

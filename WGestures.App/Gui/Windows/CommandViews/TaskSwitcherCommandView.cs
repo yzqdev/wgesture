@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using WGestures.Core.Commands;
@@ -14,7 +15,7 @@ namespace WGestures.App.Gui.Windows.CommandViews
             InitializeComponent();
         }
         private TaskSwitcherCommand _command;
-
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
         public override AbstractCommand Command 
         {
             get { return _command; }

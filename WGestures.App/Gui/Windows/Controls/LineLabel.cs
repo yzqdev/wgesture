@@ -1,10 +1,12 @@
 ﻿using System.Drawing;
 using System.Windows.Forms;
+using System.ComponentModel;
 
 namespace WGestures.App.Gui.Windows.Controls
 {
     class LineLabel : Label
     {
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsVertical { get; set; }
 
         protected override void OnPaintBackground(PaintEventArgs pevent)

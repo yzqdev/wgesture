@@ -7,6 +7,7 @@ namespace WGestures.App.Gui.Windows.Controls
     class LineFlowLayout : FlowLayoutPanel
     {
         [Browsable(true)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool Vertical { get; set; }
 
         protected override void OnPaintBackground(PaintEventArgs e)

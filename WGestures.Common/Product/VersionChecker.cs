@@ -3,6 +3,7 @@ using System.Net;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using System.Diagnostics;
+using System.ComponentModel;
 
 namespace WGestures.Common.Product
 {
@@ -122,6 +123,7 @@ namespace WGestures.Common.Product
 
     internal class TimeOutWebClient : WebClient
     {
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int TimeOutSecs { get; set; }
 
         public TimeOutWebClient()

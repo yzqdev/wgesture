@@ -1,4 +1,5 @@
-﻿using WGestures.Core.Commands;
+﻿using System.ComponentModel;
+using WGestures.Core.Commands;
 
 namespace WGestures.App.Gui.Windows.CommandViews
 {
@@ -8,7 +9,7 @@ namespace WGestures.App.Gui.Windows.CommandViews
         {
             InitializeComponent();
         }
-
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
         public override AbstractCommand Command { get; set; }
     }
 }

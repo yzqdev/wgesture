@@ -4,17 +4,20 @@ using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using Shell32;
+ 
 using WGestures.Common.OsSpecific.Windows;
 using WGestures.Core;
 using WGestures.Core.Persistence;
 using Win32;
+using System.ComponentModel;
 
 namespace WGestures.App.Gui.Windows
 {
     public partial class EditAppForm : Form
     {
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string AppName { get; private set; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string AppPath { get; private set; }
 
         private bool _isEditingMode;
@@ -220,32 +223,29 @@ namespace WGestures.App.Gui.Windows
         #region util
         private static string GetLnkTarget(string lnkPath)
         {
-            Shell shl = null;
-            Folder dir = null;
-            FolderItem itm = null;
-            ShellLinkObject lnk = null;
+            
 
             try
             {
-                shl = new Shell32.Shell(); // Move this to class scope
+            
                 lnkPath = System.IO.Path.GetFullPath(lnkPath);
-                dir = shl.NameSpace(System.IO.Path.GetDirectoryName(lnkPath));
-                itm = dir.Items().Item(System.IO.Path.GetFileName(lnkPath));
+               
+               
 
+       
 
-                lnk = (Shell32.ShellLinkObject)itm.GetLink;
+          
+                //if (lnk.Target.Type.Equals("System Folder"))
+                //{
+                //    Console.WriteLine("explore.exe");
+                //    return Environment.GetEnvironmentVariable("windir") + @"\explorer.exe";
 
-                Console.WriteLine(lnk.Target.Type);
-                if (lnk.Target.Type.Equals("System Folder"))
-                {
-                    Console.WriteLine("explore.exe");
-                    return Environment.GetEnvironmentVariable("windir") + @"\explorer.exe";
-
-                }
+                //}
 
                 try
                 {
-                    var p = lnk.Target.Path;
+                    var link = Lnk.Lnk.LoadFile(lnkPath);
+                    var p = link.LocalPath;
                     Console.WriteLine(p);
 
                     return p;
@@ -258,10 +258,7 @@ namespace WGestures.App.Gui.Windows
             }
             finally
             {
-                if (shl != null) Marshal.ReleaseComObject(shl);
-                if (dir != null) Marshal.ReleaseComObject(dir);
-                if (itm != null) Marshal.ReleaseComObject(itm);
-                if (lnk != null) Marshal.ReleaseComObject(lnk);
+         
             }
 
 

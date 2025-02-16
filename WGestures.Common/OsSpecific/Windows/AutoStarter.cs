@@ -6,9 +6,10 @@ using System.Security.Principal;
 using System.Text;
 using System.Windows.Forms;
 using Microsoft.Win32;
-using IWshRuntimeLibrary;
+ 
 using System.Runtime.Versioning;
-
+ 
+using WindowsShortcutFactory;
 namespace WGestures.Common.OsSpecific.Windows
 {
     /// <summary>
@@ -97,17 +98,46 @@ namespace WGestures.Common.OsSpecific.Windows
         /// </summary>
         /// <param name="shortcutPath">快捷方式路径</param>
         /// <param name="targetFileLocation">文件路径</param>
+       [SupportedOSPlatform("Windows")]
         public static void CreateShortcut(string shortcutPath, string targetFileLocation)
         {
             try
             {
-                //在用户启动文件夹创建快捷方式C:\Users\yanni\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup
-                WshShell shell = new WshShell();
-                IWshShortcut shortcut = (IWshShortcut)shell.CreateShortcut(shortcutPath);
+//                var exePath = Environment.ProcessPath;
+//                var script = @$" 
+//               $WshShell = New-Object -COMObject WScript.Shell;$Shortcut = $WshShell.CreateShortcut('Wgestures.lnk')
+//$Shortcut.TargetPath =  '{exePath}'
+//$Shortcut.Save()
+//            ";
 
-                shortcut.TargetPath = targetFileLocation;
-                shortcut.Save();
-               
+//                var powerShell = PowerShell.Create();
+//                powerShell.AddScript(script);
+
+//                foreach (var className in powerShell.Invoke())
+//                {
+//                    Trace.WriteLine(className);
+//                }
+                //var ps1File = @".\QuickStartGuide\createShort.ps1";
+                //var startInfo = new ProcessStartInfo()
+                //{
+                //    FileName = "pwsh.exe",
+                //    Arguments = $"-ExecutionPolicy Bypass -WindowStyle Hidden -NoProfile -file \"{ps1File}\"",
+                //    UseShellExecute = false
+                //};
+                //var proc = Process.Start(startInfo);
+                //在用户启动文件夹创建快捷方式C:\Users\yanni\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup
+                //WshShell shell = new WshShell();
+                //IWshShortcut shortcut = (IWshShortcut)shell.CreateShortcut(shortcutPath);
+
+                //shortcut.TargetPath = targetFileLocation;
+                //shortcut.Save();
+                using var shortcut = new WindowsShortcut
+                {
+                    Path = targetFileLocation,
+                    Description = "wgestures eexe"
+                };
+
+                shortcut.Save(shortcutPath);
             }
             catch (Exception e)
             {

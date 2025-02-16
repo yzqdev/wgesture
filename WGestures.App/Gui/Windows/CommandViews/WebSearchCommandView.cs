@@ -15,7 +15,7 @@ namespace WGestures.App.Gui.Windows.CommandViews
     public partial class WebSearchCommandView : CommandViewUserControl
     {
         private WebSearchCommand _command;
-
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
         public override AbstractCommand Command
         {
             get { return _command; }

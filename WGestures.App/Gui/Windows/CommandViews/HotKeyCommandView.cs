@@ -9,6 +9,7 @@ using WGestures.Common.OsSpecific.Windows;
 using WGestures.Core.Commands;
 using WGestures.Core.Commands.Impl;
 using WindowsInput.Events;
+using System.ComponentModel;
 
 namespace WGestures.App.Gui.Windows.CommandViews
 {
@@ -89,7 +90,7 @@ namespace WGestures.App.Gui.Windows.CommandViews
 
         private bool _isRecording = false;
         private HotKeyCommand _command;
-
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
         public override AbstractCommand Command
         {
             get { return _command; }
