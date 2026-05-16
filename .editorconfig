@@ -3,7 +3,13 @@ root = true
 
 # c# 文件
 [*.cs]
+# 强制使用文件范围的命名空间（不要大括号）
+csharp_style_namespace_declarations = file_scoped:suggestion
 
+# 严重性级别可以根据你的喜好调整：
+# file_scoped:suggestion  - 编译器会给出淡灰色提示（建议），按 Alt+Enter 可一键修复
+# file_scoped:warning     - 如果用了大括号，代码会弹警告（波浪线）
+# file_scoped:error       - 如果用了大括号，直接编译报错
 #### Core EditorConfig 选项 ####
 
 # 缩进和间距
