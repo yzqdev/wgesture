@@ -2,13 +2,13 @@
 // http://www.cyotek.com/blog/dragging-items-in-a-listview-control-with-visual-insertion-guides
 using System.Windows.Forms;
 
-namespace WGestures.App.Gui.Windows.Controls
+namespace WGestures.App.Gui.Windows.Controls;
+
+/// <summary>
+/// Provides data for the <see cref="System.Windows.Forms.ListView.ItemDragDrop"/> event of the <see cref="System.Windows.Forms.ListView"/> control.
+/// </summary>
+public class ListViewItemDragEventArgs : CancelListViewItemDragEventArgs
 {
-  /// <summary>
-  /// Provides data for the <see cref="System.Windows.Forms.ListView.ItemDragDrop"/> event of the <see cref="System.Windows.Forms.ListView"/> control.
-  /// </summary>
-  public class ListViewItemDragEventArgs : CancelListViewItemDragEventArgs
-  {
     #region Public Constructors
 
     /// <summary>
@@ -21,14 +21,14 @@ namespace WGestures.App.Gui.Windows.Controls
     /// <param name="x">The x-coordinate of a mouse click, in pixels.</param>
     /// <param name="y">The y-coordinate of a mouse click, in pixels.</param>
     public ListViewItemDragEventArgs(ListViewItem sourceItem, ListViewItem dropItem, int insertionIndex, InsertionMode insertionMode, int x, int y)
-      : this()
+        : this()
     {
-      this.Item = sourceItem;
-      this.DropItem = dropItem;
-      this.X = x;
-      this.Y = y;
-      this.InsertionIndex = insertionIndex;
-      this.InsertionMode = insertionMode;
+        this.Item = sourceItem;
+        this.DropItem = dropItem;
+        this.X = x;
+        this.Y = y;
+        this.InsertionIndex = insertionIndex;
+        this.InsertionMode = insertionMode;
     }
 
     #endregion
@@ -76,5 +76,4 @@ namespace WGestures.App.Gui.Windows.Controls
     public int Y { get; protected set; }
 
     #endregion
-  }
 }

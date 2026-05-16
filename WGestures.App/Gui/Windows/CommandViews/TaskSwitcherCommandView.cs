@@ -6,39 +6,38 @@ using System.Text;
 using WGestures.Core.Commands;
 using WGestures.Core.Commands.Impl;
 
-namespace WGestures.App.Gui.Windows.CommandViews
+namespace WGestures.App.Gui.Windows.CommandViews;
+
+class TaskSwitcherCommandView : CommandViewUserControl
 {
-    class TaskSwitcherCommandView : CommandViewUserControl
+    public TaskSwitcherCommandView()
     {
-        public TaskSwitcherCommandView()
+        InitializeComponent();
+    }
+    private TaskSwitcherCommand _command;
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+    public override AbstractCommand Command 
+    {
+        get { return _command; }
+        set
         {
-            InitializeComponent();
+            _command = (TaskSwitcherCommand) value;
         }
-        private TaskSwitcherCommand _command;
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        public override AbstractCommand Command 
-        {
-            get { return _command; }
-            set
-            {
-                _command = (TaskSwitcherCommand) value;
-            }
-        }
+    }
 
-        private void InitializeComponent()
-        {
-            this.SuspendLayout();
-            // 
-            // TaskSwitcherCommandView
-            // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
-            this.Name = "TaskSwitcherCommandView";
-            this.ResumeLayout(false);
+    private void InitializeComponent()
+    {
+        this.SuspendLayout();
+        // 
+        // TaskSwitcherCommandView
+        // 
+        this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
+        this.Name = "TaskSwitcherCommandView";
+        this.ResumeLayout(false);
 
-        }
+    }
 
-        private void check_prevTask_CheckedChanged(object sender, EventArgs e)
-        {
-        }
+    private void check_prevTask_CheckedChanged(object sender, EventArgs e)
+    {
     }
 }

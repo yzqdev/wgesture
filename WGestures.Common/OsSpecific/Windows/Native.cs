@@ -16,986 +16,986 @@ using ThreadState = System.Diagnostics.ThreadState;
 using System.IO;
 using WindowsInput.Events;
 
-namespace WGestures.Common.OsSpecific.Windows
+namespace WGestures.Common.OsSpecific.Windows;
+
+public static class Native
 {
-    public static class Native
+    public delegate IntPtr LowLevelMouseHookProc(int nCode, IntPtr wParam, IntPtr lParam);
+    public delegate int LowLevelkeyboardHookProc(int code, int wParam, ref keyboardHookStruct lParam);
+    public const int WH_MOUSE_LL = 14;
+    public const int WH_KEYBOARD_LL = 13;
+
+    /// <summary>
+    /// 设置鼠标钩子
+    /// </summary>
+    /// <param name="proc"></param>
+    /// <returns></returns>
+    public static IntPtr SetMouseHook(LowLevelMouseHookProc proc)
     {
-        public delegate IntPtr LowLevelMouseHookProc(int nCode, IntPtr wParam, IntPtr lParam);
-        public delegate int LowLevelkeyboardHookProc(int code, int wParam, ref keyboardHookStruct lParam);
-        public const int WH_MOUSE_LL = 14;
-        public const int WH_KEYBOARD_LL = 13;
-
-        /// <summary>
-        /// 设置鼠标钩子
-        /// </summary>
-        /// <param name="proc"></param>
-        /// <returns></returns>
-        public static IntPtr SetMouseHook(LowLevelMouseHookProc proc)
+        using (var curProcess = Process.GetCurrentProcess())
+        using (var curModule = curProcess.MainModule)
         {
-            using (var curProcess = Process.GetCurrentProcess())
-            using (var curModule = curProcess.MainModule)
-            {
-                return SetWindowsHookEx(WH_MOUSE_LL, proc, 
-                    GetModuleHandle(curModule.ModuleName), 0);
-            }
+            return SetWindowsHookEx(WH_MOUSE_LL, proc, 
+                GetModuleHandle(curModule.ModuleName), 0);
         }
+    }
 
-        public static IntPtr SetKeyboardHook(LowLevelkeyboardHookProc proc)
+    public static IntPtr SetKeyboardHook(LowLevelkeyboardHookProc proc)
+    {
+        using (var curProcess = Process.GetCurrentProcess())
+        using (var curModule = curProcess.MainModule)
         {
-            using (var curProcess = Process.GetCurrentProcess())
-            using (var curModule = curProcess.MainModule)
-            {
-                return SetWindowsHookEx(WH_KEYBOARD_LL, proc,
-                    GetModuleHandle(curModule.ModuleName), 0);
-            }
+            return SetWindowsHookEx(WH_KEYBOARD_LL, proc,
+                GetModuleHandle(curModule.ModuleName), 0);
         }
+    }
 
         
 
-        public struct keyboardHookStruct
-        {
-            public int vkCode;
-            public int scanCode;
-            public int flags;
-            public int time;
-            public int dwExtraInfo;
-        }
+    public struct keyboardHookStruct
+    {
+        public int vkCode;
+        public int scanCode;
+        public int flags;
+        public int time;
+        public int dwExtraInfo;
+    }
 
-        public static Color GetWindowColorization()
+    public static Color GetWindowColorization()
+    {
+        try
         {
-            try
-            {
-                var argbColor = (int)Microsoft.Win32.Registry.GetValue(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\DWM",
+            var argbColor = (int)Microsoft.Win32.Registry.GetValue(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\DWM",
                 "ColorizationColor", 0);
-                return Color.FromArgb(argbColor);
-
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine("WindowsUtil.GetWindowColorization: " + e);
-                return Color.FromArgb(120, 0,0,0);
-            }
-
-
+            return Color.FromArgb(argbColor);
 
         }
-
-        [DllImport("user32.dll")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool PostMessage(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
-
-        [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
-        public static extern int GetClassName(IntPtr hWnd, StringBuilder lpClassName, int nMaxCount);
-
-        public static int GetScreenDpi()
+        catch (Exception e)
         {
-            var scrDc = GetDC(IntPtr.Zero);
-
-            int dpi = GDI32.GetDeviceCaps(scrDc, (int)GDI32.DeviceCap.LOGPIXELSX);
-
-            ReleaseDC(IntPtr.Zero, scrDc);
-
-            return dpi;
-        }
-
-        public static Rectangle GetScreenBounds()
-        {
-            IntPtr hwnd = User32.GetDesktopWindow();
-
-            GDI32.RECT rect;
-            User32.GetWindowRect(hwnd, out rect);
-
-            return new Rectangle(rect.Left, rect.Top, rect.Right - rect.Left, rect.Bottom - rect.Top);
+            Debug.WriteLine("WindowsUtil.GetWindowColorization: " + e);
+            return Color.FromArgb(120, 0,0,0);
         }
 
 
-        //Todo: ForeGround VS Active ??
-        public static uint GetActiveProcessId()
-        {
-            IntPtr hwnd = GetForegroundWindow();
-            uint procId;
-            GetWindowThreadProcessId(hwnd, out procId);
 
-            return procId;
-        }
+    }
 
-        public static bool IsMouseButtonSwapped()
-        {
-            return GetSystemMetrics(SystemMetric.SM_SWAPBUTTON) != 0;
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool PostMessage(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
+
+    [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+    public static extern int GetClassName(IntPtr hWnd, StringBuilder lpClassName, int nMaxCount);
+
+    public static int GetScreenDpi()
+    {
+        var scrDc = GetDC(IntPtr.Zero);
+
+        int dpi = GDI32.GetDeviceCaps(scrDc, (int)GDI32.DeviceCap.LOGPIXELSX);
+
+        ReleaseDC(IntPtr.Zero, scrDc);
+
+        return dpi;
+    }
+
+    public static Rectangle GetScreenBounds()
+    {
+        IntPtr hwnd = User32.GetDesktopWindow();
+
+        GDI32.RECT rect;
+        User32.GetWindowRect(hwnd, out rect);
+
+        return new Rectangle(rect.Left, rect.Top, rect.Right - rect.Left, rect.Bottom - rect.Top);
+    }
+
+
+    //Todo: ForeGround VS Active ??
+    public static uint GetActiveProcessId()
+    {
+        IntPtr hwnd = GetForegroundWindow();
+        uint procId;
+        GetWindowThreadProcessId(hwnd, out procId);
+
+        return procId;
+    }
+
+    public static bool IsMouseButtonSwapped()
+    {
+        return GetSystemMetrics(SystemMetric.SM_SWAPBUTTON) != 0;
             
+    }
+
+    /*public static int GetParentProcessId(uint pid)
+    {
+        PROCESS_BASIC_INFORMATION pbi = new PROCESS_BASIC_INFORMATION();
+
+        //Get a handle to our own process
+        IntPtr hProc = OpenProcess((ProcessAccessFlags)0x001F0FFF, false, pid);
+
+        try
+        {
+            int sizeInfoReturned;
+            int queryStatus = NtQueryInformationProcess(hProc, 0, ref pbi, pbi.Size, out sizeInfoReturned);
+        }
+        finally
+        {
+            if (!hProc.Equals(IntPtr.Zero))
+            {
+                //Close handle and free allocated memory
+                CloseHandle(hProc);
+                hProc = IntPtr.Zero;
+            }
         }
 
-        /*public static int GetParentProcessId(uint pid)
+        return (int)pbi.InheritedFromUniqueProcessId;
+    }*/
+
+
+    // get the parent process given a pid
+    public static uint GetParentProcess(uint pid)
+    {
+        uint parentProc = 0;
+        IntPtr handleToSnapshot = IntPtr.Zero;
+        try
         {
-            PROCESS_BASIC_INFORMATION pbi = new PROCESS_BASIC_INFORMATION();
-
-            //Get a handle to our own process
-            IntPtr hProc = OpenProcess((ProcessAccessFlags)0x001F0FFF, false, pid);
-
-            try
+            PROCESSENTRY32 procEntry = new PROCESSENTRY32();
+            procEntry.dwSize = (UInt32)Marshal.SizeOf(typeof(PROCESSENTRY32));
+            handleToSnapshot = CreateToolhelp32Snapshot((uint)SnapshotFlags.Process, 0);
+            if (Process32First(handleToSnapshot, ref procEntry))
             {
-                int sizeInfoReturned;
-                int queryStatus = NtQueryInformationProcess(hProc, 0, ref pbi, pbi.Size, out sizeInfoReturned);
-            }
-            finally
-            {
-                if (!hProc.Equals(IntPtr.Zero))
+                do
                 {
-                    //Close handle and free allocated memory
-                    CloseHandle(hProc);
-                    hProc = IntPtr.Zero;
-                }
-            }
-
-            return (int)pbi.InheritedFromUniqueProcessId;
-        }*/
-
-
-        // get the parent process given a pid
-        public static uint GetParentProcess(uint pid)
-        {
-            uint parentProc = 0;
-            IntPtr handleToSnapshot = IntPtr.Zero;
-            try
-            {
-                PROCESSENTRY32 procEntry = new PROCESSENTRY32();
-                procEntry.dwSize = (UInt32)Marshal.SizeOf(typeof(PROCESSENTRY32));
-                handleToSnapshot = CreateToolhelp32Snapshot((uint)SnapshotFlags.Process, 0);
-                if (Process32First(handleToSnapshot, ref procEntry))
-                {
-                    do
+                    if (pid == procEntry.th32ProcessID)
                     {
-                        if (pid == procEntry.th32ProcessID)
-                        {
-                            parentProc = procEntry.th32ParentProcessID;
-                            break;
-                        }
-                    } while (Process32Next(handleToSnapshot, ref procEntry));
-                }
-                else
-                {
-                    throw new ApplicationException(string.Format("Failed with win32 error code {0}", Marshal.GetLastWin32Error()));
-                }
+                        parentProc = procEntry.th32ParentProcessID;
+                        break;
+                    }
+                } while (Process32Next(handleToSnapshot, ref procEntry));
             }
-            catch (Exception ex)
+            else
             {
-                throw new ApplicationException("Can't get the process.", ex);
+                throw new ApplicationException(string.Format("Failed with win32 error code {0}", Marshal.GetLastWin32Error()));
             }
-            finally
-            {
-                // Must clean up the snapshot object!
-                CloseHandle(handleToSnapshot);
-            }
-            return parentProc;
         }
+        catch (Exception ex)
+        {
+            throw new ApplicationException("Can't get the process.", ex);
+        }
+        finally
+        {
+            // Must clean up the snapshot object!
+            CloseHandle(handleToSnapshot);
+        }
+        return parentProc;
+    }
 
-        [DllImport("NTDLL.DLL", SetLastError = true)]
-        static extern int NtQueryInformationProcess(IntPtr hProcess, PROCESSINFOCLASS pic,
+    [DllImport("NTDLL.DLL", SetLastError = true)]
+    static extern int NtQueryInformationProcess(IntPtr hProcess, PROCESSINFOCLASS pic,
         ref PROCESS_BASIC_INFORMATION pbi, int cb, out int pSize);
 
-        //inner enum used only internally
-        [Flags]
-        private enum SnapshotFlags : uint
+    //inner enum used only internally
+    [Flags]
+    private enum SnapshotFlags : uint
+    {
+        HeapList = 0x00000001,
+        Process = 0x00000002,
+        Thread = 0x00000004,
+        Module = 0x00000008,
+        Module32 = 0x00000010,
+        Inherit = 0x80000000,
+        All = 0x0000001F,
+        NoHeaps = 0x40000000
+    }
+    //inner struct used only internally
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+    private struct PROCESSENTRY32
+    {
+        const int MAX_PATH = 260;
+        internal UInt32 dwSize;
+        internal UInt32 cntUsage;
+        internal UInt32 th32ProcessID;
+        internal IntPtr th32DefaultHeapID;
+        internal UInt32 th32ModuleID;
+        internal UInt32 cntThreads;
+        internal UInt32 th32ParentProcessID;
+        internal Int32 pcPriClassBase;
+        internal UInt32 dwFlags;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = MAX_PATH)]
+        internal string szExeFile;
+    }
+
+    [DllImport("kernel32", SetLastError = true, CharSet = System.Runtime.InteropServices.CharSet.Auto)]
+    static extern IntPtr CreateToolhelp32Snapshot([In]UInt32 dwFlags, [In]UInt32 th32ProcessID);
+
+    [DllImport("kernel32", SetLastError = true, CharSet = System.Runtime.InteropServices.CharSet.Auto)]
+    static extern bool Process32First([In]IntPtr hSnapshot, ref PROCESSENTRY32 lppe);
+
+    [DllImport("kernel32", SetLastError = true, CharSet = System.Runtime.InteropServices.CharSet.Auto)]
+    static extern bool Process32Next([In]IntPtr hSnapshot, ref PROCESSENTRY32 lppe);
+
+
+
+    public static bool WaitForInputIdle(uint pid, uint tid, int timeout = 0)
+    {
+        //int pid;
+        //int tid = GetWindowThreadProcessId(hWnd, out pid);
+        //if (tid == 0 || pid == 0) return false;
+        int tick = Environment.TickCount;
+        do
         {
-            HeapList = 0x00000001,
-            Process = 0x00000002,
-            Thread = 0x00000004,
-            Module = 0x00000008,
-            Module32 = 0x00000010,
-            Inherit = 0x80000000,
-            All = 0x0000001F,
-            NoHeaps = 0x40000000
-        }
-        //inner struct used only internally
-        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
-        private struct PROCESSENTRY32
-        {
-            const int MAX_PATH = 260;
-            internal UInt32 dwSize;
-            internal UInt32 cntUsage;
-            internal UInt32 th32ProcessID;
-            internal IntPtr th32DefaultHeapID;
-            internal UInt32 th32ModuleID;
-            internal UInt32 cntThreads;
-            internal UInt32 th32ParentProcessID;
-            internal Int32 pcPriClassBase;
-            internal UInt32 dwFlags;
-            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = MAX_PATH)]
-            internal string szExeFile;
-        }
+            //Thread.Sleep(10);
 
-        [DllImport("kernel32", SetLastError = true, CharSet = System.Runtime.InteropServices.CharSet.Auto)]
-        static extern IntPtr CreateToolhelp32Snapshot([In]UInt32 dwFlags, [In]UInt32 th32ProcessID);
-
-        [DllImport("kernel32", SetLastError = true, CharSet = System.Runtime.InteropServices.CharSet.Auto)]
-        static extern bool Process32First([In]IntPtr hSnapshot, ref PROCESSENTRY32 lppe);
-
-        [DllImport("kernel32", SetLastError = true, CharSet = System.Runtime.InteropServices.CharSet.Auto)]
-        static extern bool Process32Next([In]IntPtr hSnapshot, ref PROCESSENTRY32 lppe);
-
-
-
-        public static bool WaitForInputIdle(uint pid, uint tid, int timeout = 0)
-        {
-            //int pid;
-            //int tid = GetWindowThreadProcessId(hWnd, out pid);
-            //if (tid == 0 || pid == 0) return false;
-            int tick = Environment.TickCount;
-            do
+            if (IsThreadIdle(pid, tid))
             {
-                //Thread.Sleep(10);
-
-                if (IsThreadIdle(pid, tid))
-                {
-                    //Console.Write(" Idle ");
-                    return true;
-                }
-
-                Thread.Sleep(10);
-            } while (timeout > 0 && Environment.TickCount - tick < timeout);
-
-            //Console.Write(" Timeout ");
-            return false;
-        }
-
-
-        private static bool IsThreadIdle(uint pid, uint tid)
-        {
-            try
-            {
-                using (var prc = Process.GetProcessById((int)pid))
-                {
-                    var threads = prc.Threads.Cast<ProcessThread>().Where(t => tid == t.Id);
-                    var processThreads = threads as ProcessThread[] ?? threads.ToArray();
-
-                    if (!processThreads.Any()) return true;
-
-                    using (var thr = processThreads.First())
-                    {
-                        return thr.ThreadState == ThreadState.Wait &&
-                            thr.WaitReason == ThreadWaitReason.UserRequest;
-                    }
-
-                }
-            }
-            //进程可能已经退出
-            catch (ArgumentException)
-            {
-
+                //Console.Write(" Idle ");
                 return true;
             }
 
-        }
+            Thread.Sleep(10);
+        } while (timeout > 0 && Environment.TickCount - tick < timeout);
 
-        public static string GetProcessFileFromWindow(IntPtr hwnd)
+        //Console.Write(" Timeout ");
+        return false;
+    }
+
+
+    private static bool IsThreadIdle(uint pid, uint tid)
+    {
+        try
         {
-            uint proc = GetProcessIdByWindowHandle(hwnd);
-            return GetProcessFile(proc);
-        }
-
-        public static string GetProcessFile(uint proc)
-        {
-            const int pathLength = 256;
-            var procFullName = new StringBuilder(pathLength);
-
-            var hProc = OpenProcess(Native.ProcessAccessFlags.QueryInformation | ProcessAccessFlags.VMRead, false, proc);
-           // QueryFullProcessImageNameW(hProc, 0, procFullName, ref pathLength);
-            if (GetModuleFileNameEx(hProc, IntPtr.Zero, procFullName, (uint) pathLength) == 0)
+            using (var prc = Process.GetProcessById((int)pid))
             {
-                CloseHandle(hProc);
-#if DEBUG
-                throw new Exception("GetModuleFileNameEx Failed:"+GetLastError());
-#endif
-                return null;
-            }
-            CloseHandle(hProc);
-            
-            return procFullName.ToString();
-        }
+                var threads = prc.Threads.Cast<ProcessThread>().Where(t => tid == t.Id);
+                var processThreads = threads as ProcessThread[] ?? threads.ToArray();
 
-        //[DllImport("psapi.dll")]
-        [DllImport("psapi.dll", CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
-        static extern uint GetModuleFileNameEx(IntPtr hProcess, IntPtr hModule, [Out] StringBuilder lpBaseName, uint nSize);
+                if (!processThreads.Any()) return true;
 
-        public static uint GetProcessIdByWindowHandle(IntPtr hwnd)
-        {
-            uint procId;
-            GetWindowThreadProcessId(hwnd, out procId);
-
-            return procId;
-        }
-
-        public static IntPtr GetHoveringWindow()
-        {
-            POINT cursorPos;
-            GetCursorPos(out cursorPos);
-            return WindowFromPoint(cursorPos);
-        }
-
-        public static uint GetHoveringProcessId()
-        {
-            return GetProcessIdByWindowHandle(GetHoveringWindow());
-        }
-
-        public static uint GetProcessIdFromPoint(POINT p)
-        {
-            return GetProcessIdByWindowHandle(WindowFromPoint(p));
-
-        }
-
-        [DllImport("user32.dll")]
-        public static extern int GetSystemMetrics(SystemMetric smIndex);
-
-        [DllImport("user32.dll")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool IsGUIThread([MarshalAs(UnmanagedType.Bool)] bool bConvert);
-
-        [DllImport("user32.dll")]
-        public static extern IntPtr GetActiveWindow();
-
-        [DllImport("user32.dll")]
-        public static extern short GetAsyncKeyState(Keys vKey); 
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool GetExitCodeProcess(uint hProcess, out uint lpExitCode);
-
-        public static IntPtr GetTopLevelWindow(IntPtr window)
-        {
-            var temp = IntPtr.Zero;
-            while ((temp = Native.GetParent(window)) != IntPtr.Zero) window = temp;
-
-            return window;
-        }
-
-        public static IntPtr TopLevelWindowFromPoint(POINT p)
-        {
-            var window = Native.WindowFromPoint(p);
-            var temp = IntPtr.Zero;
-            while ((temp = Native.GetParent(window)) != IntPtr.Zero) window = temp;
-
-            return window;
-        }
-
-        [DllImport("user32.dll", SetLastError = true)]
-        public static extern IntPtr SetActiveWindow(IntPtr hWnd);
-
-
-        [DllImport("user32.dll", SetLastError = true)]
-        public static extern int GetWindowLong(IntPtr hWnd, int nIndex);
-
-        [DllImport("user32.dll")]
-        public static extern bool ChangeWindowMessageFilter(uint msg, ChangeWindowMessageFilterFlags flags);
-
-        [DllImport("user32.dll", SetLastError = true)]
-        public static extern bool ChangeWindowMessageFilterEx(IntPtr hWnd, uint msg, ChangeWindowMessageFilterExAction action, ref CHANGEFILTERSTRUCT changeInfo);
-
-        //==============================================================
-
-        /// <summary>
-        /// 通过向指定的按键发送KeyUp来恢复状态
-        /// </summary>
-        /// <param name="c"></param>
-        /// <param name="allKeys"></param>
-        public static void TryResetKeys(params IEnumerable<KeyCode>[] allKeys)
-        {
-            var dummyWnd = new NativeWindow();
-
-            try
-            {
-                //如果被系统或者杀毒软件阻止， 则发送给自己的一个窗口，这样避免被在此拦截。
-                dummyWnd.CreateHandle(new CreateParams(){ExStyle = (int) (User32.WS_EX.WS_EX_LAYERED | User32.WS_EX.WS_EX_TOOLWINDOW)});
-                User32.ShowWindow(dummyWnd.Handle, User32.SW.SW_SHOWNORMAL);
-
-                var sim = EventBuilder.Create();
-                sim.Wait(10);
-
-                foreach (var keys in allKeys)
+                using (var thr = processThreads.First())
                 {
-                     foreach (var k in keys)
-                    {
-                        User32.SetForegroundWindow(dummyWnd.Handle);
-                        sim.Click(k).Invoke();
-                    }
+                    return thr.ThreadState == ThreadState.Wait &&
+                           thr.WaitReason == ThreadWaitReason.UserRequest;
                 }
 
             }
-            catch (Exception)
+        }
+        //进程可能已经退出
+        catch (ArgumentException)
+        {
+
+            return true;
+        }
+
+    }
+
+    public static string GetProcessFileFromWindow(IntPtr hwnd)
+    {
+        uint proc = GetProcessIdByWindowHandle(hwnd);
+        return GetProcessFile(proc);
+    }
+
+    public static string GetProcessFile(uint proc)
+    {
+        const int pathLength = 256;
+        var procFullName = new StringBuilder(pathLength);
+
+        var hProc = OpenProcess(Native.ProcessAccessFlags.QueryInformation | ProcessAccessFlags.VMRead, false, proc);
+        // QueryFullProcessImageNameW(hProc, 0, procFullName, ref pathLength);
+        if (GetModuleFileNameEx(hProc, IntPtr.Zero, procFullName, (uint) pathLength) == 0)
+        {
+            CloseHandle(hProc);
+#if DEBUG
+            throw new Exception("GetModuleFileNameEx Failed:"+GetLastError());
+#endif
+            return null;
+        }
+        CloseHandle(hProc);
+            
+        return procFullName.ToString();
+    }
+
+    //[DllImport("psapi.dll")]
+    [DllImport("psapi.dll", CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
+    static extern uint GetModuleFileNameEx(IntPtr hProcess, IntPtr hModule, [Out] StringBuilder lpBaseName, uint nSize);
+
+    public static uint GetProcessIdByWindowHandle(IntPtr hwnd)
+    {
+        uint procId;
+        GetWindowThreadProcessId(hwnd, out procId);
+
+        return procId;
+    }
+
+    public static IntPtr GetHoveringWindow()
+    {
+        POINT cursorPos;
+        GetCursorPos(out cursorPos);
+        return WindowFromPoint(cursorPos);
+    }
+
+    public static uint GetHoveringProcessId()
+    {
+        return GetProcessIdByWindowHandle(GetHoveringWindow());
+    }
+
+    public static uint GetProcessIdFromPoint(POINT p)
+    {
+        return GetProcessIdByWindowHandle(WindowFromPoint(p));
+
+    }
+
+    [DllImport("user32.dll")]
+    public static extern int GetSystemMetrics(SystemMetric smIndex);
+
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool IsGUIThread([MarshalAs(UnmanagedType.Bool)] bool bConvert);
+
+    [DllImport("user32.dll")]
+    public static extern IntPtr GetActiveWindow();
+
+    [DllImport("user32.dll")]
+    public static extern short GetAsyncKeyState(Keys vKey); 
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool GetExitCodeProcess(uint hProcess, out uint lpExitCode);
+
+    public static IntPtr GetTopLevelWindow(IntPtr window)
+    {
+        var temp = IntPtr.Zero;
+        while ((temp = Native.GetParent(window)) != IntPtr.Zero) window = temp;
+
+        return window;
+    }
+
+    public static IntPtr TopLevelWindowFromPoint(POINT p)
+    {
+        var window = Native.WindowFromPoint(p);
+        var temp = IntPtr.Zero;
+        while ((temp = Native.GetParent(window)) != IntPtr.Zero) window = temp;
+
+        return window;
+    }
+
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern IntPtr SetActiveWindow(IntPtr hWnd);
+
+
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern int GetWindowLong(IntPtr hWnd, int nIndex);
+
+    [DllImport("user32.dll")]
+    public static extern bool ChangeWindowMessageFilter(uint msg, ChangeWindowMessageFilterFlags flags);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern bool ChangeWindowMessageFilterEx(IntPtr hWnd, uint msg, ChangeWindowMessageFilterExAction action, ref CHANGEFILTERSTRUCT changeInfo);
+
+    //==============================================================
+
+    /// <summary>
+    /// 通过向指定的按键发送KeyUp来恢复状态
+    /// </summary>
+    /// <param name="c"></param>
+    /// <param name="allKeys"></param>
+    public static void TryResetKeys(params IEnumerable<KeyCode>[] allKeys)
+    {
+        var dummyWnd = new NativeWindow();
+
+        try
+        {
+            //如果被系统或者杀毒软件阻止， 则发送给自己的一个窗口，这样避免被在此拦截。
+            dummyWnd.CreateHandle(new CreateParams(){ExStyle = (int) (User32.WS_EX.WS_EX_LAYERED | User32.WS_EX.WS_EX_TOOLWINDOW)});
+            User32.ShowWindow(dummyWnd.Handle, User32.SW.SW_SHOWNORMAL);
+
+            var sim = EventBuilder.Create();
+            sim.Wait(10);
+
+            foreach (var keys in allKeys)
             {
-                Debug.WriteLine("恢复键盘状态失败");
+                foreach (var k in keys)
+                {
+                    User32.SetForegroundWindow(dummyWnd.Handle);
+                    sim.Click(k).Invoke();
+                }
+            }
+
+        }
+        catch (Exception)
+        {
+            Debug.WriteLine("恢复键盘状态失败");
 #if TEST
                 throw;
 #endif
-            }
-            finally
-            {
-                dummyWnd.DestroyHandle();
-            }
         }
-
-        public enum MessageFilterInfo : uint
+        finally
         {
-            None = 0, AlreadyAllowed = 1, AlreadyDisAllowed = 2, AllowedHigher = 3
-        };
-
-        public enum ChangeWindowMessageFilterExAction : uint
-        {
-            Reset = 0, Allow = 1, DisAllow = 2
-        };
-
-        [StructLayout(LayoutKind.Sequential)]
-        public struct CHANGEFILTERSTRUCT
-        {
-            public uint size;
-            public MessageFilterInfo info;
+            dummyWnd.DestroyHandle();
         }
+    }
 
-        public enum ChangeWindowMessageFilterFlags : uint
-        {
-            Add = 1, Remove = 2
-        };
+    public enum MessageFilterInfo : uint
+    {
+        None = 0, AlreadyAllowed = 1, AlreadyDisAllowed = 2, AllowedHigher = 3
+    };
 
-        // offset of window style value
-        public const int GWL_STYLE = -16;
+    public enum ChangeWindowMessageFilterExAction : uint
+    {
+        Reset = 0, Allow = 1, DisAllow = 2
+    };
 
-        // window style constants for scrollbars
-        public const int WS_VSCROLL = 0x00200000;
-        public const int WS_HSCROLL = 0x00100000;
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CHANGEFILTERSTRUCT
+    {
+        public uint size;
+        public MessageFilterInfo info;
+    }
+
+    public enum ChangeWindowMessageFilterFlags : uint
+    {
+        Add = 1, Remove = 2
+    };
+
+    // offset of window style value
+    public const int GWL_STYLE = -16;
+
+    // window style constants for scrollbars
+    public const int WS_VSCROLL = 0x00200000;
+    public const int WS_HSCROLL = 0x00100000;
 
         
-        public enum MouseMessages
+    public enum MouseMessages
+    {
+        WM_LBUTTONDOWN = 0x0201,
+        WM_LBUTTONUP = 0x0202,
+        WM_MOUSEMOVE = 0x0200,
+
+        WM_MOUSEWHEEL = 0x020A,
+        WM_MBUTTONDOWN = 0x0207,
+        WM_MBUTTONUP = 0X0208,
+
+        WM_RBUTTONDOWN = 0x0204,
+        WM_RBUTTONUP = 0x0205,
+
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct POINT
+    {
+        public int x;
+        public int y;
+
+        public System.Drawing.Point ToPoint()
         {
-            WM_LBUTTONDOWN = 0x0201,
-            WM_LBUTTONUP = 0x0202,
-            WM_MOUSEMOVE = 0x0200,
-
-            WM_MOUSEWHEEL = 0x020A,
-            WM_MBUTTONDOWN = 0x0207,
-            WM_MBUTTONUP = 0X0208,
-
-            WM_RBUTTONDOWN = 0x0204,
-            WM_RBUTTONUP = 0x0205,
-
+            return new System.Drawing.Point(x, y);
         }
+    }
 
-        [StructLayout(LayoutKind.Sequential)]
-        public struct POINT
-        {
-            public int x;
-            public int y;
+    [StructLayout(LayoutKind.Sequential)]
+    public struct MSLLHOOKSTRUCT
+    {
+        public POINT pt;
+        public uint mouseData;
+        public uint flags;
+        public uint time;
+        public IntPtr dwExtraInfo;
+    }
 
-            public System.Drawing.Point ToPoint()
-            {
-                return new System.Drawing.Point(x, y);
-            }
-        }
+    [StructLayout(LayoutKind.Sequential)]
+    public struct MSG
+    {
+        public IntPtr hwnd;
+        public UInt32 message;
+        public IntPtr wParam;
+        public IntPtr lParam;
+        public UInt32 time;
+        public POINT pt;
+    }
 
-        [StructLayout(LayoutKind.Sequential)]
-        public struct MSLLHOOKSTRUCT
-        {
-            public POINT pt;
-            public uint mouseData;
-            public uint flags;
-            public uint time;
-            public IntPtr dwExtraInfo;
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        public struct MSG
-        {
-            public IntPtr hwnd;
-            public UInt32 message;
-            public IntPtr wParam;
-            public IntPtr lParam;
-            public UInt32 time;
-            public POINT pt;
-        }
-
-        public enum Bool
-        {
-            False = 0,
-            True
-        };
+    public enum Bool
+    {
+        False = 0,
+        True
+    };
 
 
-        [StructLayout(LayoutKind.Sequential)]
-        public struct Point
-        {
-            public Int32 x;
-            public Int32 y;
+    [StructLayout(LayoutKind.Sequential)]
+    public struct Point
+    {
+        public Int32 x;
+        public Int32 y;
 
-            public Point(Int32 x, Int32 y) { this.x = x; this.y = y; }
-        }
-
-
-        [StructLayout(LayoutKind.Sequential)]
-        public struct Size
-        {
-            public Int32 cx;
-            public Int32 cy;
-
-            public Size(Int32 cx, Int32 cy) { this.cx = cx; this.cy = cy; }
-        }
+        public Point(Int32 x, Int32 y) { this.x = x; this.y = y; }
+    }
 
 
-        [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        struct ARGB
-        {
-            public byte Blue;
-            public byte Green;
-            public byte Red;
-            public byte Alpha;
-        }
+    [StructLayout(LayoutKind.Sequential)]
+    public struct Size
+    {
+        public Int32 cx;
+        public Int32 cy;
+
+        public Size(Int32 cx, Int32 cy) { this.cx = cx; this.cy = cy; }
+    }
 
 
-        [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        public struct BLENDFUNCTION
-        {
-            public byte BlendOp;
-            public byte BlendFlags;
-            public byte SourceConstantAlpha;
-            public byte AlphaFormat;
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        public struct BITMAPINFOHEADER
-        {
-            public Int32 biSize;
-            public Int32 biWidth;
-            public Int32 biHeight;
-            public Int16 biPlanes;
-            public Int16 biBitCount;
-            public Int32 biCompression;
-            public Int32 biSizeImage;
-            public Int32 biXPelsPerMeter;
-            public Int32 biYPelsPerMeter;
-            public Int32 biClrUsed;
-            public Int32 biClrImportant;
-        }
-
-        [StructLayoutAttribute(LayoutKind.Sequential)]
-        public struct BITMAPINFO
-        {
-            /// <summary>
-            /// A BITMAPINFOHEADER structure that contains information about the dimensions of color format.
-            /// </summary>
-            public BITMAPINFOHEADER bmiHeader;
-
-            /// <summary>
-            /// An array of RGBQUAD. The elements of the array that make up the color table.
-            /// </summary>
-            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 1, ArraySubType = UnmanagedType.Struct)]
-            public RGBQUAD[] bmiColors;
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        public struct RGBQUAD
-        {
-            public byte rgbBlue;
-            public byte rgbGreen;
-            public byte rgbRed;
-            public byte rgbReserved;
-        }
-
-        public const Int32 ULW_COLORKEY = 0x00000001;
-        public const Int32 ULW_ALPHA = 0x00000002;
-        public const Int32 ULW_OPAQUE = 0x00000004;
-
-        public const byte AC_SRC_OVER = 0x00;
-        public const byte AC_SRC_ALPHA = 0x01;
-
-        enum VirtualKeyStates : int
-        {
-            VK_LBUTTON = 0x01,
-            VK_RBUTTON = 0x02,
-            VK_CANCEL = 0x03,
-            VK_MBUTTON = 0x04,
-            //
-            VK_XBUTTON1 = 0x05,
-            VK_XBUTTON2 = 0x06,
-            //
-            VK_BACK = 0x08,
-            VK_TAB = 0x09,
-            //
-            VK_CLEAR = 0x0C,
-            VK_RETURN = 0x0D,
-            //
-            VK_SHIFT = 0x10,
-            VK_CONTROL = 0x11,
-            VK_MENU = 0x12,
-            VK_PAUSE = 0x13,
-            VK_CAPITAL = 0x14,
-            //
-            VK_KANA = 0x15,
-            VK_HANGEUL = 0x15,  /* old name - should be here for compatibility */
-            VK_HANGUL = 0x15,
-            VK_JUNJA = 0x17,
-            VK_FINAL = 0x18,
-            VK_HANJA = 0x19,
-            VK_KANJI = 0x19,
-            //
-            VK_ESCAPE = 0x1B,
-            //
-            VK_CONVERT = 0x1C,
-            VK_NONCONVERT = 0x1D,
-            VK_ACCEPT = 0x1E,
-            VK_MODECHANGE = 0x1F,
-            //
-            VK_SPACE = 0x20,
-            VK_PRIOR = 0x21,
-            VK_NEXT = 0x22,
-            VK_END = 0x23,
-            VK_HOME = 0x24,
-            VK_LEFT = 0x25,
-            VK_UP = 0x26,
-            VK_RIGHT = 0x27,
-            VK_DOWN = 0x28,
-            VK_SELECT = 0x29,
-            VK_PRINT = 0x2A,
-            VK_EXECUTE = 0x2B,
-            VK_SNAPSHOT = 0x2C,
-            VK_INSERT = 0x2D,
-            VK_DELETE = 0x2E,
-            VK_HELP = 0x2F,
-            //
-            VK_LWIN = 0x5B,
-            VK_RWIN = 0x5C,
-            VK_APPS = 0x5D,
-            //
-            VK_SLEEP = 0x5F,
-            //
-            VK_NUMPAD0 = 0x60,
-            VK_NUMPAD1 = 0x61,
-            VK_NUMPAD2 = 0x62,
-            VK_NUMPAD3 = 0x63,
-            VK_NUMPAD4 = 0x64,
-            VK_NUMPAD5 = 0x65,
-            VK_NUMPAD6 = 0x66,
-            VK_NUMPAD7 = 0x67,
-            VK_NUMPAD8 = 0x68,
-            VK_NUMPAD9 = 0x69,
-            VK_MULTIPLY = 0x6A,
-            VK_ADD = 0x6B,
-            VK_SEPARATOR = 0x6C,
-            VK_SUBTRACT = 0x6D,
-            VK_DECIMAL = 0x6E,
-            VK_DIVIDE = 0x6F,
-            VK_F1 = 0x70,
-            VK_F2 = 0x71,
-            VK_F3 = 0x72,
-            VK_F4 = 0x73,
-            VK_F5 = 0x74,
-            VK_F6 = 0x75,
-            VK_F7 = 0x76,
-            VK_F8 = 0x77,
-            VK_F9 = 0x78,
-            VK_F10 = 0x79,
-            VK_F11 = 0x7A,
-            VK_F12 = 0x7B,
-            VK_F13 = 0x7C,
-            VK_F14 = 0x7D,
-            VK_F15 = 0x7E,
-            VK_F16 = 0x7F,
-            VK_F17 = 0x80,
-            VK_F18 = 0x81,
-            VK_F19 = 0x82,
-            VK_F20 = 0x83,
-            VK_F21 = 0x84,
-            VK_F22 = 0x85,
-            VK_F23 = 0x86,
-            VK_F24 = 0x87,
-            //
-            VK_NUMLOCK = 0x90,
-            VK_SCROLL = 0x91,
-            //
-            VK_OEM_NEC_EQUAL = 0x92,   // '=' key on numpad
-            //
-            VK_OEM_FJ_JISHO = 0x92,   // 'Dictionary' key
-            VK_OEM_FJ_MASSHOU = 0x93,   // 'Unregister word' key
-            VK_OEM_FJ_TOUROKU = 0x94,   // 'Register word' key
-            VK_OEM_FJ_LOYA = 0x95,   // 'Left OYAYUBI' key
-            VK_OEM_FJ_ROYA = 0x96,   // 'Right OYAYUBI' key
-            //
-            VK_LSHIFT = 0xA0,
-            VK_RSHIFT = 0xA1,
-            VK_LCONTROL = 0xA2,
-            VK_RCONTROL = 0xA3,
-            VK_LMENU = 0xA4,
-            VK_RMENU = 0xA5,
-            //
-            VK_BROWSER_BACK = 0xA6,
-            VK_BROWSER_FORWARD = 0xA7,
-            VK_BROWSER_REFRESH = 0xA8,
-            VK_BROWSER_STOP = 0xA9,
-            VK_BROWSER_SEARCH = 0xAA,
-            VK_BROWSER_FAVORITES = 0xAB,
-            VK_BROWSER_HOME = 0xAC,
-            //
-            VK_VOLUME_MUTE = 0xAD,
-            VK_VOLUME_DOWN = 0xAE,
-            VK_VOLUME_UP = 0xAF,
-            VK_MEDIA_NEXT_TRACK = 0xB0,
-            VK_MEDIA_PREV_TRACK = 0xB1,
-            VK_MEDIA_STOP = 0xB2,
-            VK_MEDIA_PLAY_PAUSE = 0xB3,
-            VK_LAUNCH_MAIL = 0xB4,
-            VK_LAUNCH_MEDIA_SELECT = 0xB5,
-            VK_LAUNCH_APP1 = 0xB6,
-            VK_LAUNCH_APP2 = 0xB7,
-            //
-            VK_OEM_1 = 0xBA,   // ';:' for US
-            VK_OEM_PLUS = 0xBB,   // '+' any country
-            VK_OEM_COMMA = 0xBC,   // ',' any country
-            VK_OEM_MINUS = 0xBD,   // '-' any country
-            VK_OEM_PERIOD = 0xBE,   // '.' any country
-            VK_OEM_2 = 0xBF,   // '/?' for US
-            VK_OEM_3 = 0xC0,   // '`~' for US
-            //
-            VK_OEM_4 = 0xDB,  //  '[{' for US
-            VK_OEM_5 = 0xDC,  //  '\|' for US
-            VK_OEM_6 = 0xDD,  //  ']}' for US
-            VK_OEM_7 = 0xDE,  //  ''"' for US
-            VK_OEM_8 = 0xDF,
-            //
-            VK_OEM_AX = 0xE1,  //  'AX' key on Japanese AX kbd
-            VK_OEM_102 = 0xE2,  //  "<>" or "\|" on RT 102-key kbd.
-            VK_ICO_HELP = 0xE3,  //  Help key on ICO
-            VK_ICO_00 = 0xE4,  //  00 key on ICO
-            //
-            VK_PROCESSKEY = 0xE5,
-            //
-            VK_ICO_CLEAR = 0xE6,
-            //
-            VK_PACKET = 0xE7,
-            //
-            VK_OEM_RESET = 0xE9,
-            VK_OEM_JUMP = 0xEA,
-            VK_OEM_PA1 = 0xEB,
-            VK_OEM_PA2 = 0xEC,
-            VK_OEM_PA3 = 0xED,
-            VK_OEM_WSCTRL = 0xEE,
-            VK_OEM_CUSEL = 0xEF,
-            VK_OEM_ATTN = 0xF0,
-            VK_OEM_FINISH = 0xF1,
-            VK_OEM_COPY = 0xF2,
-            VK_OEM_AUTO = 0xF3,
-            VK_OEM_ENLW = 0xF4,
-            VK_OEM_BACKTAB = 0xF5,
-            //
-            VK_ATTN = 0xF6,
-            VK_CRSEL = 0xF7,
-            VK_EXSEL = 0xF8,
-            VK_EREOF = 0xF9,
-            VK_PLAY = 0xFA,
-            VK_ZOOM = 0xFB,
-            VK_NONAME = 0xFC,
-            VK_PA1 = 0xFD,
-            VK_OEM_CLEAR = 0xFE
-        }
-
-#region Window
-        [DllImport("user32.dll", ExactSpelling = true, SetLastError = true)]
-        public static extern Bool UpdateLayeredWindow(IntPtr hwnd, IntPtr hdcDst, ref Point pptDst, ref Size psize, IntPtr hdcSrc, ref Point pprSrc, Int32 crKey, ref BLENDFUNCTION pblend, Int32 dwFlags);
-
-        [DllImport("user32.dll", CharSet = CharSet.Auto)]
-        public static extern IntPtr SendMessage(IntPtr hWnd, UInt32 Msg, IntPtr wParam, IntPtr lParam);
-
-        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        public static extern IntPtr SetWindowsHookEx(int idHook,
-            LowLevelMouseHookProc lpfn, 
-            IntPtr hMod,
-            uint dwThreadId);
-
-        [DllImport("user32.dll")]
-        public static extern IntPtr SetWindowsHookEx(int idHook, LowLevelkeyboardHookProc callback, IntPtr hInstance, uint threadId);
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    struct ARGB
+    {
+        public byte Blue;
+        public byte Green;
+        public byte Red;
+        public byte Alpha;
+    }
 
 
-        [DllImport("user32.dll")]
-        public static extern IntPtr GetForegroundWindow();
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct BLENDFUNCTION
+    {
+        public byte BlendOp;
+        public byte BlendFlags;
+        public byte SourceConstantAlpha;
+        public byte AlphaFormat;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct BITMAPINFOHEADER
+    {
+        public Int32 biSize;
+        public Int32 biWidth;
+        public Int32 biHeight;
+        public Int16 biPlanes;
+        public Int16 biBitCount;
+        public Int32 biCompression;
+        public Int32 biSizeImage;
+        public Int32 biXPelsPerMeter;
+        public Int32 biYPelsPerMeter;
+        public Int32 biClrUsed;
+        public Int32 biClrImportant;
+    }
+
+    [StructLayoutAttribute(LayoutKind.Sequential)]
+    public struct BITMAPINFO
+    {
         /// <summary>
-        /// 获取进程pid
+        /// A BITMAPINFOHEADER structure that contains information about the dimensions of color format.
         /// </summary>
-        /// <param name="hWnd"></param>
-        /// <param name="lpdwProcessId"></param>
-        /// <returns></returns>
-        [DllImport("user32.dll")]
-        public static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+        public BITMAPINFOHEADER bmiHeader;
 
-        [DllImport("user32.dll")]
-        public static extern IntPtr WindowFromPoint(POINT Point);
+        /// <summary>
+        /// An array of RGBQUAD. The elements of the array that make up the color table.
+        /// </summary>
+        [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 1, ArraySubType = UnmanagedType.Struct)]
+        public RGBQUAD[] bmiColors;
+    }
 
-        [DllImport("user32.dll")]
-        public static extern bool GetCursorPos(out POINT lpPoint);
+    [StructLayout(LayoutKind.Sequential)]
+    public struct RGBQUAD
+    {
+        public byte rgbBlue;
+        public byte rgbGreen;
+        public byte rgbRed;
+        public byte rgbReserved;
+    }
 
-        [DllImport("user32.dll")]
-        public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+    public const Int32 ULW_COLORKEY = 0x00000001;
+    public const Int32 ULW_ALPHA = 0x00000002;
+    public const Int32 ULW_OPAQUE = 0x00000004;
 
-        [DllImport("user32.dll", SetLastError = true)]
-        public static extern void SwitchToThisWindow(IntPtr hWnd, bool turnOn);
+    public const byte AC_SRC_OVER = 0x00;
+    public const byte AC_SRC_ALPHA = 0x01;
 
-        [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        public static extern IntPtr GetModuleHandle(string lpModuleName);
+    enum VirtualKeyStates : int
+    {
+        VK_LBUTTON = 0x01,
+        VK_RBUTTON = 0x02,
+        VK_CANCEL = 0x03,
+        VK_MBUTTON = 0x04,
+        //
+        VK_XBUTTON1 = 0x05,
+        VK_XBUTTON2 = 0x06,
+        //
+        VK_BACK = 0x08,
+        VK_TAB = 0x09,
+        //
+        VK_CLEAR = 0x0C,
+        VK_RETURN = 0x0D,
+        //
+        VK_SHIFT = 0x10,
+        VK_CONTROL = 0x11,
+        VK_MENU = 0x12,
+        VK_PAUSE = 0x13,
+        VK_CAPITAL = 0x14,
+        //
+        VK_KANA = 0x15,
+        VK_HANGEUL = 0x15,  /* old name - should be here for compatibility */
+        VK_HANGUL = 0x15,
+        VK_JUNJA = 0x17,
+        VK_FINAL = 0x18,
+        VK_HANJA = 0x19,
+        VK_KANJI = 0x19,
+        //
+        VK_ESCAPE = 0x1B,
+        //
+        VK_CONVERT = 0x1C,
+        VK_NONCONVERT = 0x1D,
+        VK_ACCEPT = 0x1E,
+        VK_MODECHANGE = 0x1F,
+        //
+        VK_SPACE = 0x20,
+        VK_PRIOR = 0x21,
+        VK_NEXT = 0x22,
+        VK_END = 0x23,
+        VK_HOME = 0x24,
+        VK_LEFT = 0x25,
+        VK_UP = 0x26,
+        VK_RIGHT = 0x27,
+        VK_DOWN = 0x28,
+        VK_SELECT = 0x29,
+        VK_PRINT = 0x2A,
+        VK_EXECUTE = 0x2B,
+        VK_SNAPSHOT = 0x2C,
+        VK_INSERT = 0x2D,
+        VK_DELETE = 0x2E,
+        VK_HELP = 0x2F,
+        //
+        VK_LWIN = 0x5B,
+        VK_RWIN = 0x5C,
+        VK_APPS = 0x5D,
+        //
+        VK_SLEEP = 0x5F,
+        //
+        VK_NUMPAD0 = 0x60,
+        VK_NUMPAD1 = 0x61,
+        VK_NUMPAD2 = 0x62,
+        VK_NUMPAD3 = 0x63,
+        VK_NUMPAD4 = 0x64,
+        VK_NUMPAD5 = 0x65,
+        VK_NUMPAD6 = 0x66,
+        VK_NUMPAD7 = 0x67,
+        VK_NUMPAD8 = 0x68,
+        VK_NUMPAD9 = 0x69,
+        VK_MULTIPLY = 0x6A,
+        VK_ADD = 0x6B,
+        VK_SEPARATOR = 0x6C,
+        VK_SUBTRACT = 0x6D,
+        VK_DECIMAL = 0x6E,
+        VK_DIVIDE = 0x6F,
+        VK_F1 = 0x70,
+        VK_F2 = 0x71,
+        VK_F3 = 0x72,
+        VK_F4 = 0x73,
+        VK_F5 = 0x74,
+        VK_F6 = 0x75,
+        VK_F7 = 0x76,
+        VK_F8 = 0x77,
+        VK_F9 = 0x78,
+        VK_F10 = 0x79,
+        VK_F11 = 0x7A,
+        VK_F12 = 0x7B,
+        VK_F13 = 0x7C,
+        VK_F14 = 0x7D,
+        VK_F15 = 0x7E,
+        VK_F16 = 0x7F,
+        VK_F17 = 0x80,
+        VK_F18 = 0x81,
+        VK_F19 = 0x82,
+        VK_F20 = 0x83,
+        VK_F21 = 0x84,
+        VK_F22 = 0x85,
+        VK_F23 = 0x86,
+        VK_F24 = 0x87,
+        //
+        VK_NUMLOCK = 0x90,
+        VK_SCROLL = 0x91,
+        //
+        VK_OEM_NEC_EQUAL = 0x92,   // '=' key on numpad
+        //
+        VK_OEM_FJ_JISHO = 0x92,   // 'Dictionary' key
+        VK_OEM_FJ_MASSHOU = 0x93,   // 'Unregister word' key
+        VK_OEM_FJ_TOUROKU = 0x94,   // 'Register word' key
+        VK_OEM_FJ_LOYA = 0x95,   // 'Left OYAYUBI' key
+        VK_OEM_FJ_ROYA = 0x96,   // 'Right OYAYUBI' key
+        //
+        VK_LSHIFT = 0xA0,
+        VK_RSHIFT = 0xA1,
+        VK_LCONTROL = 0xA2,
+        VK_RCONTROL = 0xA3,
+        VK_LMENU = 0xA4,
+        VK_RMENU = 0xA5,
+        //
+        VK_BROWSER_BACK = 0xA6,
+        VK_BROWSER_FORWARD = 0xA7,
+        VK_BROWSER_REFRESH = 0xA8,
+        VK_BROWSER_STOP = 0xA9,
+        VK_BROWSER_SEARCH = 0xAA,
+        VK_BROWSER_FAVORITES = 0xAB,
+        VK_BROWSER_HOME = 0xAC,
+        //
+        VK_VOLUME_MUTE = 0xAD,
+        VK_VOLUME_DOWN = 0xAE,
+        VK_VOLUME_UP = 0xAF,
+        VK_MEDIA_NEXT_TRACK = 0xB0,
+        VK_MEDIA_PREV_TRACK = 0xB1,
+        VK_MEDIA_STOP = 0xB2,
+        VK_MEDIA_PLAY_PAUSE = 0xB3,
+        VK_LAUNCH_MAIL = 0xB4,
+        VK_LAUNCH_MEDIA_SELECT = 0xB5,
+        VK_LAUNCH_APP1 = 0xB6,
+        VK_LAUNCH_APP2 = 0xB7,
+        //
+        VK_OEM_1 = 0xBA,   // ';:' for US
+        VK_OEM_PLUS = 0xBB,   // '+' any country
+        VK_OEM_COMMA = 0xBC,   // ',' any country
+        VK_OEM_MINUS = 0xBD,   // '-' any country
+        VK_OEM_PERIOD = 0xBE,   // '.' any country
+        VK_OEM_2 = 0xBF,   // '/?' for US
+        VK_OEM_3 = 0xC0,   // '`~' for US
+        //
+        VK_OEM_4 = 0xDB,  //  '[{' for US
+        VK_OEM_5 = 0xDC,  //  '\|' for US
+        VK_OEM_6 = 0xDD,  //  ']}' for US
+        VK_OEM_7 = 0xDE,  //  ''"' for US
+        VK_OEM_8 = 0xDF,
+        //
+        VK_OEM_AX = 0xE1,  //  'AX' key on Japanese AX kbd
+        VK_OEM_102 = 0xE2,  //  "<>" or "\|" on RT 102-key kbd.
+        VK_ICO_HELP = 0xE3,  //  Help key on ICO
+        VK_ICO_00 = 0xE4,  //  00 key on ICO
+        //
+        VK_PROCESSKEY = 0xE5,
+        //
+        VK_ICO_CLEAR = 0xE6,
+        //
+        VK_PACKET = 0xE7,
+        //
+        VK_OEM_RESET = 0xE9,
+        VK_OEM_JUMP = 0xEA,
+        VK_OEM_PA1 = 0xEB,
+        VK_OEM_PA2 = 0xEC,
+        VK_OEM_PA3 = 0xED,
+        VK_OEM_WSCTRL = 0xEE,
+        VK_OEM_CUSEL = 0xEF,
+        VK_OEM_ATTN = 0xF0,
+        VK_OEM_FINISH = 0xF1,
+        VK_OEM_COPY = 0xF2,
+        VK_OEM_AUTO = 0xF3,
+        VK_OEM_ENLW = 0xF4,
+        VK_OEM_BACKTAB = 0xF5,
+        //
+        VK_ATTN = 0xF6,
+        VK_CRSEL = 0xF7,
+        VK_EXSEL = 0xF8,
+        VK_EREOF = 0xF9,
+        VK_PLAY = 0xFA,
+        VK_ZOOM = 0xFB,
+        VK_NONAME = 0xFC,
+        VK_PA1 = 0xFD,
+        VK_OEM_CLEAR = 0xFE
+    }
 
-        [DllImport("user32.dll")]
-        public static extern sbyte GetMessage(out MSG lpMsg, IntPtr hWnd, uint wMsgFilterMin,
-           uint wMsgFilterMax);
+    #region Window
+    [DllImport("user32.dll", ExactSpelling = true, SetLastError = true)]
+    public static extern Bool UpdateLayeredWindow(IntPtr hwnd, IntPtr hdcDst, ref Point pptDst, ref Size psize, IntPtr hdcSrc, ref Point pprSrc, Int32 crKey, ref BLENDFUNCTION pblend, Int32 dwFlags);
 
-        [DllImport("user32.dll")]
-        public static extern bool TranslateMessage([In] ref MSG lpMsg);
+    [DllImport("user32.dll", CharSet = CharSet.Auto)]
+    public static extern IntPtr SendMessage(IntPtr hWnd, UInt32 Msg, IntPtr wParam, IntPtr lParam);
 
-        [DllImport("user32.dll")]
-        public static extern IntPtr DispatchMessage([In] ref MSG lpmsg);
+    [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+    public static extern IntPtr SetWindowsHookEx(int idHook,
+        LowLevelMouseHookProc lpfn, 
+        IntPtr hMod,
+        uint dwThreadId);
 
-        [DllImport("user32.dll")]
-        public static extern bool WaitMessage();
-
-        [DllImport("user32.dll")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool PeekMessage(out MSG lpMsg, IntPtr hWnd, uint wMsgFilterMin,
-           uint wMsgFilterMax, uint wRemoveMsg);
-#endregion
-
-#region Hooking
-        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool UnhookWindowsHookEx(IntPtr hhk);
-
-        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        public static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode,
-            IntPtr wParam, IntPtr lParam);
-
-        [DllImport("user32.dll")]
-        public static extern int CallNextHookEx(IntPtr idHook, int nCode, int wParam, ref keyboardHookStruct lParam);
-        #endregion
-
-        #region GDI
-        [DllImport("gdi32.dll")]
-        public static extern IntPtr CreateDIBSection(IntPtr hdc, [In] ref BITMAPINFO pbmi,
-           uint pila, out IntPtr ppvBits, IntPtr hSection, uint dwOffset);
-
-        [DllImport("gdi32.dll")]
-        public static extern int GetObject(IntPtr hgdiobj, int cbBuffer, IntPtr lpvObject);
-
-        [DllImport("gdi32.dll", EntryPoint = "CreateCompatibleBitmap")]
-        public static extern IntPtr CreateCompatibleBitmap([In] IntPtr hdc, int nWidth, int nHeight);
-
-        [DllImport("user32.dll", ExactSpelling = true, SetLastError = true)]
-        public static extern IntPtr GetDC(IntPtr hWnd);
-
-        [DllImport("user32.dll", ExactSpelling = true)]
-        public static extern int ReleaseDC(IntPtr hWnd, IntPtr hDC);
-
-        [DllImport("gdi32.dll", ExactSpelling = true, SetLastError = true)]
-        public static extern IntPtr CreateCompatibleDC(IntPtr hDC);
-
-        [DllImport("gdi32.dll", ExactSpelling = true, SetLastError = true)]
-        public static extern Bool DeleteDC(IntPtr hdc);
-
-        [DllImport("gdi32.dll", ExactSpelling = true)]
-        public static extern IntPtr SelectObject(IntPtr hDC, IntPtr hObject);
-
-        [DllImport("gdi32.dll", ExactSpelling = true, SetLastError = true)]
-        public static extern Bool DeleteObject(IntPtr hObject);
-#endregion
+    [DllImport("user32.dll")]
+    public static extern IntPtr SetWindowsHookEx(int idHook, LowLevelkeyboardHookProc callback, IntPtr hInstance, uint threadId);
 
 
-        [DllImport("psapi.dll")]
-        public static extern bool EmptyWorkingSet(IntPtr hProcess);
+    [DllImport("user32.dll")]
+    public static extern IntPtr GetForegroundWindow();
+    /// <summary>
+    /// 获取进程pid
+    /// </summary>
+    /// <param name="hWnd"></param>
+    /// <param name="lpdwProcessId"></param>
+    /// <returns></returns>
+    [DllImport("user32.dll")]
+    public static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+
+    [DllImport("user32.dll")]
+    public static extern IntPtr WindowFromPoint(POINT Point);
+
+    [DllImport("user32.dll")]
+    public static extern bool GetCursorPos(out POINT lpPoint);
+
+    [DllImport("user32.dll")]
+    public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern void SwitchToThisWindow(IntPtr hWnd, bool turnOn);
+
+    [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+    public static extern IntPtr GetModuleHandle(string lpModuleName);
+
+    [DllImport("user32.dll")]
+    public static extern sbyte GetMessage(out MSG lpMsg, IntPtr hWnd, uint wMsgFilterMin,
+        uint wMsgFilterMax);
+
+    [DllImport("user32.dll")]
+    public static extern bool TranslateMessage([In] ref MSG lpMsg);
+
+    [DllImport("user32.dll")]
+    public static extern IntPtr DispatchMessage([In] ref MSG lpmsg);
+
+    [DllImport("user32.dll")]
+    public static extern bool WaitMessage();
+
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool PeekMessage(out MSG lpMsg, IntPtr hWnd, uint wMsgFilterMin,
+        uint wMsgFilterMax, uint wRemoveMsg);
+    #endregion
+
+    #region Hooking
+    [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool UnhookWindowsHookEx(IntPtr hhk);
+
+    [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+    public static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode,
+        IntPtr wParam, IntPtr lParam);
+
+    [DllImport("user32.dll")]
+    public static extern int CallNextHookEx(IntPtr idHook, int nCode, int wParam, ref keyboardHookStruct lParam);
+    #endregion
+
+    #region GDI
+    [DllImport("gdi32.dll")]
+    public static extern IntPtr CreateDIBSection(IntPtr hdc, [In] ref BITMAPINFO pbmi,
+        uint pila, out IntPtr ppvBits, IntPtr hSection, uint dwOffset);
+
+    [DllImport("gdi32.dll")]
+    public static extern int GetObject(IntPtr hgdiobj, int cbBuffer, IntPtr lpvObject);
+
+    [DllImport("gdi32.dll", EntryPoint = "CreateCompatibleBitmap")]
+    public static extern IntPtr CreateCompatibleBitmap([In] IntPtr hdc, int nWidth, int nHeight);
+
+    [DllImport("user32.dll", ExactSpelling = true, SetLastError = true)]
+    public static extern IntPtr GetDC(IntPtr hWnd);
+
+    [DllImport("user32.dll", ExactSpelling = true)]
+    public static extern int ReleaseDC(IntPtr hWnd, IntPtr hDC);
+
+    [DllImport("gdi32.dll", ExactSpelling = true, SetLastError = true)]
+    public static extern IntPtr CreateCompatibleDC(IntPtr hDC);
+
+    [DllImport("gdi32.dll", ExactSpelling = true, SetLastError = true)]
+    public static extern Bool DeleteDC(IntPtr hdc);
+
+    [DllImport("gdi32.dll", ExactSpelling = true)]
+    public static extern IntPtr SelectObject(IntPtr hDC, IntPtr hObject);
+
+    [DllImport("gdi32.dll", ExactSpelling = true, SetLastError = true)]
+    public static extern Bool DeleteObject(IntPtr hObject);
+    #endregion
 
 
-        [DllImport("KERNEL32.DLL", EntryPoint = "SetProcessWorkingSetSize", SetLastError = true, CallingConvention = CallingConvention.StdCall)]
-        public static extern bool SetProcessWorkingSetSize(IntPtr pProcess, int dwMinimumWorkingSetSize, int dwMaximumWorkingSetSize);
+    [DllImport("psapi.dll")]
+    public static extern bool EmptyWorkingSet(IntPtr hProcess);
 
 
-        [DllImport("kernel32.dll")]
-        public static extern uint GetLastError();
-
-        [DllImport("user32.dll", SetLastError = true)]
-        public static extern bool SetProcessDPIAware();
-
-        [DllImport("kernel32.dll")]
-        public static extern void OutputDebugString(string lpOutputString);
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        public static extern bool QueryFullProcessImageNameW(IntPtr hProcess, uint dwFlags,
-                                                      [Out, MarshalAs(UnmanagedType.LPTStr)] StringBuilder lpExeName,
-                                                      ref int lpdwSize);
-
-        [DllImport("kernel32.dll")]
-        public static extern IntPtr OpenProcess(ProcessAccessFlags dwDesiredAccess, [MarshalAs(UnmanagedType.Bool)] bool bInheritHandle,
-                                         uint dwProcessId);
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool CloseHandle(IntPtr hObject);
-
-        [return: MarshalAs(UnmanagedType.Bool)]
-        [DllImport("user32.dll", SetLastError = true)]
-        public static extern bool PostThreadMessage(uint threadId, uint msg, UIntPtr wParam, IntPtr lParam);
-
-        [DllImport("kernel32.dll")]
-        public static extern uint GetCurrentThreadId();
-
-        [Flags]
-        public enum ProcessAccessFlags : uint
-        {
-            All = 0x001F0FFF,
-            Terminate = 0x00000001,
-            CreateThread = 0x00000002,
-            VMOperation = 0x00000008,
-            VMRead = 0x00000010,
-            VMWrite = 0x00000020,
-            DupHandle = 0x00000040,
-            SetInformation = 0x00000200,
-            QueryInformation = 0x00000400,
-            Synchronize = 0x00100000
-        }
+    [DllImport("KERNEL32.DLL", EntryPoint = "SetProcessWorkingSetSize", SetLastError = true, CallingConvention = CallingConvention.StdCall)]
+    public static extern bool SetProcessWorkingSetSize(IntPtr pProcess, int dwMinimumWorkingSetSize, int dwMaximumWorkingSetSize);
 
 
-        [return: MarshalAs(UnmanagedType.Bool)]
-        [DllImport("user32.dll")]
-        public static extern bool UpdateLayeredWindowIndirect(IntPtr hwnd, ref UPDATELAYEREDWINDOWINFO pULWInfo);
+    [DllImport("kernel32.dll")]
+    public static extern uint GetLastError();
 
-        [DllImport("USER32.dll")]
-        static extern short GetKeyState(VirtualKeyStates nVirtKey);
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern bool SetProcessDPIAware();
 
-        [DllImport("user32.dll", ExactSpelling = true, CharSet = CharSet.Auto)]
-        public static extern IntPtr GetParent(IntPtr hWnd);
+    [DllImport("kernel32.dll")]
+    public static extern void OutputDebugString(string lpOutputString);
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    public static extern bool QueryFullProcessImageNameW(IntPtr hProcess, uint dwFlags,
+        [Out, MarshalAs(UnmanagedType.LPTStr)] StringBuilder lpExeName,
+        ref int lpdwSize);
+
+    [DllImport("kernel32.dll")]
+    public static extern IntPtr OpenProcess(ProcessAccessFlags dwDesiredAccess, [MarshalAs(UnmanagedType.Bool)] bool bInheritHandle,
+        uint dwProcessId);
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool CloseHandle(IntPtr hObject);
+
+    [return: MarshalAs(UnmanagedType.Bool)]
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern bool PostThreadMessage(uint threadId, uint msg, UIntPtr wParam, IntPtr lParam);
+
+    [DllImport("kernel32.dll")]
+    public static extern uint GetCurrentThreadId();
+
+    [Flags]
+    public enum ProcessAccessFlags : uint
+    {
+        All = 0x001F0FFF,
+        Terminate = 0x00000001,
+        CreateThread = 0x00000002,
+        VMOperation = 0x00000008,
+        VMRead = 0x00000010,
+        VMWrite = 0x00000020,
+        DupHandle = 0x00000040,
+        SetInformation = 0x00000200,
+        QueryInformation = 0x00000400,
+        Synchronize = 0x00100000
+    }
 
 
-        [DllImport("user32.dll", ExactSpelling = true)]
-        public static extern IntPtr GetAncestor(IntPtr hwnd, GetAncestorFlags flags);
+    [return: MarshalAs(UnmanagedType.Bool)]
+    [DllImport("user32.dll")]
+    public static extern bool UpdateLayeredWindowIndirect(IntPtr hwnd, ref UPDATELAYEREDWINDOWINFO pULWInfo);
 
-        public enum GetAncestorFlags
-        {
-            /// <summary>
-            /// Retrieves the parent window. This does not include the owner, as it does with the GetParent function. 
-            /// </summary>
-            GetParent = 1,
-            /// <summary>
-            /// Retrieves the root window by walking the chain of parent windows.
-            /// </summary>
-            GetRoot = 2,
-            /// <summary>
-            /// Retrieves the owned root window by walking the chain of parent and owner windows returned by GetParent. 
-            /// </summary>
-            GetRootOwner = 3
-        }
+    [DllImport("USER32.dll")]
+    static extern short GetKeyState(VirtualKeyStates nVirtKey);
 
-        [StructLayout(LayoutKind.Sequential)]
-        public struct UPDATELAYEREDWINDOWINFO
-        {
-            public uint cbSize;
-            public IntPtr hdcDst;
-            public unsafe Point* pptDst;
-            public unsafe Size* psize;
-            public IntPtr hdcSrc;
-            public unsafe Point* pptSrc;
-            public uint crKey;
-            public unsafe BLENDFUNCTION* pblend;
-            public uint dwFlags;
-            public unsafe GDI32.RECT* prcDirty;
-        }
+    [DllImport("user32.dll", ExactSpelling = true, CharSet = CharSet.Auto)]
+    public static extern IntPtr GetParent(IntPtr hWnd);
+
+
+    [DllImport("user32.dll", ExactSpelling = true)]
+    public static extern IntPtr GetAncestor(IntPtr hwnd, GetAncestorFlags flags);
+
+    public enum GetAncestorFlags
+    {
+        /// <summary>
+        /// Retrieves the parent window. This does not include the owner, as it does with the GetParent function. 
+        /// </summary>
+        GetParent = 1,
+        /// <summary>
+        /// Retrieves the root window by walking the chain of parent windows.
+        /// </summary>
+        GetRoot = 2,
+        /// <summary>
+        /// Retrieves the owned root window by walking the chain of parent and owner windows returned by GetParent. 
+        /// </summary>
+        GetRootOwner = 3
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct UPDATELAYEREDWINDOWINFO
+    {
+        public uint cbSize;
+        public IntPtr hdcDst;
+        public unsafe Point* pptDst;
+        public unsafe Size* psize;
+        public IntPtr hdcSrc;
+        public unsafe Point* pptSrc;
+        public uint crKey;
+        public unsafe BLENDFUNCTION* pblend;
+        public uint dwFlags;
+        public unsafe GDI32.RECT* prcDirty;
+    }
 
 
     /// <summary>
@@ -1623,5 +1623,4 @@ namespace WGestures.Common.OsSpecific.Windows
     };
 
 
-    }
 }

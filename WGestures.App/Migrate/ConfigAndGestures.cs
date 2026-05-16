@@ -7,18 +7,17 @@ using WGestures.Common.Config.Impl;
 using WGestures.Core.Persistence;
 using WGestures.Core.Persistence.Impl;
 
-namespace WGestures.App.Migrate
+namespace WGestures.App.Migrate;
+
+internal class ConfigAndGestures
 {
-    internal class ConfigAndGestures
+    public PlistConfig Config { get; private set; }
+
+    public JsonGestureIntentStore GestureIntentStore { get; private set; }
+
+    public ConfigAndGestures(PlistConfig config, JsonGestureIntentStore gestures)
     {
-        public PlistConfig Config { get; private set; }
-
-        public JsonGestureIntentStore GestureIntentStore { get; private set; }
-
-        public ConfigAndGestures(PlistConfig config, JsonGestureIntentStore gestures)
-        {
-            Config = config;
-            GestureIntentStore = gestures;
-        }
+        Config = config;
+        GestureIntentStore = gestures;
     }
 }

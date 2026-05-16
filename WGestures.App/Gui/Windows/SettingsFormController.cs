@@ -18,610 +18,636 @@ using WGestures.Core.Persistence;
 using WGestures.Core.Persistence.Impl;
 using System.Runtime.Versioning;
 
-namespace WGestures.App.Gui.Windows {
-    [SupportedOSPlatform("windows")]
-    internal class SettingsFormController : IDisposable, INotifyPropertyChanged
+namespace WGestures.App.Gui.Windows;
+
+[SupportedOSPlatform("windows")]
+internal class SettingsFormController : IDisposable, INotifyPropertyChanged {
+    private Form _form;
+
+    public bool IsDisposed { get; private set; }
+
+    private PlistConfig _config;
+    private GestureParser _parser;
+    private Win32MousePathTracker2 _pathTracker;
+    private JsonGestureIntentStore _intentStore;
+ 
+    private CanvasWindowGestureView _gestureView;
+    private GlobalHotKeyManager _hotkeyMgr;
+
+    public SettingsFormController(PlistConfig config, GestureParser parser,
+        Win32MousePathTracker2 pathTracker,
+        CanvasWindowGestureView gestureView, GlobalHotKeyManager hotkeyMgr, JsonGestureIntentStore intentStore )
     {
-        private Form _form;
+        _config = config;
+        _parser = parser;
+        _pathTracker = pathTracker;
+        _intentStore = intentStore;
+       
+        _gestureView = gestureView;
+        _hotkeyMgr = hotkeyMgr;
 
-        public bool IsDisposed { get; private set; }
+        #region 初始化支持的命令和命令视图
 
-        private PlistConfig _config;
-        private GestureParser _parser;
-        private Win32MousePathTracker2 _pathTracker;
-        private JsonGestureIntentStore _intentStore;
-        private CanvasWindowGestureView _gestureView;
-        private GlobalHotKeyManager _hotkeyMgr;
+        //Add Command Types
+        SupportedCommands.Add(NamedAttribute.GetNameOf(typeof(DoNothingCommand)), typeof(DoNothingCommand));
+        SupportedCommands.Add(NamedAttribute.GetNameOf(typeof(HotKeyCommand)), typeof(HotKeyCommand));
+        SupportedCommands.Add(NamedAttribute.GetNameOf(typeof(WebSearchCommand)), typeof(WebSearchCommand));
+        SupportedCommands.Add(NamedAttribute.GetNameOf(typeof(WindowControlCommand)), typeof(WindowControlCommand));
+        SupportedCommands.Add(NamedAttribute.GetNameOf(typeof(TaskSwitcherCommand)), typeof(TaskSwitcherCommand));
+        SupportedCommands.Add(NamedAttribute.GetNameOf(typeof(OpenFileCommand)), typeof(OpenFileCommand));
+        SupportedCommands.Add(NamedAttribute.GetNameOf(typeof(SendTextCommand)), typeof(SendTextCommand));
+        SupportedCommands.Add(NamedAttribute.GetNameOf(typeof(GotoUrlCommand)), typeof(GotoUrlCommand));
+        SupportedCommands.Add(NamedAttribute.GetNameOf(typeof(CmdCommand)), typeof(CmdCommand));
+        SupportedCommands.Add(NamedAttribute.GetNameOf(typeof(ScriptCommand)), typeof(ScriptCommand));
 
-        public SettingsFormController(PlistConfig config, GestureParser parser,
-            Win32MousePathTracker2 pathTracker, JsonGestureIntentStore intentStore,
-            CanvasWindowGestureView gestureView, GlobalHotKeyManager hotkeyMgr)
-        {
-            _config = config;
-            _parser = parser;
-            _pathTracker = pathTracker;
-            _intentStore = intentStore;
-            _gestureView = gestureView;
-            _hotkeyMgr = hotkeyMgr;
+        SupportedCommands.Add(NamedAttribute.GetNameOf(typeof(PauseWGesturesCommand)), typeof(PauseWGesturesCommand));
+        SupportedCommands.Add(NamedAttribute.GetNameOf(typeof(ChangeAudioVolumeCommand)),
+            typeof(ChangeAudioVolumeCommand));
 
-            #region 初始化支持的命令和命令视图
-            //Add Command Types
-            SupportedCommands.Add(NamedAttribute.GetNameOf(typeof(DoNothingCommand)), typeof(DoNothingCommand));
-            SupportedCommands.Add(NamedAttribute.GetNameOf(typeof(HotKeyCommand)), typeof(HotKeyCommand));
-            SupportedCommands.Add(NamedAttribute.GetNameOf(typeof(WebSearchCommand)), typeof(WebSearchCommand));
-            SupportedCommands.Add(NamedAttribute.GetNameOf(typeof(WindowControlCommand)), typeof(WindowControlCommand));
-            SupportedCommands.Add(NamedAttribute.GetNameOf(typeof(TaskSwitcherCommand)), typeof(TaskSwitcherCommand));
-            SupportedCommands.Add(NamedAttribute.GetNameOf(typeof(OpenFileCommand)), typeof(OpenFileCommand));
-            SupportedCommands.Add(NamedAttribute.GetNameOf(typeof(SendTextCommand)), typeof(SendTextCommand));
-            SupportedCommands.Add(NamedAttribute.GetNameOf(typeof(GotoUrlCommand)), typeof(GotoUrlCommand));
-            SupportedCommands.Add(NamedAttribute.GetNameOf(typeof(CmdCommand)), typeof(CmdCommand));
-            SupportedCommands.Add(NamedAttribute.GetNameOf(typeof(ScriptCommand)), typeof(ScriptCommand));
+        CommandViewFactory.Register<OpenFileCommand, OpenFileCommandView>();
+        CommandViewFactory.Register<DoNothingCommand, GeneralNoParameterCommandView>();
+        CommandViewFactory.Register<HotKeyCommand, HotKeyCommandView>();
+        CommandViewFactory.Register<GotoUrlCommand, GotoUrlCommandView>();
+        CommandViewFactory.Register<PauseWGesturesCommand, GeneralNoParameterCommandView>();
+        CommandViewFactory.Register<WebSearchCommand, WebSearchCommandView>();
+        CommandViewFactory.Register<WindowControlCommand, WindowControlCommandView>();
+        CommandViewFactory.Register<CmdCommand, CmdCommandView>();
+        CommandViewFactory.Register<SendTextCommand, SendTextCommandView>();
+        CommandViewFactory.Register<TaskSwitcherCommand, TaskSwitcherCommandView>();
+        CommandViewFactory.Register<ScriptCommand, ScriptCommandView>();
+        CommandViewFactory.Register<ChangeAudioVolumeCommand, GeneralNoParameterCommandView>();
 
-            SupportedCommands.Add(NamedAttribute.GetNameOf(typeof(PauseWGesturesCommand)), typeof(PauseWGesturesCommand));
-            SupportedCommands.Add(NamedAttribute.GetNameOf(typeof(ChangeAudioVolumeCommand)), typeof(ChangeAudioVolumeCommand));
-            
-            CommandViewFactory.Register<OpenFileCommand, OpenFileCommandView>();
-            CommandViewFactory.Register<DoNothingCommand, GeneralNoParameterCommandView>();
-            CommandViewFactory.Register<HotKeyCommand, HotKeyCommandView>();
-            CommandViewFactory.Register<GotoUrlCommand, GotoUrlCommandView>();
-            CommandViewFactory.Register<PauseWGesturesCommand, GeneralNoParameterCommandView>();
-            CommandViewFactory.Register<WebSearchCommand, WebSearchCommandView>();
-            CommandViewFactory.Register<WindowControlCommand, WindowControlCommandView>();
-            CommandViewFactory.Register<CmdCommand, CmdCommandView>();
-            CommandViewFactory.Register<SendTextCommand, SendTextCommandView>();
-            CommandViewFactory.Register<TaskSwitcherCommand, TaskSwitcherCommandView>();
-            CommandViewFactory.Register<ScriptCommand, ScriptCommandView>();
-            CommandViewFactory.Register<ChangeAudioVolumeCommand, GeneralNoParameterCommandView>();
-            #endregion
-
-            #region Hotcorner 
-            SupportedHotCornerCommands.Add(NamedAttribute.GetNameOf(typeof(DoNothingCommand)), typeof(DoNothingCommand));
-            SupportedHotCornerCommands.Add(NamedAttribute.GetNameOf(typeof(HotKeyCommand)), typeof(HotKeyCommand));
-            SupportedHotCornerCommands.Add(NamedAttribute.GetNameOf(typeof(CmdCommand)), typeof(CmdCommand));
-
-            HotCornerCommandViewFactory.Register<DoNothingCommand, GeneralNoParameterCommandView>();
-            HotCornerCommandViewFactory.Register<HotKeyCommand, HotKeyCommandView>();
-            HotCornerCommandViewFactory.Register<CmdCommand, CmdCommandView>();
-            #endregion
-
-            _form = new SettingsForm(this);
-        }
-
-
-        #region tab1 Config Items
-        
-        public PlistConfig Config { get { return _config; } }
-
-        public GlobalHotKeyManager.HotKey? PauseResumeHotkey
-        {
-            get
-            {
-                return _hotkeyMgr.GetRegisteredHotKeyById(ConfigKeys.PauseResumeHotKey);
-            }
-
-            set
-            {
-
-                if(value != null)
-                {
-                    if (PauseResumeHotkey != null && value.Value.Equals(PauseResumeHotkey.Value) ) return;
-                    //use null action here cus we use _hotkeyMgr.HotKeyPreview event in Program class
-                    _hotkeyMgr.RegisterHotKey(ConfigKeys.PauseResumeHotKey, value.Value, null);
-                }else
-                {
-                    if (PauseResumeHotkey == null) return;
-                    _hotkeyMgr.UnRegisterHotKey(ConfigKeys.PauseResumeHotKey);
-                }
-                Console.WriteLine(value.ToString());
-                _config.Dict.PauseResumeHotKey=value == null ? System.Text.Encoding.Default.GetString(new byte[0]) : System.Text.Encoding.Default.GetString(value.Value.ToBytes());
-                Console.WriteLine(System.Text.Encoding.Default.GetString(value.Value.ToBytes()));
-                OnPropertyChanged("PauseResumeHotKey");
-            }
-        }
-
-        /// <summary>
-        /// 获取或设置是否开机自动运行
-        /// </summary>
-        public bool AutoStart
-        {
-            get
-            {
-                var config = _config.Dict.AutoStart ;
-                return config;
-            }
-            set
-            {
-                if (value == AutoStart) return;
-
-                try
-                {
-                    if (value)
-                    {
-                        AutoStarter.Register(Constants.Identifier, Application.ExecutablePath);
-                    }
-                    else
-                    {
-                        AutoStarter.Unregister(Constants.Identifier);
-                    }
-
-                    _config.Dict.AutoStart= value ;
-                }
-                catch (Exception)
-                {
-#if DEBUG                    
-                    throw;
-#endif
-                }
-
-
-                OnPropertyChanged("AutoStart");
-            }
-        }
-        /// <summary>
-        /// 获取或设置是否自动检查更新
-        /// </summary>
-        public bool AutoCheckForUpdate
-        {
-            get { return _config.Dict.AutoCheckForUpdate ; }
-            set
-            {
-                if (value == AutoCheckForUpdate) return;
-
-                _config.Dict.AutoCheckForUpdate=value ;
-
-                OnPropertyChanged("AutoCheckForUpdate");
-            }
-        }
-        /// <summary>
-        /// 获取或设置哪一个鼠标按键作为手势键
-        /// </summary>
-        public GestureTriggerButton PathTrackerTriggerButton
-        {
-            get
-            {
-                return _pathTracker.TriggerButton;
-            }
-
-            set
-            {
-                if (value == PathTrackerTriggerButton) return;
-                _pathTracker.TriggerButton = value;
-
-                _config.Dict.PathTrackerTriggerButton= (int)_pathTracker.TriggerButton ;
-
-                OnPropertyChanged("PathTrackerTriggerButton");
-            }
-        }
-
-        public bool PathTrackerEnableWinKeyGesturing
-        {
-            get { return _pathTracker.EnableWindowsKeyGesturing; }
-            set
-            {
-                Debug.WriteLine("Win: " + value);
-                if (value == PathTrackerEnableWinKeyGesturing) return;
-                _pathTracker.EnableWindowsKeyGesturing = value;
-
-                _config.Dict.EnableWindowsKeyGesturing= value;
-                OnPropertyChanged("PathTrackerEnableWinKeyGesturing");
-            }
-        }
-
-        public bool GestureParserEnable8DirGesture
-        {
-            get { return _parser.Enable8DirGesture; }
-            set
-            {
-                if (value == _parser.Enable8DirGesture) return;
-                _parser.Enable8DirGesture = value;
-                _config.Dict.GestureParserEnable8DirGesture= value;
-                OnPropertyChanged("GestureParserEnable8DirGesture");
-            }
-        }
-
-        /// <summary>
-        /// 获取或设置出示有效移动距离
-        /// </summary>
-        public int PathTrackerInitialValidMove
-        {
-            get { return _pathTracker.InitialValidMove; }
-            set
-            {
-                if (value == PathTrackerInitialValidMove) return;
-
-                _pathTracker.InitialValidMove = value;
-                _config.Dict.PathTrackerInitialValidMove= _pathTracker.InitialValidMove;
-
-                OnPropertyChanged("PathTrackerInitialValidMove");
-            }
-        }
-
-        public bool PathTrackerInitialStayTimeout
-        {
-            get { return _pathTracker.InitialStayTimeout; }
-            set
-            {
-                if (value == PathTrackerInitialStayTimeout) return;
-
-                _pathTracker.InitialStayTimeout = value;
-                _config.Dict.PathTrackerInitialStayTimeout= value;
-
-                OnPropertyChanged("PathTrackerInitialStayTimeout");
-            }
-        }
-
-        public int PathTrackerInitalStayTimeoutMillis
-        {
-            get { return _pathTracker.InitialStayTimeoutMillis; }
-            set
-            {
-                if (value == PathTrackerStayTimeoutMillis) return;
-
-                _pathTracker.InitialStayTimeoutMillis = value;
-                _config.Dict.PathTrackerInitialStayTimoutMillis=value;
-
-                OnPropertyChanged("PathTrackerInitalStayTimeoutMillis");
-            }
-        }
-
-        public bool PathTrackerDisableInFullScreen
-        {
-            get { return _pathTracker.DisableInFullscreen; }
-            set
-            {
-                if (value == PathTrackerDisableInFullScreen) return;
-
-                _pathTracker.DisableInFullscreen = value;
-                _config.Dict.PathTrackerDisableInFullScreen= value;
-
-                OnPropertyChanged("PathTrackerDisableInFullScreen");
-            }
-        }
-
-        /// <summary>
-        /// 获取或设置鼠标是否允许停留超时
-        /// </summary>
-        public bool PathTrackerStayTimeout
-        {
-            get { return _pathTracker.StayTimeout; }
-            set
-            {
-                if (value == PathTrackerStayTimeout) return;
-
-                _pathTracker.StayTimeout = value;
-                _config.Dict.PathTrackerStayTimeout= _pathTracker.StayTimeout;
-
-                OnPropertyChanged("PathTrackerStayTimeout");
-            }
-        }
-        /// <summary>
-        /// 获取或设置停留超时的时间（毫秒）
-        /// </summary>
-        public int PathTrackerStayTimeoutMillis
-        {
-            get { return _pathTracker.StayTimeoutMillis; }
-            set
-            {
-                if (value == PathTrackerStayTimeoutMillis) return;
-
-                _pathTracker.StayTimeoutMillis = value;
-                _config.Dict.PathTrackerStayTimeoutMillis= _pathTracker.StayTimeoutMillis;
-
-                OnPropertyChanged("PathTrackerStayTimeoutMillis");
-            }
-        }
-
-        public bool PathTrackerPreferCursorWindow
-        {
-            get 
-            {
-                return _pathTracker.PreferWindowUnderCursorAsTarget;
-            }
-            set 
-            {
-                if (value == PathTrackerPreferCursorWindow) return;
-                _pathTracker.PreferWindowUnderCursorAsTarget = value;
-                _config.Dict.PathTrackerPreferCursorWindow= value;
-
-                OnPropertyChanged("PathTrackerPreferCursorWindow");
-            }
-        }
-        /// <summary>
-        /// 获取或设置是否显示手势路径
-        /// </summary>
-        public bool GestureViewShowPath
-        {
-            get { return _gestureView.ShowPath; }
-            set
-            {
-                if (value == GestureViewShowPath) return;
-
-                _gestureView.ShowPath = value;
-                _config.Dict.GestureViewShowPath=value;
-
-                OnPropertyChanged("GestureViewShowPath");
-            }
-        }
-        /// <summary>
-        /// 获取或设置是否显示手示意图名称
-        /// </summary>
-        public bool GestureViewShowCommandName
-        {
-            get { return _gestureView.ShowCommandName; }
-            set
-            {
-                if (value == GestureViewShowCommandName) return;
-
-                _gestureView.ShowCommandName = value;
-                _config.Dict.GestureViewShowCommandName= value;
-
-                OnPropertyChanged("GestureViewShowCommandName");
-            }
-        }
-        /// <summary>
-        /// 获取或设置是否在手势执行后视图淡出
-        /// </summary>
-        public bool GestureViewFadeOut
-        {
-            get { return _gestureView.ViewFadeOut; }
-            set
-            {
-                if (value == GestureViewFadeOut) return;
-
-                _gestureView.ViewFadeOut = value;
-                _config.Dict.GestureViewFadeOut= value;
-
-                OnPropertyChanged("GestureViewFadeOut");
-            }
-        }
-        /// <summary>
-        /// 获取或设置手势被识别时轨迹显示的颜色
-        /// </summary>
-        public Color GestureViewMainPathColor
-        {
-            get { return _gestureView.PathMainColor; }
-            set
-            {
-                if (value == GestureViewMainPathColor) return;
-
-                _gestureView.PathMainColor = value;
-                _config.Dict.GestureViewMainPathColor= value.ToArgb();
-
-                OnPropertyChanged("GestureViewMainPathColor");
-            }
-        }
-        /// <summary>
-        /// 获取或设置手势为被识别时轨迹的颜色
-        /// </summary>
-        public Color GestureViewAlternativePathColor
-        {
-            get { return _gestureView.PathAlternativeColor; }
-            set
-            {
-                if (value == GestureViewAlternativePathColor) return;
-
-                _gestureView.PathAlternativeColor = value;
-                _config.Dict.GestureViewAlternativePathColor= value.ToArgb();
-
-                OnPropertyChanged("GestureViewAlternativePathColor");
-            }
-        }
-
-        public Color GestureViewMiddleBtnMainColor
-        {
-            get { return _gestureView.PathMiddleBtnMainColor; }
-            set
-            {
-                if (value == GestureViewMiddleBtnMainColor) return;
-
-                _gestureView.PathMiddleBtnMainColor = value;
-                _config.Dict.GestureViewMiddleBtnMainColor= value.ToArgb();
-
-                OnPropertyChanged("GestureViewMiddleBtnMainColor");
-            }
-        }
-
-        public Color GestureVieXBtnMainColor
-        {
-            get { return _gestureView.PathXBtnMainColor; }
-            set
-            {
-                if (value == GestureVieXBtnMainColor) return;
-
-                _gestureView.PathXBtnMainColor = value;
-                _config.Dict.GestureViewXBtnPathColor=value.ToArgb();
-
-                OnPropertyChanged("GestureVieXBtnMainColor");
-            }
-        }
         #endregion
 
-        #region migrate methods
+        #region Hotcorner
 
-        internal void ExportTo(string filePath)
+        SupportedHotCornerCommands.Add(NamedAttribute.GetNameOf(typeof(DoNothingCommand)), typeof(DoNothingCommand));
+        SupportedHotCornerCommands.Add(NamedAttribute.GetNameOf(typeof(HotKeyCommand)), typeof(HotKeyCommand));
+        SupportedHotCornerCommands.Add(NamedAttribute.GetNameOf(typeof(CmdCommand)), typeof(CmdCommand));
+
+        HotCornerCommandViewFactory.Register<DoNothingCommand, GeneralNoParameterCommandView>();
+        HotCornerCommandViewFactory.Register<HotKeyCommand, HotKeyCommandView>();
+        HotCornerCommandViewFactory.Register<CmdCommand, CmdCommandView>();
+
+        #endregion
+
+        _form = new SettingsForm(this);
+    }
+
+
+    #region tab1 Config Items
+
+    public PlistConfig Config { get { return _config; } }
+
+    public GlobalHotKeyManager.HotKey? PauseResumeHotkey
+    {
+        get
         {
-            MigrateService.ExportTo(filePath);
+            return _hotkeyMgr.GetRegisteredHotKeyById(ConfigKeys.PauseResumeHotKey);
         }
 
-        internal void RestoreDefaultGestures()
+        set
         {
-            _intentStore.Import(MigrateService.Import(AppSettings.DefaultGesturesFilePath).GestureIntentStore, replace: true);
+            if (value != null)
+            {
+                if (PauseResumeHotkey != null && value.Value.Equals(PauseResumeHotkey.Value)) return;
+                //use null action here cus we use _hotkeyMgr.HotKeyPreview event in Program class
+                _hotkeyMgr.RegisterHotKey(ConfigKeys.PauseResumeHotKey, value.Value, null);
+            }
+            else
+            {
+                if (PauseResumeHotkey == null) return;
+                _hotkeyMgr.UnRegisterHotKey(ConfigKeys.PauseResumeHotKey);
+            }
+
+            Console.WriteLine(value.ToString());
+            _config.Dict.PauseResumeHotKey = value == null
+                ? System.Text.Encoding.Default.GetString(new byte[0])
+                : System.Text.Encoding.Default.GetString(value.Value.ToBytes());
+            Console.WriteLine(System.Text.Encoding.Default.GetString(value.Value.ToBytes()));
+            OnPropertyChanged("PauseResumeHotKey");
+        }
+    }
+
+    /// <summary>
+    /// 获取或设置是否开机自动运行
+    /// </summary>
+    public bool AutoStart
+    {
+        get
+        {
+            var config = _config.Dict.AutoStart;
+            return config;
+        }
+        set
+        {
+            if (value == AutoStart) return;
+
+            try
+            {
+                if (value)
+                {
+                    AutoStarter.Register(Constants.Identifier, Application.ExecutablePath);
+                }
+                else
+                {
+                    AutoStarter.Unregister(Constants.Identifier);
+                }
+
+                _config.Dict.AutoStart = value;
+            }
+            catch (Exception)
+            {
+#if DEBUG
+                throw;
+#endif
+            }
+
+
+            OnPropertyChanged("AutoStart");
+        }
+    }
+
+    /// <summary>
+    /// 获取或设置是否自动检查更新
+    /// </summary>
+    public bool AutoCheckForUpdate
+    {
+        get { return _config.Dict.AutoCheckForUpdate; }
+        set
+        {
+            if (value == AutoCheckForUpdate) return;
+
+            _config.Dict.AutoCheckForUpdate = value;
+
+            OnPropertyChanged("AutoCheckForUpdate");
+        }
+    }
+
+    /// <summary>
+    /// 获取或设置哪一个鼠标按键作为手势键
+    /// </summary>
+    public GestureTriggerButton PathTrackerTriggerButton
+    {
+        get
+        {
+            return _pathTracker.TriggerButton;
+        }
+
+        set
+        {
+            if (value == PathTrackerTriggerButton) return;
+            _pathTracker.TriggerButton = value;
+
+            _config.Dict.PathTrackerTriggerButton = (int)_pathTracker.TriggerButton;
+
+            OnPropertyChanged("PathTrackerTriggerButton");
+        }
+    }
+
+    public bool PathTrackerEnableWinKeyGesturing
+    {
+        get { return _pathTracker.EnableWindowsKeyGesturing; }
+        set
+        {
+            Debug.WriteLine("Win: " + value);
+            if (value == PathTrackerEnableWinKeyGesturing) return;
+            _pathTracker.EnableWindowsKeyGesturing = value;
+
+            _config.Dict.EnableWindowsKeyGesturing = value;
+            OnPropertyChanged("PathTrackerEnableWinKeyGesturing");
+        }
+    }
+
+    public bool GestureParserEnable8DirGesture
+    {
+        get { return _parser.Enable8DirGesture; }
+        set
+        {
+            if (value == _parser.Enable8DirGesture) return;
+            _parser.Enable8DirGesture = value;
+            _config.Dict.GestureParserEnable8DirGesture = value;
+            OnPropertyChanged("GestureParserEnable8DirGesture");
+        }
+    }
+
+    /// <summary>
+    /// 获取或设置出示有效移动距离
+    /// </summary>
+    public int PathTrackerInitialValidMove
+    {
+        get { return _pathTracker.InitialValidMove; }
+        set
+        {
+            if (value == PathTrackerInitialValidMove) return;
+
+            _pathTracker.InitialValidMove = value;
+            _config.Dict.PathTrackerInitialValidMove = _pathTracker.InitialValidMove;
+
+            OnPropertyChanged("PathTrackerInitialValidMove");
+        }
+    }
+
+    public bool PathTrackerInitialStayTimeout
+    {
+        get { return _pathTracker.InitialStayTimeout; }
+        set
+        {
+            if (value == PathTrackerInitialStayTimeout) return;
+
+            _pathTracker.InitialStayTimeout = value;
+            _config.Dict.PathTrackerInitialStayTimeout = value;
+
+            OnPropertyChanged("PathTrackerInitialStayTimeout");
+        }
+    }
+
+    public int PathTrackerInitalStayTimeoutMillis
+    {
+        get { return _pathTracker.InitialStayTimeoutMillis; }
+        set
+        {
+            if (value == PathTrackerStayTimeoutMillis) return;
+
+            _pathTracker.InitialStayTimeoutMillis = value;
+            _config.Dict.PathTrackerInitialStayTimoutMillis = value;
+
+            OnPropertyChanged("PathTrackerInitalStayTimeoutMillis");
+        }
+    }
+
+    public bool PathTrackerDisableInFullScreen
+    {
+        get { return _pathTracker.DisableInFullscreen; }
+        set
+        {
+            if (value == PathTrackerDisableInFullScreen) return;
+
+            _pathTracker.DisableInFullscreen = value;
+            _config.Dict.PathTrackerDisableInFullScreen = value;
+
+            OnPropertyChanged("PathTrackerDisableInFullScreen");
+        }
+    }
+
+    /// <summary>
+    /// 获取或设置鼠标是否允许停留超时
+    /// </summary>
+    public bool PathTrackerStayTimeout
+    {
+        get { return _pathTracker.StayTimeout; }
+        set
+        {
+            if (value == PathTrackerStayTimeout) return;
+
+            _pathTracker.StayTimeout = value;
+            _config.Dict.PathTrackerStayTimeout = _pathTracker.StayTimeout;
+
+            OnPropertyChanged("PathTrackerStayTimeout");
+        }
+    }
+
+    /// <summary>
+    /// 获取或设置停留超时的时间（毫秒）
+    /// </summary>
+    public int PathTrackerStayTimeoutMillis
+    {
+        get { return _pathTracker.StayTimeoutMillis; }
+        set
+        {
+            if (value == PathTrackerStayTimeoutMillis) return;
+
+            _pathTracker.StayTimeoutMillis = value;
+            _config.Dict.PathTrackerStayTimeoutMillis = _pathTracker.StayTimeoutMillis;
+
+            OnPropertyChanged("PathTrackerStayTimeoutMillis");
+        }
+    }
+
+    public bool PathTrackerPreferCursorWindow
+    {
+        get
+        {
+            return _pathTracker.PreferWindowUnderCursorAsTarget;
+        }
+        set
+        {
+            if (value == PathTrackerPreferCursorWindow) return;
+            _pathTracker.PreferWindowUnderCursorAsTarget = value;
+            _config.Dict.PathTrackerPreferCursorWindow = value;
+
+            OnPropertyChanged("PathTrackerPreferCursorWindow");
+        }
+    }
+
+    /// <summary>
+    /// 获取或设置是否显示手势路径
+    /// </summary>
+    public bool GestureViewShowPath
+    {
+        get { return _gestureView.ShowPath; }
+        set
+        {
+            if (value == GestureViewShowPath) return;
+
+            _gestureView.ShowPath = value;
+            _config.Dict.GestureViewShowPath = value;
+
+            OnPropertyChanged("GestureViewShowPath");
+        }
+    }
+
+    /// <summary>
+    /// 获取或设置是否显示手示意图名称
+    /// </summary>
+    public bool GestureViewShowCommandName
+    {
+        get { return _gestureView.ShowCommandName; }
+        set
+        {
+            if (value == GestureViewShowCommandName) return;
+
+            _gestureView.ShowCommandName = value;
+            _config.Dict.GestureViewShowCommandName = value;
+
+            OnPropertyChanged("GestureViewShowCommandName");
+        }
+    }
+
+    /// <summary>
+    /// 获取或设置是否在手势执行后视图淡出
+    /// </summary>
+    public bool GestureViewFadeOut
+    {
+        get { return _gestureView.ViewFadeOut; }
+        set
+        {
+            if (value == GestureViewFadeOut) return;
+
+            _gestureView.ViewFadeOut = value;
+            _config.Dict.GestureViewFadeOut = value;
+
+            OnPropertyChanged("GestureViewFadeOut");
+        }
+    }
+
+    /// <summary>
+    /// 获取或设置手势被识别时轨迹显示的颜色
+    /// </summary>
+    public Color GestureViewMainPathColor
+    {
+        get { return _gestureView.PathMainColor; }
+        set
+        {
+            if (value == GestureViewMainPathColor) return;
+
+            _gestureView.PathMainColor = value;
+            _config.Dict.GestureViewMainPathColor = value.ToArgb();
+
+            OnPropertyChanged("GestureViewMainPathColor");
+        }
+    }
+
+    /// <summary>
+    /// 获取或设置手势为被识别时轨迹的颜色
+    /// </summary>
+    public Color GestureViewAlternativePathColor
+    {
+        get { return _gestureView.PathAlternativeColor; }
+        set
+        {
+            if (value == GestureViewAlternativePathColor) return;
+
+            _gestureView.PathAlternativeColor = value;
+            _config.Dict.GestureViewAlternativePathColor = value.ToArgb();
+
+            OnPropertyChanged("GestureViewAlternativePathColor");
+        }
+    }
+
+    public Color GestureViewMiddleBtnMainColor
+    {
+        get { return _gestureView.PathMiddleBtnMainColor; }
+        set
+        {
+            if (value == GestureViewMiddleBtnMainColor) return;
+
+            _gestureView.PathMiddleBtnMainColor = value;
+            _config.Dict.GestureViewMiddleBtnMainColor = value.ToArgb();
+
+            OnPropertyChanged("GestureViewMiddleBtnMainColor");
+        }
+    }
+
+    public Color GestureVieXBtnMainColor
+    {
+        get { return _gestureView.PathXBtnMainColor; }
+        set
+        {
+            if (value == GestureVieXBtnMainColor) return;
+
+            _gestureView.PathXBtnMainColor = value;
+            _config.Dict.GestureViewXBtnPathColor = value.ToArgb();
+
+            OnPropertyChanged("GestureVieXBtnMainColor");
+        }
+    }
+
+    #endregion
+
+    #region migrate methods
+
+    internal void ExportTo(string filePath)
+    {
+        MigrateService.ExportTo(filePath);
+    }
+
+    internal void RestoreDefaultGestures()
+    {
+        _intentStore.Import(MigrateService.Import(AppSettings.DefaultGesturesFilePath).GestureIntentStore,
+            replace: true);
+        OnPropertyChanged("IntentStore");
+    }
+
+    /// <summary>
+    /// 导入配置
+    /// </summary>
+    /// <param name="configAndGestures"></param>
+    /// <param name="importConfig"></param>
+    /// <param name="importGestures"></param>
+    /// <param name="mergeGestures"></param>
+    internal void Import(ConfigAndGestures configAndGestures, bool importConfig, bool importGestures,
+        bool mergeGestures)
+    {
+        //config 必然是合并
+        if (importConfig)
+        {
+            _config.Import(configAndGestures.Config);
+            //ReApplyConfig();
+        }
+
+        if (importGestures)
+        {
+            _intentStore.Import(configAndGestures.GestureIntentStore, replace: !mergeGestures);
             OnPropertyChanged("IntentStore");
         }
-        /// <summary>
-        /// 导入配置
-        /// </summary>
-        /// <param name="configAndGestures"></param>
-        /// <param name="importConfig"></param>
-        /// <param name="importGestures"></param>
-        /// <param name="mergeGestures"></param>
-        internal void Import(ConfigAndGestures configAndGestures, bool importConfig, bool importGestures, bool mergeGestures)
+    }
+
+    //private void ReApplyConfig()
+    //{
+    //    AutoStart = _config.Get<bool>(ConfigKeys.AutoStart, AutoStart);
+    //    AutoCheckForUpdate = _config.Get<bool>(ConfigKeys.AutoCheckForUpdate, AutoCheckForUpdate);
+
+    //    //PathTrackerGestureButton = _config.Get<int>(ConfigKeys.PathTrackerGestureButton);
+    //    PathTrackerInitialValidMove = _config.Get<int>(ConfigKeys.PathTrackerInitialValidMove, PathTrackerInitialValidMove);
+    //    PathTrackerInitialStayTimeout = _config.Get<bool>(ConfigKeys.PathTrackerInitialStayTimeout, PathTrackerInitialStayTimeout);
+    //    PathTrackerInitalStayTimeoutMillis = _config.Get<int>(ConfigKeys.PathTrackerInitialStayTimoutMillis, PathTrackerInitalStayTimeoutMillis);
+    //    PathTrackerPreferCursorWindow = _config.Get<bool>(ConfigKeys.PathTrackerPreferCursorWindow, PathTrackerPreferCursorWindow);
+
+    //    PathTrackerDisableInFullScreen = _config.Get<bool>(ConfigKeys.PathTrackerDisableInFullScreen, PathTrackerDisableInFullScreen);
+
+    //    PathTrackerStayTimeout = _config.Get<bool>(ConfigKeys.PathTrackerStayTimeout, PathTrackerStayTimeout);
+    //    PathTrackerStayTimeoutMillis = _config.Get<int>(ConfigKeys.PathTrackerStayTimeoutMillis, PathTrackerStayTimeoutMillis);
+
+    //    GestureViewShowPath = _config.Get<bool>(ConfigKeys.GestureViewShowPath, GestureViewShowPath);
+    //    GestureViewShowCommandName = _config.Get<bool>(ConfigKeys.GestureViewShowCommandName, GestureViewShowCommandName);
+    //    GestureViewFadeOut = _config.Get<bool>(ConfigKeys.GestureViewFadeOut, GestureViewFadeOut);
+    //    GestureViewMainPathColor = Color.FromArgb(_config.Get<int>(ConfigKeys.GestureViewMainPathColor, GestureViewMainPathColor.ToArgb()));
+    //    GestureViewAlternativePathColor = Color.FromArgb(_config.Get<int>(ConfigKeys.GestureViewAlternativePathColor, GestureViewAlternativePathColor.ToArgb()));
+    //    GestureViewMiddleBtnMainColor = Color.FromArgb(_config.Get<int>(ConfigKeys.GestureViewMiddleBtnMainColor, GestureViewMiddleBtnMainColor.ToArgb()));
+
+    //    GestureParserEnableHotCorners = _config.Get(ConfigKeys.GestureParserEnableHotCorners, _parser.EnableHotCorners);
+    //    GestureParserEnable8DirGesture = _config.Get(ConfigKeys.GestureParserEnable8DirGesture, _parser.Enable8DirGesture);
+
+    //}
+
+    #endregion
+
+    #region tab2 props
+
+    /// <summary>
+    /// 获取支持的命令类型字典
+    /// </summary>
+    public Dictionary<string, Type> SupportedCommands { get; private set; } = new Dictionary<string, Type>();
+
+    /// <summary>
+    /// 获取命令视图工厂
+    /// </summary>
+    public ICommandViewFactory<CommandViewUserControl> CommandViewFactory { get; private set; } =
+        new CommandViewFactory<CommandViewUserControl>() {EnableCaching = false};
+
+    /// <summary>
+    /// 获取内存中的手示意图存储结构
+    /// </summary>
+    public IGestureIntentStore IntentStore
+    {
+        get { return _intentStore; }
+    }
+ 
+    /// <summary>
+    /// 获取手势解析器
+    /// </summary>
+    public GestureParser GestureParser { get { return _parser; } }
+
+    #endregion
+
+    #region hotcorners & edges
+
+    public Dictionary<string, Type> SupportedHotCornerCommands { get; private set; } = new Dictionary<string, Type>();
+
+    public ICommandViewFactory<CommandViewUserControl> HotCornerCommandViewFactory { get; private set; } =
+        new CommandViewFactory<CommandViewUserControl>() {EnableCaching = false};
+
+    public bool GestureParserEnableHotCorners
+    {
+        get { return _parser.EnableHotCorners; }
+        set
         {
-            //config 必然是合并
-            if (importConfig)
-            {
-                _config.Import(configAndGestures.Config);
-                //ReApplyConfig();
-            }
+            if (value == _parser.EnableHotCorners) return;
+            _parser.EnableHotCorners = value;
+            Config.Dict.GestureParserEnableHotCorners = value;
+            OnPropertyChanged("GestureParserEnableHotCorners");
+        }
+    }
 
-            if (importGestures)
-            {
-                _intentStore.Import(configAndGestures.GestureIntentStore, replace: !mergeGestures);
-                OnPropertyChanged("IntentStore");
-            }
+    public bool GestureParserEnableRubEdges
+    {
+        get { return _parser.EnableRubEdge; }
+        set
+        {
+            if (value == _parser.EnableRubEdge) return;
+            _parser.EnableRubEdge = value;
+            Config.Dict.GestureParserEnableRubEdges = value;
+            OnPropertyChanged("GestureParserEnableRubEdges");
+        }
+    }
 
+    #endregion
+
+    /// <summary>
+    /// 以Modal方式呈现主设置窗口
+    /// </summary>
+    public void ShowDialog()
+    {
+        _form.ShowDialog();
+
+        _config.Save();
+        _intentStore.Save();
+
+        using (var proc = Process.GetCurrentProcess())
+        {
+            Native.SetProcessWorkingSetSize(proc.Handle, -1, -1);
         }
 
-        //private void ReApplyConfig()
-        //{
-        //    AutoStart = _config.Get<bool>(ConfigKeys.AutoStart, AutoStart);
-        //    AutoCheckForUpdate = _config.Get<bool>(ConfigKeys.AutoCheckForUpdate, AutoCheckForUpdate);
-            
-        //    //PathTrackerGestureButton = _config.Get<int>(ConfigKeys.PathTrackerGestureButton);
-        //    PathTrackerInitialValidMove = _config.Get<int>(ConfigKeys.PathTrackerInitialValidMove, PathTrackerInitialValidMove);
-        //    PathTrackerInitialStayTimeout = _config.Get<bool>(ConfigKeys.PathTrackerInitialStayTimeout, PathTrackerInitialStayTimeout);
-        //    PathTrackerInitalStayTimeoutMillis = _config.Get<int>(ConfigKeys.PathTrackerInitialStayTimoutMillis, PathTrackerInitalStayTimeoutMillis);
-        //    PathTrackerPreferCursorWindow = _config.Get<bool>(ConfigKeys.PathTrackerPreferCursorWindow, PathTrackerPreferCursorWindow);
+        GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
+        GC.WaitForPendingFinalizers();
+    }
 
-        //    PathTrackerDisableInFullScreen = _config.Get<bool>(ConfigKeys.PathTrackerDisableInFullScreen, PathTrackerDisableInFullScreen);
+    public void BringToFront()
+    {
+        _form.WindowState = FormWindowState.Normal;
+        _form.Activate();
+        _form.BringToFront();
+    }
 
-        //    PathTrackerStayTimeout = _config.Get<bool>(ConfigKeys.PathTrackerStayTimeout, PathTrackerStayTimeout);
-        //    PathTrackerStayTimeoutMillis = _config.Get<int>(ConfigKeys.PathTrackerStayTimeoutMillis, PathTrackerStayTimeoutMillis);
 
-        //    GestureViewShowPath = _config.Get<bool>(ConfigKeys.GestureViewShowPath, GestureViewShowPath);
-        //    GestureViewShowCommandName = _config.Get<bool>(ConfigKeys.GestureViewShowCommandName, GestureViewShowCommandName);
-        //    GestureViewFadeOut = _config.Get<bool>(ConfigKeys.GestureViewFadeOut, GestureViewFadeOut);
-        //    GestureViewMainPathColor = Color.FromArgb(_config.Get<int>(ConfigKeys.GestureViewMainPathColor, GestureViewMainPathColor.ToArgb()));
-        //    GestureViewAlternativePathColor = Color.FromArgb(_config.Get<int>(ConfigKeys.GestureViewAlternativePathColor, GestureViewAlternativePathColor.ToArgb()));
-        //    GestureViewMiddleBtnMainColor = Color.FromArgb(_config.Get<int>(ConfigKeys.GestureViewMiddleBtnMainColor, GestureViewMiddleBtnMainColor.ToArgb()));
+    public event PropertyChangedEventHandler PropertyChanged;
 
-        //    GestureParserEnableHotCorners = _config.Get(ConfigKeys.GestureParserEnableHotCorners, _parser.EnableHotCorners);
-        //    GestureParserEnable8DirGesture = _config.Get(ConfigKeys.GestureParserEnable8DirGesture, _parser.Enable8DirGesture);
+    [NotifyPropertyChangedInvocator]
+    protected virtual void OnPropertyChanged(string propertyName)
+    {
+        var handler = PropertyChanged;
+        if (handler != null) handler(this, new PropertyChangedEventArgs(propertyName));
+    }
 
-        //}
 
-        #endregion
-
-        #region tab2 props
-        /// <summary>
-        /// 获取支持的命令类型字典
-        /// </summary>
-        public Dictionary<string, Type> SupportedCommands { get; private set; } = new Dictionary<string, Type>();
-        /// <summary>
-        /// 获取命令视图工厂
-        /// </summary>
-        public ICommandViewFactory<CommandViewUserControl> CommandViewFactory { get; private set; } = new CommandViewFactory<CommandViewUserControl>() { EnableCaching = false };
-        /// <summary>
-        /// 获取内存中的手示意图存储结构
-        /// </summary>
-        public IGestureIntentStore IntentStore
+    public void Dispose()
+    {
+        if (IsDisposed)
         {
-            get { return _intentStore; }
-        }
-        /// <summary>
-        /// 获取手势解析器
-        /// </summary>
-        public GestureParser GestureParser { get { return _parser; } }
-
-        #endregion
-
-        #region hotcorners & edges
-        public Dictionary<string, Type> SupportedHotCornerCommands { get; private set; } = new Dictionary<string, Type>();
-        public ICommandViewFactory<CommandViewUserControl> HotCornerCommandViewFactory { get; private set; } = new CommandViewFactory<CommandViewUserControl>() { EnableCaching = false };
-
-        public bool GestureParserEnableHotCorners
-        {
-            get { return _parser.EnableHotCorners; }
-            set
-            {
-                if (value == _parser.EnableHotCorners) return;
-                _parser.EnableHotCorners = value;
-                Config.Dict.GestureParserEnableHotCorners= value;
-                OnPropertyChanged("GestureParserEnableHotCorners");
-            }
+            return;
         }
 
-        public bool GestureParserEnableRubEdges
+        IsDisposed = true;
+
+        if (CommandViewFactory != null)
         {
-            get { return _parser.EnableRubEdge; }
-            set
-            {
-                if (value == _parser.EnableRubEdge) return;
-                _parser.EnableRubEdge = value;
-                Config.Dict.GestureParserEnableRubEdges= value;
-                OnPropertyChanged("GestureParserEnableRubEdges");
-            }
+            CommandViewFactory.Dispose();
         }
 
-        #endregion
-        /// <summary>
-        /// 以Modal方式呈现主设置窗口
-        /// </summary>
-        public void ShowDialog()
-        {
-            _form.ShowDialog();
+        _config = null;
+        _parser = null;
+        _gestureView = null;
+        _intentStore = null;
+        _pathTracker = null;
 
-            _config.Save();
-            _intentStore.Save();
+        SupportedCommands.Clear();
+        SupportedCommands = null;
+        CommandViewFactory = null;
 
-            using (var proc = Process.GetCurrentProcess())
-            {
-                Native.SetProcessWorkingSetSize(proc.Handle, -1, -1);
-            }
-            GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
-            GC.WaitForPendingFinalizers();
+        _form.Dispose();
+        _form = null;
 
-        }
-
-        public void BringToFront()
-        {
-            _form.WindowState = FormWindowState.Normal;
-            _form.Activate();
-            _form.BringToFront();
-
-        }
-
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged(string propertyName)
-        {
-            var handler = PropertyChanged;
-            if (handler != null) handler(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-
-        public void Dispose()
-        {
-            if (IsDisposed)
-            {
-                return;
-            }
-
-            IsDisposed = true;
-
-            if (CommandViewFactory != null)
-            {
-                CommandViewFactory.Dispose();
-            }
-
-            _config = null;
-            _parser = null;
-            _gestureView = null;
-            _intentStore = null;
-            _pathTracker = null;
-
-            SupportedCommands.Clear();
-            SupportedCommands = null;
-            CommandViewFactory = null;
-
-            _form.Dispose();
-            _form = null;
-
-            //GC.Collect();
-        }
-
-
+        //GC.Collect();
     }
 }

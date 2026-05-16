@@ -4,13 +4,13 @@ using System.Windows.Forms;
 // Dragging items in a ListView control with visual insertion guides
 // http://www.cyotek.com/blog/dragging-items-in-a-listview-control-with-visual-insertion-guides
 
-namespace WGestures.App.Gui.Windows.Controls
+namespace WGestures.App.Gui.Windows.Controls;
+
+/// <summary>
+/// Provides data for the <see cref="ReorderableListView.ItemDragging"/> event of the <see cref="ReorderableListView"/> control.
+/// </summary>
+public class CancelListViewItemDragEventArgs : CancelEventArgs
 {
-  /// <summary>
-  /// Provides data for the <see cref="ReorderableListView.ItemDragging"/> event of the <see cref="ReorderableListView"/> control.
-  /// </summary>
-  public class CancelListViewItemDragEventArgs : CancelEventArgs
-  {
     #region Public Constructors
 
     /// <summary>
@@ -19,7 +19,7 @@ namespace WGestures.App.Gui.Windows.Controls
     /// <param name="item">The source <see cref="ListViewItem"/> the event data relates to.</param>
     public CancelListViewItemDragEventArgs(ListViewItem item)
     {
-      this.Item = item;
+        this.Item = item;
     }
 
     #endregion
@@ -43,5 +43,4 @@ namespace WGestures.App.Gui.Windows.Controls
     public ListViewItem Item { get; protected set; }
 
     #endregion
-  }
 }

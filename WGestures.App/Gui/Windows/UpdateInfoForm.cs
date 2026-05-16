@@ -8,51 +8,50 @@ using System.Text;
 using System.Windows.Forms;
 using WGestures.Common.Product;
 
-namespace WGestures.App.Gui.Windows
+namespace WGestures.App.Gui.Windows;
+
+public partial class UpdateInfoForm : Form
 {
-    public partial class UpdateInfoForm : Form
+    private string _gotoUrl;
+
+    public UpdateInfoForm(string gotoUrl, VersionInfo versionInfo)
     {
-        private string _gotoUrl;
+        InitializeComponent();
 
-        public UpdateInfoForm(string gotoUrl, VersionInfo versionInfo)
-        {
-            InitializeComponent();
+        _gotoUrl = gotoUrl;
+        lb_newVersion.Text = versionInfo.Version;
+        tb_whatsNew.Text = versionInfo.WhatsNew;
 
-            _gotoUrl = gotoUrl;
-            lb_newVersion.Text = versionInfo.Version;
-            tb_whatsNew.Text = versionInfo.WhatsNew;
+        lb_currentVersion.Text = Application.ProductVersion;
+    }
 
-            lb_currentVersion.Text = Application.ProductVersion;
-        }
+    private void btn_ok_Click(object sender, EventArgs e)
+    {
+        Close();
+    }
 
-        private void btn_ok_Click(object sender, EventArgs e)
+    private void lnk_gotoUrl_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+    {
+        var startInfo = new ProcessStartInfo("explorer.exe", _gotoUrl);
+        using (Process.Start(startInfo)) { } ;
+
+        Close();
+    }
+
+    protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+    {
+        if (Keys.W == (keyData & Keys.W) && Keys.Control == (keyData & Keys.Control))
         {
             Close();
+
+            return true;
         }
 
-        private void lnk_gotoUrl_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            var startInfo = new ProcessStartInfo("explorer.exe", _gotoUrl);
-            using (Process.Start(startInfo)) { } ;
+        return base.ProcessCmdKey(ref msg, keyData);
+    }
 
-            Close();
-        }
+    private void UpdateInfoForm_Load(object sender, EventArgs e)
+    {
 
-        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
-        {
-            if (Keys.W == (keyData & Keys.W) && Keys.Control == (keyData & Keys.Control))
-            {
-                Close();
-
-                return true;
-            }
-
-            return base.ProcessCmdKey(ref msg, keyData);
-        }
-
-        private void UpdateInfoForm_Load(object sender, EventArgs e)
-        {
-
-        }
     }
 }

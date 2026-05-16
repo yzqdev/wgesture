@@ -10,184 +10,183 @@ using System.Windows.Forms;
 using WGestures.Core.Commands;
 using WGestures.Core.Commands.Impl;
 
-namespace WGestures.App.Gui.Windows.CommandViews
+namespace WGestures.App.Gui.Windows.CommandViews;
+
+public partial class WebSearchCommandView : CommandViewUserControl
 {
-    public partial class WebSearchCommandView : CommandViewUserControl
+    private WebSearchCommand _command;
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+    public override AbstractCommand Command
     {
-        private WebSearchCommand _command;
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        public override AbstractCommand Command
+        get { return _command; }
+        set
         {
-            get { return _command; }
-            set
+            _command = (WebSearchCommand) value;
+
+            var browsers = BrowserList;
+            var selectedBroser = 0;
+            for(int i = 0; i<browsers.Count; i++)
             {
-                _command = (WebSearchCommand) value;
-
-                var browsers = BrowserList;
-                var selectedBroser = 0;
-                for(int i = 0; i<browsers.Count; i++)
+                var b = browsers[i];
+                if(b.Path == _command.UseBrowser)
                 {
-                    var b = browsers[i];
-                    if(b.Path == _command.UseBrowser)
-                    {
-                        selectedBroser = i;
-                    }
+                    selectedBroser = i;
                 }
-                combo_browsers.DataSource = browsers;
-                combo_browsers.SelectedIndex = selectedBroser;
+            }
+            combo_browsers.DataSource = browsers;
+            combo_browsers.SelectedIndex = selectedBroser;
 
-                foreach (var s in combo_searchEngines.Items)
+            foreach (var s in combo_searchEngines.Items)
+            {
+                var item = s as ComboBoxItem;
+                if (item == null)
                 {
-                    var item = s as ComboBoxItem;
-                    if (item == null)
-                    {
-                        combo_searchEngines.SelectedItem = s;
-                        panel_customSearchEngine.Visible = true;                        
-                        tb_url.Text = _command.SearchEngineUrl ?? defaultSearchEngines[0].Url;
+                    combo_searchEngines.SelectedItem = s;
+                    panel_customSearchEngine.Visible = true;                        
+                    tb_url.Text = _command.SearchEngineUrl ?? defaultSearchEngines[0].Url;
 
-                        break;
-                    }
+                    break;
+                }
 
-                    if (item.Url == _command.SearchEngineUrl)
-                    {
-                        combo_searchEngines.SelectedItem = item;                
-                        panel_customSearchEngine.Visible = false;
+                if (item.Url == _command.SearchEngineUrl)
+                {
+                    combo_searchEngines.SelectedItem = item;                
+                    panel_customSearchEngine.Visible = false;
 
-                        break;
-                    }
+                    break;
                 }
             }
         }
+    }
 
-        public WebSearchCommandView()
+    public WebSearchCommandView()
+    {
+        InitializeComponent();
+        combo_searchEngines.Items.AddRange(defaultSearchEngines);
+        combo_searchEngines.Items.Add("自定义");
+
+    }
+
+    private static ComboBoxItem[] defaultSearchEngines =
+    {
+        new ComboBoxItem("Google", "https://www.google.com/search?q={0}"),
+        new ComboBoxItem("百度","https://www.baidu.com/s?wd={0}"),
+        new ComboBoxItem("必应","https://bing.com/search?q={0}") 
+    };
+
+    private class ComboBoxItem
+    {
+        public ComboBoxItem(string title, string url)
         {
-            InitializeComponent();
-            combo_searchEngines.Items.AddRange(defaultSearchEngines);
-            combo_searchEngines.Items.Add("自定义");
-
+            Title = title;
+            Url = url;
         }
 
-        private static ComboBoxItem[] defaultSearchEngines =
+        public string Url { get; set; }
+        public string Title { get; set; }
+
+        public override string ToString()
         {
-            new ComboBoxItem("Google", "https://www.google.com/search?q={0}"),
-            new ComboBoxItem("百度","https://www.baidu.com/s?wd={0}"),
-            new ComboBoxItem("必应","https://bing.com/search?q={0}") 
-        };
+            return Title;
+        }
+    }
 
-        private class ComboBoxItem
+    private void combo_searchEngines_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        var item = combo_searchEngines.SelectedItem as ComboBoxItem;
+        if (item == null)
         {
-            public ComboBoxItem(string title, string url)
-            {
-                Title = title;
-                Url = url;
-            }
-
-            public string Url { get; set; }
-            public string Title { get; set; }
-
-            public override string ToString()
-            {
-                return Title;
-            }
+            panel_customSearchEngine.Visible = true;
+            tb_url.Text = _command.SearchEngineUrl;
+            _command.SearchEngingName = "自定义";
+        }
+        else
+        {
+            panel_customSearchEngine.Visible = false;
+            _command.SearchEngineUrl = item.Url;
+            _command.SearchEngingName = item.Title;
         }
 
-        private void combo_searchEngines_SelectedIndexChanged(object sender, EventArgs e)
+        OnCommandValueChanged();
+    }
+
+    private void tb_url_TextChanged(object sender, EventArgs e)
+    {
+        _command.SearchEngineUrl = tb_url.Text;
+    }
+
+    private List<Browser> BrowserList
+    {
+        get
         {
-            var item = combo_searchEngines.SelectedItem as ComboBoxItem;
-            if (item == null)
+            var lst = new List<Browser>();
+            lst.Add(new Browser { Name = "(系统默认)" });
+
+
+            RegistryKey browserKeys;
+            //on 64bit the browsers are in a different location
+            try
             {
-                panel_customSearchEngine.Visible = true;
-                tb_url.Text = _command.SearchEngineUrl;
-                _command.SearchEngingName = "自定义";
-            }
-            else
+                browserKeys = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\WOW6432Node\Clients\StartMenuInternet");
+                if (browserKeys == null)
+                    browserKeys = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Clients\StartMenuInternet");
+            }catch(Exception e)
             {
-                panel_customSearchEngine.Visible = false;
-                _command.SearchEngineUrl = item.Url;
-                _command.SearchEngingName = item.Title;
+                return lst;
             }
 
-            OnCommandValueChanged();
-        }
-
-        private void tb_url_TextChanged(object sender, EventArgs e)
-        {
-            _command.SearchEngineUrl = tb_url.Text;
-        }
-
-        private List<Browser> BrowserList
-        {
-            get
-             {
-                var lst = new List<Browser>();
-                lst.Add(new Browser { Name = "(系统默认)" });
-
-
-                RegistryKey browserKeys;
-                //on 64bit the browsers are in a different location
-                try
-                {
-                    browserKeys = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\WOW6432Node\Clients\StartMenuInternet");
-                    if (browserKeys == null)
-                     browserKeys = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Clients\StartMenuInternet");
-                }catch(Exception e)
-                {
-                    return lst;
-                }
-
-                if (browserKeys == null) return lst;
+            if (browserKeys == null) return lst;
                 
-                var browserNames = browserKeys.GetSubKeyNames();
+            var browserNames = browserKeys.GetSubKeyNames();
 
-                try
+            try
+            {
+                for (int i = 0; i < browserNames.Length; i++)
                 {
-                    for (int i = 0; i < browserNames.Length; i++)
+                    var browser = new Browser();
+                    using (var browserKey = browserKeys.OpenSubKey(browserNames[i]))
+                    using (var browserKeyPath = browserKey.OpenSubKey(@"shell\open\command"))
                     {
-                        var browser = new Browser();
-                        using (var browserKey = browserKeys.OpenSubKey(browserNames[i]))
-                        using (var browserKeyPath = browserKey.OpenSubKey(@"shell\open\command"))
-                        {
-                            browser.Name = (string)browserKey.GetValue(null);
-                            browser.Path = (string)browserKeyPath.GetValue(null);
-                        }
-                            
-                        //RegistryKey browserIconPath = browserKey.OpenSubKey(@"DefaultIcon");
-                        //browser.IconPath = (string)browserIconPath.GetValue(null);
-                        lst.Add(browser);
+                        browser.Name = (string)browserKey.GetValue(null);
+                        browser.Path = (string)browserKeyPath.GetValue(null);
                     }
-                }catch(Exception e)
-                {
-                    return lst;
+                            
+                    //RegistryKey browserIconPath = browserKey.OpenSubKey(@"DefaultIcon");
+                    //browser.IconPath = (string)browserIconPath.GetValue(null);
+                    lst.Add(browser);
                 }
+            }catch(Exception e)
+            {
+                return lst;
+            }
 
 
 #if DEBUG
-                Console.WriteLine("Browsers:");
-                foreach(var b in lst)
-                {
-                    Console.WriteLine("{0}: {1}", b.Name, b.Path);
-                }
+            Console.WriteLine("Browsers:");
+            foreach(var b in lst)
+            {
+                Console.WriteLine("{0}: {1}", b.Name, b.Path);
+            }
 #endif 
 
-                return lst;
-            }
+            return lst;
         }
-        public struct Browser
-        {
-            public string Name { get; set; }
-            public string Path { get; set; } //null == default
-            //public string IconPath { get; set; }
+    }
+    public struct Browser
+    {
+        public string Name { get; set; }
+        public string Path { get; set; } //null == default
+        //public string IconPath { get; set; }
 
-            public override string ToString()
-            {
-                return Name;
-            }
-        }
-
-        private void combo_browsers_SelectedIndexChanged(object sender, EventArgs e)
+        public override string ToString()
         {
-            var browser = (Browser) combo_browsers.SelectedValue;
-            _command.UseBrowser  = browser.Path;
+            return Name;
         }
+    }
+
+    private void combo_browsers_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        var browser = (Browser) combo_browsers.SelectedValue;
+        _command.UseBrowser  = browser.Path;
     }
 }

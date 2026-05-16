@@ -2,25 +2,24 @@
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace WGestures.App.Gui.Windows.Controls
+namespace WGestures.App.Gui.Windows.Controls;
+
+class LineFlowLayout : FlowLayoutPanel
 {
-    class LineFlowLayout : FlowLayoutPanel
+    [Browsable(true)]
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+    public bool Vertical { get; set; }
+
+    protected override void OnPaintBackground(PaintEventArgs e)
     {
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public bool Vertical { get; set; }
+        base.OnPaintBackground(e);
 
-        protected override void OnPaintBackground(PaintEventArgs e)
+        using (var pen = new Pen(this.ForeColor))
         {
-            base.OnPaintBackground(e);
-
-            using (var pen = new Pen(this.ForeColor))
+            if(!Vertical) e.Graphics.DrawLine(pen, 0, this.Height / 2, this.Width, this.Height / 2);
+            else
             {
-                if(!Vertical) e.Graphics.DrawLine(pen, 0, this.Height / 2, this.Width, this.Height / 2);
-                else
-                {
-                    e.Graphics.DrawLine(pen,this.Width/2,0,this.Width/2,this.Height);
-                }
+                e.Graphics.DrawLine(pen,this.Width/2,0,this.Width/2,this.Height);
             }
         }
     }

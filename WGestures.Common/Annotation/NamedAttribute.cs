@@ -3,30 +3,29 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace WGestures.Common.Annotation
+namespace WGestures.Common.Annotation;
+
+/// <summary>
+/// 用于给一个类命名
+/// </summary>
+[AttributeUsage(AttributeTargets.Class)]
+public class NamedAttribute : Attribute
 {
-    /// <summary>
-    /// 用于给一个类命名
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Class)]
-    public class NamedAttribute : Attribute
+    public string Name { get; set; }
+
+    public NamedAttribute(string name)
     {
-        public string Name { get; set; }
+        Name = name;
+    }
 
-        public NamedAttribute(string name)
+    public static string GetNameOf(Type t)
+    {
+        NamedAttribute attr = t.GetCustomAttributes(typeof (NamedAttribute), false).FirstOrDefault() as NamedAttribute;
+        if (attr != null)
         {
-            Name = name;
+            return attr.Name;
         }
 
-        public static string GetNameOf(Type t)
-        {
-            NamedAttribute attr = t.GetCustomAttributes(typeof (NamedAttribute), false).FirstOrDefault() as NamedAttribute;
-            if (attr != null)
-            {
-                return attr.Name;
-            }
-
-            return t.Name;
-        }
+        return t.Name;
     }
 }

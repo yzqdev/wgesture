@@ -1,15 +1,14 @@
 ﻿using System.ComponentModel;
 using WGestures.Core.Commands;
 
-namespace WGestures.App.Gui.Windows.CommandViews
+namespace WGestures.App.Gui.Windows.CommandViews;
+
+public partial class GeneralNoParameterCommandView : CommandViewUserControl
 {
-    public partial class GeneralNoParameterCommandView : CommandViewUserControl
+    public GeneralNoParameterCommandView()
     {
-        public GeneralNoParameterCommandView()
-        {
-            InitializeComponent();
-        }
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        public override AbstractCommand Command { get; set; }
+        InitializeComponent();
     }
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+    public override AbstractCommand Command { get; set; }
 }

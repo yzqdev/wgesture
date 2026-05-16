@@ -1,11 +1,10 @@
 ﻿using WGestures.Core.Commands;
 
-namespace WGestures.App.Gui
-{
-    public interface ICommandView
-    {
-        AbstractCommand Command { get; set; }
+namespace WGestures.App.Gui;
 
-        bool Validate();
-    }
+public interface ICommandView
+{
+    AbstractCommand Command { get; set; }
+
+    bool Validate();
 }

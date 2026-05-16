@@ -1,7 +1,6 @@
-﻿namespace WGestures.Core.Commands
+﻿namespace WGestures.Core.Commands;
+
+internal interface IGestureContextAware
 {
-    internal interface IGestureContextAware
-    {
-        GestureContext Context { set; }
-    }
+    GestureContext Context { set; }
 }

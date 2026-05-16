@@ -1,18 +1,17 @@
 ﻿
 using WGestures.Core.Persistence;
 
-namespace WGestures.Core
+namespace WGestures.Core;
+
+public interface IGestureIntentFinder
 {
-    public interface IGestureIntentFinder
-    {
-        /*bool IntentExists(Gesture gesture, GestureContext context);
-        GestureIntent GetIntent();*/
+    /*bool IntentExists(Gesture gesture, GestureContext context);
+    GestureIntent GetIntent();*/
 
-        bool IsGesturingEnabledForContext(GestureContext context, out ExeApp app);
+    bool IsGesturingEnabledForContext(GestureContext context, out ExeApp app);
 
-        GestureIntent Find(Gesture gesture, GestureContext context);
-        GestureIntent Find(Gesture gesture, ExeApp inApp);
+    GestureIntent Find(Gesture gesture, GestureContext context);
+    GestureIntent Find(Gesture gesture, ExeApp inApp);
         
-        IGestureIntentStore IntentStore { get; }
-    }
+    IGestureIntentStore IntentStore { get; }
 }

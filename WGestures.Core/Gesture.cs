@@ -3,97 +3,95 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace WGestures.Core
+namespace WGestures.Core;
+
+/// <summary>
+/// 表示一个手势实例
+/// </summary>
+[Serializable]
+public class Gesture
 {
+    private static readonly char[] dirs = { '↑', '↗', '→', '↘', '↓', '↙', '←', '↖' };
 
-    /// <summary>
-    /// 表示一个手势实例
-    /// </summary>
-    [Serializable]
-    public class Gesture
-    {
-        private static readonly char[] dirs = { '↑', '↗', '→', '↘', '↓', '↙', '←', '↖' };
-
-        public GestureTriggerButton GestureButton { get; set; }
+    public GestureTriggerButton GestureButton { get; set; }
         
-        public List<GestureDir> Dirs { get; set; }
-        public GestureModifier Modifier { get; set; }
+    public List<GestureDir> Dirs { get; set; }
+    public GestureModifier Modifier { get; set; }
 
 
-        public Gesture(GestureTriggerButton gestureBtn = GestureTriggerButton.Right, int defaultCapacity=16)
+    public Gesture(GestureTriggerButton gestureBtn = GestureTriggerButton.Right, int defaultCapacity=16)
+    {
+        GestureButton = gestureBtn;
+        Dirs = new List<GestureDir>(defaultCapacity);
+        Modifier = GestureModifier.None;
+    }
+    /// <summary>
+    /// 添加鼠标手势
+    /// </summary>
+    /// <param name="newDirs"></param>
+    public void Add(params GestureDir[] newDirs)
+    {
+        foreach (var d in newDirs)
         {
-            GestureButton = gestureBtn;
-            Dirs = new List<GestureDir>(defaultCapacity);
-            Modifier = GestureModifier.None;
+            Dirs.Add(d);
         }
-        /// <summary>
-        /// 添加鼠标手势
-        /// </summary>
-        /// <param name="newDirs"></param>
-        public void Add(params GestureDir[] newDirs)
+    }
+
+    public int Count()
+    {
+        return Dirs.Count;
+    }
+
+    internal GestureDir? Last()
+    {
+        return Dirs.Count == 0 ? (GestureDir?)null : Dirs.Last();
+    }
+
+    public override string ToString()
+    {
+        var sb = new StringBuilder(Count() + 4);
+
+        sb.Append(GestureButton.ToMnemonic());
+
+        foreach (var d in Dirs)
         {
-            foreach (var d in newDirs)
-            {
-                Dirs.Add(d);
-            }
-        }
-
-        public int Count()
-        {
-            return Dirs.Count;
-        }
-
-        internal GestureDir? Last()
-        {
-            return Dirs.Count == 0 ? (GestureDir?)null : Dirs.Last();
-        }
-
-        public override string ToString()
-        {
-            var sb = new StringBuilder(Count() + 4);
-
-            sb.Append(GestureButton.ToMnemonic());
-
-            foreach (var d in Dirs)
-            {
-                sb.Append(dirs[(byte)d]);
-            }
-
-            sb.Append(Modifier.ToMnemonic());
-
-
-            return sb.ToString();
-
+            sb.Append(dirs[(byte)d]);
         }
 
-        public override int GetHashCode(){
-            var hash = 19;
-            hash += hash*31 + GestureButton.GetHashCode();
-            foreach (var d in Dirs)
-            {
-                hash = hash * 31 + (int)d;
-            }
-            hash = hash * 31 + (int)Modifier;
+        sb.Append(Modifier.ToMnemonic());
+
+
+        return sb.ToString();
+
+    }
+
+    public override int GetHashCode(){
+        var hash = 19;
+        hash += hash*31 + GestureButton.GetHashCode();
+        foreach (var d in Dirs)
+        {
+            hash = hash * 31 + (int)d;
+        }
+        hash = hash * 31 + (int)Modifier;
            
 
-            return hash;
-        }
+        return hash;
+    }
 
-        public override bool Equals(object obj)
-        {
+    public override bool Equals(object obj)
+    {
            
-            var o = obj as Gesture;
-            return o != null && 
-                o.GestureButton == GestureButton &&
-                Dirs.SequenceEqual(o.Dirs) && Modifier == o.Modifier;
-        }
+        var o = obj as Gesture;
+        return o != null && 
+               o.GestureButton == GestureButton &&
+               Dirs.SequenceEqual(o.Dirs) && Modifier == o.Modifier;
+    }
 
  
 
-        public enum GestureDir
-        {
-            Up = 0, RightUp, Right, RightDown, Down, LeftDown, Left, LeftUp
-        }
-
+    public enum GestureDir
+    {
+        Up = 0, RightUp, Right, RightDown, Down, LeftDown, Left, LeftUp
     }
+
 }

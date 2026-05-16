@@ -8,30 +8,29 @@ using System.Windows.Forms;
 using WGestures.Core.Commands;
 using WGestures.Core.Commands.Impl;
 
-namespace WGestures.App.Gui.Windows.CommandViews
+namespace WGestures.App.Gui.Windows.CommandViews;
+
+public partial class SendTextCommandView : CommandViewUserControl
 {
-    public partial class SendTextCommandView : CommandViewUserControl
+    private SendTextCommand _command;
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+    public override AbstractCommand Command 
     {
-        private SendTextCommand _command;
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        public override AbstractCommand Command 
-        {
-            get { return _command; }
-            set 
-            { 
-                _command = (SendTextCommand) value;
-                txt_text.Text = _command.Text;
-            } 
-        }
+        get { return _command; }
+        set 
+        { 
+            _command = (SendTextCommand) value;
+            txt_text.Text = _command.Text;
+        } 
+    }
 
-        public SendTextCommandView()
-        {
-            InitializeComponent();
-        }
+    public SendTextCommandView()
+    {
+        InitializeComponent();
+    }
 
-        private void txt_text_TextChanged(object sender, EventArgs e)
-        {
-            _command.Text = txt_text.Text;
-        }
+    private void txt_text_TextChanged(object sender, EventArgs e)
+    {
+        _command.Text = txt_text.Text;
     }
 }

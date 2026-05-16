@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace WGestures.App.Gui.Windows.Controls
+namespace WGestures.App.Gui.Windows.Controls;
+
+class InstantNumericUpDown : NumericUpDown
 {
-    class InstantNumericUpDown : NumericUpDown
+    protected override void OnTextBoxTextChanged(object source, EventArgs e)
     {
-        protected override void OnTextBoxTextChanged(object source, EventArgs e)
-        {
-            base.OnTextBoxTextChanged(source, e);
-            ParseEditText();
-        }
+        base.OnTextBoxTextChanged(source, e);
+        ParseEditText();
     }
 }

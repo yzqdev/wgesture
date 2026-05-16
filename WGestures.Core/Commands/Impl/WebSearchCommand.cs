@@ -11,172 +11,172 @@ using Microsoft.Win32;
 using System.Web;
 using WindowsInput.Events;
 
-namespace WGestures.Core.Commands.Impl {
-    [Named("Web搜索"), Serializable]
-    public class WebSearchCommand : AbstractCommand, IGestureContextAware
+namespace WGestures.Core.Commands.Impl;
+
+[Named("Web搜索"), Serializable]
+public class WebSearchCommand : AbstractCommand, IGestureContextAware
+{
+    public string SearchEngineUrl { get; set; }
+    public string SearchEngingName { get; set; }
+    public string UseBrowser { get; set; }
+
+    public WebSearchCommand()
     {
-        public string SearchEngineUrl { get; set; }
-        public string SearchEngingName { get; set; }
-        public string UseBrowser { get; set; }
+        SearchEngingName = "Google";
+        SearchEngineUrl = "https://www.google.com/search?q={0}";
+    }
 
-        public WebSearchCommand()
+    public override void Execute()
+    {
+        if(SearchEngineUrl ==null || !Uri.IsWellFormedUriString(PopulateSearchEngingUrl("Nothing"),UriKind.Absolute)) return;
+
+        var t = new Thread(() =>
         {
-            SearchEngingName = "Google";
-            SearchEngineUrl = "https://www.google.com/search?q={0}";
-        }
 
-        public override void Execute()
-        {
-            if(SearchEngineUrl ==null || !Uri.IsWellFormedUriString(PopulateSearchEngingUrl("Nothing"),UriKind.Absolute)) return;
+            var clipboardMonitor = new ClipboardMonitor();
 
-            var t = new Thread(() =>
+            clipboardMonitor.MonitorRegistered += () =>
             {
-
-                var clipboardMonitor = new ClipboardMonitor();
-
-                clipboardMonitor.MonitorRegistered += () =>
+                var timer = new Timer() { Interval = 2000 };
+                timer.Tick += (sender, args) =>
                 {
-                    var timer = new Timer() { Interval = 2000 };
-                    timer.Tick += (sender, args) =>
-                    {
-                        Debug.WriteLine("WebSearchCommand Timeout!");
-                        timer.Enabled = false;
-
-                        clipboardMonitor.StopMonitor();
-                        clipboardMonitor.DestroyHandle();
-                        Application.ExitThread();
-                        
-                        Debug.WriteLine("超时结束 WebSearchCommand Runloop");
-
-                    };
-
-                    timer.Enabled = true;
-
-                    try
-                    {
-                        Sim.KeyDown(KeyCode.Control);
-                        Sim.KeyDown(KeyCode.C);
-                        
-                        Sim.KeyUp(KeyCode.C);
-                        Sim.KeyUp(KeyCode.Control);
-                        //_sim.Keyboard.ModifiedKeyStroke(KeyCode.Control, new[] { KeyCode.VK_C });
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine("发送按键失败:" + ex);
-                        Native.TryResetKeys(new []{KeyCode.Control, KeyCode.C});
-#if DEBUG
-                        //throw;
-#endif
-                    }
-                };
-
-                clipboardMonitor.ClipboardUpdated += args =>
-                {
-                    Debug.WriteLine("ClipboardChanged");
-                    args.Handled = true;
-
-                    var text = "";
-                    if (Clipboard.ContainsText() && (text = Clipboard.GetText().Trim()).Length > 0)
-                    {
-                        var browser = GetDefaultBrowserPath();
-                        if (UseBrowser != null && File.Exists(UseBrowser.Replace("\"", "")) )
-                        {
-                            browser = UseBrowser;
-                        }
-
-                        string urlToOpen;
-                        //如果是URL则打开，否则搜索
-                        if (Uri.IsWellFormedUriString(text, UriKind.Absolute))
-                        {
-                            urlToOpen = text;
-                        }
-                        else
-                        {
-                            if (text.Length > 100) text = text.Substring(0, 100);
-                            urlToOpen = PopulateSearchEngingUrl(text);
-                        }
-                        //M$ Edge Hack
-                        if (browser.Contains("LaunchWinApp.exe"))
-                        {
-                            urlToOpen = "microsoft-edge:" + urlToOpen;
-                            Process.Start(urlToOpen);
-                        }else
-                        {
-                            var startInfo = new ProcessStartInfo(browser, "\"" + urlToOpen + "\"");
-                            using (Process.Start(startInfo)) ;
-                        }
-                    }
+                    Debug.WriteLine("WebSearchCommand Timeout!");
+                    timer.Enabled = false;
 
                     clipboardMonitor.StopMonitor();
                     clipboardMonitor.DestroyHandle();
-
                     Application.ExitThread();
+                        
+                    Debug.WriteLine("超时结束 WebSearchCommand Runloop");
+
                 };
 
-                clipboardMonitor.StartMonitor();
+                timer.Enabled = true;
 
-                Application.Run();
-                Debug.WriteLine("Thread End?");
-
-            }) {Name = "WebSearchCommand Runloop(Bug！我不应该存在！)"};
-
-            t.SetApartmentState(ApartmentState.STA);
-            t.IsBackground = true;
-            t.Start();
-        }
-
-        public GestureContext Context { set; private get; }
-
-        private string PopulateSearchEngingUrl(string param)
-        {
-            return System.Web.HttpUtility.UrlPathEncode(string.Format(SearchEngineUrl, param));
-        }
-
-        public override string Description()
-        {
-            return ((SearchEngingName ?? "Web") + "搜索");
-        }
-
-        private static string GetDefaultBrowserPath()
-        {
-            using (var key = Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\http\\UserChoice"))
-            {
-                var progId = key.GetValue("Progid", null);
-
-                if(progId != null)
+                try
                 {
-                    const string exeSuffix = ".exe";
+                    Sim.KeyDown(KeyCode.Control);
+                    Sim.KeyDown(KeyCode.C);
+                        
+                    Sim.KeyUp(KeyCode.C);
+                    Sim.KeyUp(KeyCode.Control);
+                    //_sim.Keyboard.ModifiedKeyStroke(KeyCode.Control, new[] { KeyCode.VK_C });
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("发送按键失败:" + ex);
+                    Native.TryResetKeys(new []{KeyCode.Control, KeyCode.C});
+#if DEBUG
+                    //throw;
+#endif
+                }
+            };
 
-                    using (var pathKey = Registry.ClassesRoot.OpenSubKey(progId + @"\shell\open\command"))
+            clipboardMonitor.ClipboardUpdated += args =>
+            {
+                Debug.WriteLine("ClipboardChanged");
+                args.Handled = true;
+
+                var text = "";
+                if (Clipboard.ContainsText() && (text = Clipboard.GetText().Trim()).Length > 0)
+                {
+                    var browser = GetDefaultBrowserPath();
+                    if (UseBrowser != null && File.Exists(UseBrowser.Replace("\"", "")) )
                     {
-                        if (pathKey != null)
-                        {
-                            // Trim parameters.
-                            try
-                            {
-                                var path = pathKey.GetValue(null).ToString().ToLower().Replace("\"", "");
-                                if (!path.EndsWith(exeSuffix))
-                                {
-                                    path = path.Substring(0, path.LastIndexOf(exeSuffix, StringComparison.Ordinal) + exeSuffix.Length);
+                        browser = UseBrowser;
+                    }
 
-                                    return path;
-                                }
-                            }
-                            catch
-                            {
-                                // Assume the registry value is set incorrectly, or some funky browser is used which currently is unknown.
-                            }
-                        }
-
-                       
+                    string urlToOpen;
+                    //如果是URL则打开，否则搜索
+                    if (Uri.IsWellFormedUriString(text, UriKind.Absolute))
+                    {
+                        urlToOpen = text;
+                    }
+                    else
+                    {
+                        if (text.Length > 100) text = text.Substring(0, 100);
+                        urlToOpen = PopulateSearchEngingUrl(text);
+                    }
+                    //M$ Edge Hack
+                    if (browser.Contains("LaunchWinApp.exe"))
+                    {
+                        urlToOpen = "microsoft-edge:" + urlToOpen;
+                        Process.Start(urlToOpen);
+                    }else
+                    {
+                        var startInfo = new ProcessStartInfo(browser, "\"" + urlToOpen + "\"");
+                        using (Process.Start(startInfo)) ;
                     }
                 }
-            }
 
-            return "explorer.exe";
+                clipboardMonitor.StopMonitor();
+                clipboardMonitor.DestroyHandle();
+
+                Application.ExitThread();
+            };
+
+            clipboardMonitor.StartMonitor();
+
+            Application.Run();
+            Debug.WriteLine("Thread End?");
+
+        }) {Name = "WebSearchCommand Runloop(Bug！我不应该存在！)"};
+
+        t.SetApartmentState(ApartmentState.STA);
+        t.IsBackground = true;
+        t.Start();
+    }
+
+    public GestureContext Context { set; private get; }
+
+    private string PopulateSearchEngingUrl(string param)
+    {
+        return System.Web.HttpUtility.UrlPathEncode(string.Format(SearchEngineUrl, param));
+    }
+
+    public override string Description()
+    {
+        return ((SearchEngingName ?? "Web") + "搜索");
+    }
+
+    private static string GetDefaultBrowserPath()
+    {
+        using (var key = Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\http\\UserChoice"))
+        {
+            var progId = key.GetValue("Progid", null);
+
+            if(progId != null)
+            {
+                const string exeSuffix = ".exe";
+
+                using (var pathKey = Registry.ClassesRoot.OpenSubKey(progId + @"\shell\open\command"))
+                {
+                    if (pathKey != null)
+                    {
+                        // Trim parameters.
+                        try
+                        {
+                            var path = pathKey.GetValue(null).ToString().ToLower().Replace("\"", "");
+                            if (!path.EndsWith(exeSuffix))
+                            {
+                                path = path.Substring(0, path.LastIndexOf(exeSuffix, StringComparison.Ordinal) + exeSuffix.Length);
+
+                                return path;
+                            }
+                        }
+                        catch
+                        {
+                            // Assume the registry value is set incorrectly, or some funky browser is used which currently is unknown.
+                        }
+                    }
+
+                       
+                }
+            }
         }
 
-
+        return "explorer.exe";
     }
+
+
 }

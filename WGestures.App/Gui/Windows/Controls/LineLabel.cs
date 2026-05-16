@@ -2,30 +2,29 @@
 using System.Windows.Forms;
 using System.ComponentModel;
 
-namespace WGestures.App.Gui.Windows.Controls
+namespace WGestures.App.Gui.Windows.Controls;
+
+class LineLabel : Label
 {
-    class LineLabel : Label
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+    public bool IsVertical { get; set; }
+
+    protected override void OnPaintBackground(PaintEventArgs pevent)
     {
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public bool IsVertical { get; set; }
+        base.OnPaintBackground(pevent);
+        var g = pevent.Graphics;
+        g.SetClip(pevent.ClipRectangle);
 
-        protected override void OnPaintBackground(PaintEventArgs pevent)
+        using (var pen = new Pen(this.ForeColor))
         {
-            base.OnPaintBackground(pevent);
-            var g = pevent.Graphics;
-            g.SetClip(pevent.ClipRectangle);
-
-            using (var pen = new Pen(this.ForeColor))
+            if (IsVertical)
             {
-                if (IsVertical)
-                {
-                    g.DrawLine(pen, Width/2,0, this.Width/2, this.Height); 
+                g.DrawLine(pen, Width/2,0, this.Width/2, this.Height); 
 
-                }
-               
-                else g.DrawLine(pen,0,this.Height /2 ,this.Width,this.Height/2); 
             }
-            
+               
+            else g.DrawLine(pen,0,this.Height /2 ,this.Width,this.Height/2); 
         }
+            
     }
 }

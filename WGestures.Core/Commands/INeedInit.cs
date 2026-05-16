@@ -1,8 +1,7 @@
-﻿namespace WGestures.Core.Commands
+﻿namespace WGestures.Core.Commands;
+
+interface INeedInit
 {
-    interface INeedInit
-    {
-        void Init();
-        bool IsInitialized { get; }
-    }
+    void Init();
+    bool IsInitialized { get; }
 }

@@ -1,7 +1,6 @@
-﻿namespace WGestures.Core.Commands
+﻿namespace WGestures.Core.Commands;
+
+internal interface IGestureParserAware
 {
-    internal interface IGestureParserAware
-    {
-        GestureParser Parser { set; }
-    }
+    GestureParser Parser { set; }
 }
