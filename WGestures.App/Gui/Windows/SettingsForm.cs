@@ -16,11 +16,12 @@ using WGestures.Core.Commands;
 using WGestures.Core.Commands.Impl;
 using WindowsInput.Events;
 using System.ComponentModel;
+using System.Runtime.Versioning;
+using WGestures.App.Views;
 
 namespace WGestures.App.Gui.Windows;
 
-internal partial class SettingsForm : Form
-{
+internal partial class SettingsForm : Form {
     private readonly float _dpiF = Native.GetScreenDpi() / 96f;
 
     private VersionChecker _versionChecker;
@@ -38,7 +39,7 @@ internal partial class SettingsForm : Form
 
         SuspendDrawingControl.SuspendDrawing(this);
 
-        settingsFormControllerBindingSource.Add( settingFormController);
+        settingsFormControllerBindingSource.Add(settingFormController);
 
         DpiFix();
         ControlFixes();
@@ -49,10 +50,13 @@ internal partial class SettingsForm : Form
 
     private void DpiFix()
     {
-        tabControl.ItemSize = new Size((int)(tabControl.ItemSize.Width * _dpiF), (int)(tabControl.ItemSize.Height * _dpiF));
-      
-        imglistAppIcons.ImageSize = new Size((int)(imglistAppIcons.ImageSize.Width * _dpiF), (int)(imglistAppIcons.ImageSize.Height * _dpiF));
-        dummyImgLstForLstViewHeightFix.ImageSize = new Size(1, (int)(dummyImgLstForLstViewHeightFix.ImageSize.Height * _dpiF));
+        tabControl.ItemSize =
+            new Size((int)(tabControl.ItemSize.Width * _dpiF), (int)(tabControl.ItemSize.Height * _dpiF));
+
+        imglistAppIcons.ImageSize = new Size((int)(imglistAppIcons.ImageSize.Width * _dpiF),
+            (int)(imglistAppIcons.ImageSize.Height * _dpiF));
+        dummyImgLstForLstViewHeightFix.ImageSize =
+            new Size(1, (int)(dummyImgLstForLstViewHeightFix.ImageSize.Height * _dpiF));
 
         lineLabel2.Height = (int)(109 * _dpiF);
     }
@@ -69,19 +73,23 @@ internal partial class SettingsForm : Form
     private void InitControlValues()
     {
         #region tab options
-        lb_pause_shortcut.DataBindings.Add("Text", settingFormController, "PauseResumeHotKey", false, DataSourceUpdateMode.OnPropertyChanged, "无");
+
+        lb_pause_shortcut.DataBindings.Add("Text", settingFormController, "PauseResumeHotKey", false,
+            DataSourceUpdateMode.OnPropertyChanged, "无");
 
         lb_Version.Text = Application.ProductVersion;
 
         var gestBtns = settingFormController.PathTrackerTriggerButton;
-        if((gestBtns & GestureTriggerButton.Right) != 0)
+        if ((gestBtns & GestureTriggerButton.Right) != 0)
         {
             check_gestBtn_Right.Checked = true;
         }
+
         if ((gestBtns & GestureTriggerButton.Middle) != 0)
         {
             check_gestBtn_Middle.Checked = true;
         }
+
         if ((gestBtns & GestureTriggerButton.X) != 0)
         {
             check_gestBtn_X.Checked = true;
@@ -90,21 +98,30 @@ internal partial class SettingsForm : Form
         #endregion
 
         #region tab gestures
+
         imglistAppIcons.Images.Add("icon", Resources.icon);
         imglistAppIcons.Images.Add("icon_bw", Resources.icon_bw);
         imglistAppIcons.Images.Add("unknown", Resources.unknown);
+
         #endregion
 
-        _hotCornerRadioBtns = new[] { radio_corner_0, radio_corner_1, radio_corner_2, radio_corner_3,
-            radio_edge_0, radio_edge_1, radio_edge_2, radio_edge_3};
+        _hotCornerRadioBtns = new[]
+        {
+            radio_corner_0, radio_corner_1, radio_corner_2, radio_corner_3, radio_edge_0, radio_edge_1,
+            radio_edge_2, radio_edge_3
+        };
 
         #region tab about
-        tb_updateLog.Text = Application.ProductName + " " + Application.ProductVersion + Environment.NewLine + Environment.NewLine;
+
+        tb_updateLog.Text = Application.ProductName + " " + Application.ProductVersion + Environment.NewLine +
+                            Environment.NewLine;
         tb_updateLog.Text += File.ReadAllText(Path.GetDirectoryName(Application.ExecutablePath) + @"\UpdateLog.txt");
+
         #endregion
     }
 
     #region tab "General" event handlers
+
     private void btn_checkUpdateNow_Click(object sender, EventArgs e)
     {
         if (_versionChecker != null && _versionChecker.IsBusy) return;
@@ -119,7 +136,6 @@ internal partial class SettingsForm : Form
 
         if (_versionChecker == null)
         {
-
             _versionChecker = new VersionChecker(AppSettings.CheckForUpdateUrl);
 
             _versionChecker.Finished += version =>
@@ -145,18 +161,15 @@ internal partial class SettingsForm : Form
 
                     if (version.Version != Application.ProductVersion)
                     {
-                        using (var frm = new UpdateInfoForm(AppSettings.ProductHomePage, version))
-                        {
-                            frm.ShowDialog();
-                        }
+                        var frm = new UpdateInfoWindow(AppSettings.ProductHomePage, version);
+
+                        frm.ShowDialog();
                     }
                     else
                     {
                         lb_Version.Text = Application.ProductVersion + " (已为最新)";
                         lb_Version.ForeColor = Color.CornflowerBlue;
-
                     }
-
                 }));
             };
 
@@ -175,22 +188,21 @@ internal partial class SettingsForm : Form
 
 
                     errorProvider.SetIconPadding(btn_checkUpdateNow, 4);
-                    errorProvider.SetError(btn_checkUpdateNow, string.Format("可能由于网络错误，检查更新失败: \n{0}", exception.Message));
+                    errorProvider.SetError(btn_checkUpdateNow,
+                        string.Format("可能由于网络错误，检查更新失败: \n{0}", exception.Message));
                 }));
             };
-
         }
 
 
         _versionChecker.CheckAsync();
-
     }
 
-
-    private void shortcutRec_pause_EndRecord(object sender,  ShortcutRecordButton.ShortcutRecordEventArgs e)
+    [SupportedOSPlatform("Windows")]
+    private void shortcutRec_pause_EndRecord(object sender, ShortcutRecordButton.ShortcutRecordEventArgs e)
     {
         Debug.WriteLine(e.Keys);
-        if(e.Keys.Count > 0)
+        if (e.Keys.Count > 0)
         {
             //lb_pause_shortcut.Text = ShortcutRecordButton.HotKeyToString(e.Modifiers, e.Keys);
 
@@ -198,7 +210,6 @@ internal partial class SettingsForm : Form
 
             foreach (var k in e.Modifiers)
             {
-
                 switch (k)
                 {
                     case KeyCode.Control:
@@ -224,11 +235,12 @@ internal partial class SettingsForm : Form
                 }
             }
 
-            hk.key = (Keys) e.Keys[0];
+            hk.key = (Keys)e.Keys[0];
             Debug.WriteLine(hk.key);
             Debug.WriteLine("赋值");
             settingFormController.PauseResumeHotkey = hk;
-        } else
+        }
+        else
         {
             settingFormController.PauseResumeHotkey = null;
         }
@@ -237,10 +249,11 @@ internal partial class SettingsForm : Form
     #endregion
 
     #region tab "Gestures" event handlers
+
     private void listApps_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
     {
         if (!e.IsSelected) return;
-            
+
         Debug.WriteLine("listApps_ItemSelectionChanged");
 
         //labelAppName.Text = e.Item.Text.Trim();
@@ -249,13 +262,12 @@ internal partial class SettingsForm : Form
         //if (app is GlobalApp) check_gesturingEnabled.Text = "启用全局手势";
         //else check_gesturingEnabled.Text = "在此程序上启用手势";
 
-            
+
         var exeApp = app as ExeApp;
         if (exeApp != null)
         {
             checkInheritGlobal.Checked = exeApp.InheritGlobalGestures;
             checkInheritGlobal.Visible = true;
-
         }
         else
         {
@@ -298,7 +310,6 @@ internal partial class SettingsForm : Form
         {
             app.InheritGlobalGestures = checkInheritGlobal.Checked;
         }
-
     }
 
     private void btnAddApp_Click(object sender, EventArgs e)
@@ -317,8 +328,8 @@ internal partial class SettingsForm : Form
         }
         else
         {
-            var app = new OrderableExeApp() { ExecutablePath = appPath, Name = frm.AppName, Order = 1}; 
-                    
+            var app = new OrderableExeApp() {ExecutablePath = appPath, Name = frm.AppName, Order = 1};
+
             AddAppToList(app);
             HighlightAppInList(app);
             settingFormController.IntentStore.Add(app);
@@ -335,13 +346,13 @@ internal partial class SettingsForm : Form
         var item = (sels[0].Tag as ExeApp);
 
 
-        var ret = MessageBox.Show($"您确定删除项目 \"{item.Name}\" 及其所有手势吗?", "确认删除", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
+        var ret = MessageBox.Show($"您确定删除项目 \"{item.Name}\" 及其所有手势吗?", "确认删除", MessageBoxButtons.YesNo,
+            MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
         if (ret == DialogResult.Yes)
         {
             settingFormController.IntentStore.Remove(item.ExecutablePath);
             RemoveSelectedAppFromList();
         }
-
     }
 
     private void btnEditApp_Click(object sender, EventArgs e)
@@ -387,16 +398,19 @@ internal partial class SettingsForm : Form
         var app = GetSelectedAppOrGlobal();
         if (app == null) return;
 
-        using (var addGestureForm = new EditGestureForm(settingFormController.GestureParser,app))
+        using (var addGestureForm = new EditGestureForm(settingFormController.GestureParser, app))
         {
-
             var ok = addGestureForm.ShowDialog();
             if (ok == DialogResult.OK)
             {
                 var gesture = addGestureForm.CapturedGesture;
                 var name = addGestureForm.GestureName;
 
-                var gestureIntent = new OrderableIntent(new GestureIntent() { Command = new HotKeyCommand(), Gesture = gesture, Name = name });
+                var gestureIntent =
+                    new OrderableIntent(new GestureIntent()
+                    {
+                        Command = new HotKeyCommand(), Gesture = gesture, Name = name
+                    });
                 AddOrReplaceGestureIntent(gestureIntent);
 
                 AdjustListGestureIntentsColumnSize();
@@ -415,7 +429,8 @@ internal partial class SettingsForm : Form
         var item = sels[0];
         item.EnsureVisible();
 
-        var ret = MessageBox.Show(string.Format("您确定删除手势 \"{0}\" 吗?", item.Text), "确认删除", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
+        var ret = MessageBox.Show(string.Format("您确定删除手势 \"{0}\" 吗?", item.Text), "确认删除", MessageBoxButtons.YesNo,
+            MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
         if (ret == DialogResult.Yes)
         {
             var selIndex = item.Index;
@@ -483,7 +498,6 @@ internal partial class SettingsForm : Form
         }
 
         LoadCommandView(intent);
-
     }
 
 
@@ -507,6 +521,7 @@ internal partial class SettingsForm : Form
                             item.Remove();
                         }
                     }
+
                     app.Remove(found);
                 }
 
@@ -546,11 +561,12 @@ internal partial class SettingsForm : Form
     }
 
     #region internal
+
     private void LoadApps()
     {
         //如果有不是OrderableExeApp的，则转换并替换
         var appsArray = settingFormController.IntentStore.ToArray();
-        for(var i=0; i<appsArray.Length; i++)
+        for (var i = 0; i < appsArray.Length; i++)
         {
             var app = appsArray[i];
             if (!(app is OrderableExeApp))
@@ -561,7 +577,7 @@ internal partial class SettingsForm : Form
             }
         }
 
-        Array.Sort(appsArray, (a, b) =>  ((OrderableExeApp) a).Order.CompareTo(((OrderableExeApp) b).Order));
+        Array.Sort(appsArray, (a, b) => ((OrderableExeApp)a).Order.CompareTo(((OrderableExeApp)b).Order));
 
 
         listApps.BeginUpdate();
@@ -581,6 +597,7 @@ internal partial class SettingsForm : Form
 
         AdjustListAppsColumnWidth();
     }
+
     /// <summary>
     /// 添加新的软件(并添加手势)
     /// </summary>
@@ -593,9 +610,9 @@ internal partial class SettingsForm : Form
         item.Tag = app;
         item.ToolTipText = $"程序路径: {appPath}\r\n类型: {(app.UseRegex ? "正则表达式匹配" : "普通进程名")}";
         //get icon
-        using (var thumb = IconHelper.ExtractIconForPath(appPath, new Size((int) (32*_dpiF), (int) (32*_dpiF)), app.IsGesturingEnabled))
+        using (var thumb = IconHelper.ExtractIconForPath(appPath, new Size((int)(32 * _dpiF), (int)(32 * _dpiF)),
+                   app.IsGesturingEnabled))
         {
-                
             var imgIndex = imglistAppIcons.Images.IndexOfKey(appPath);
             if (imgIndex < 0)
             {
@@ -603,10 +620,9 @@ internal partial class SettingsForm : Form
             }
             else
             {
-                imglistAppIcons.Images[imgIndex] = IconHelper.ExtractIconForPath(appPath, new Size((int)(32 * _dpiF), (int)(32 * _dpiF)), app.IsGesturingEnabled);
-
+                imglistAppIcons.Images[imgIndex] = IconHelper.ExtractIconForPath(appPath,
+                    new Size((int)(32 * _dpiF), (int)(32 * _dpiF)), app.IsGesturingEnabled);
             }
-
         }
 
         item.ImageKey = appPath;
@@ -616,7 +632,6 @@ internal partial class SettingsForm : Form
         {
             if (app.UseRegex)
             {
-           
                 item.ForeColor = Color.Gray;
             }
             else
@@ -637,7 +652,8 @@ internal partial class SettingsForm : Form
         }
 
         var sel = listApps.SelectedItems[0];
-        var found = (OrderableExeApp)settingFormController.IntentStore.GetExeApp((listApps.SelectedItems[0].Tag as ExeApp).ExecutablePath);
+        var found = (OrderableExeApp)settingFormController.IntentStore.GetExeApp(
+            (listApps.SelectedItems[0].Tag as ExeApp).ExecutablePath);
 
         using (var frm = new EditAppForm(found, settingFormController.IntentStore))
         {
@@ -675,15 +691,11 @@ internal partial class SettingsForm : Form
 
                         AddAppToList(found);
                     }
-
-
                 }
             }
-
-
         }
     }
-        
+
     private void RemoveSelectedAppFromList()
     {
         if (listApps.SelectedIndices.Count != 1) return;
@@ -700,7 +712,6 @@ internal partial class SettingsForm : Form
         listApps.Items[selIndex - 1].Selected = true;
 
         listApps.EndUpdate();
-
     }
 
     private void AdjustListAppsColumnWidth()
@@ -713,7 +724,6 @@ internal partial class SettingsForm : Form
         {
             colListAppDummy.Width = listApps.Width - 5;
         }
-
     }
 
     private void ToggleSelectedAppGesturingEnabled()
@@ -733,7 +743,8 @@ internal partial class SettingsForm : Form
         else //exeApp
         {
             var imgIndex = imglistAppIcons.Images.IndexOfKey(exeApp.ExecutablePath);
-            imglistAppIcons.Images[imgIndex] = IconHelper.ExtractIconForPath(exeApp.ExecutablePath, new Size((int)(32 * _dpiF), (int)(32 * _dpiF)), exeApp.IsGesturingEnabled);
+            imglistAppIcons.Images[imgIndex] = IconHelper.ExtractIconForPath(exeApp.ExecutablePath,
+                new Size((int)(32 * _dpiF), (int)(32 * _dpiF)), exeApp.IsGesturingEnabled);
 
             item.ForeColor = exeApp.IsGesturingEnabled ? Color.Black : Color.Firebrick;
             //item.Group = listApps.Groups[exeApp.IsGesturingEnabled ? "enabled" : "disabled"];
@@ -759,13 +770,15 @@ internal partial class SettingsForm : Form
     private void ResetListApps()
     {
         listApps.BeginUpdate();
-            
+
         listApps.Items.Clear();
 
         //第0个项目，必须是(全局)
-        var globalAppItem = new ListViewItem("(全局)");//listApps.Items[0];
+        var globalAppItem = new ListViewItem("(全局)"); //listApps.Items[0];
         globalAppItem.ImageKey = settingFormController.IntentStore.GlobalApp.IsGesturingEnabled ? "icon" : "icon_bw";
-        globalAppItem.ForeColor = settingFormController.IntentStore.GlobalApp.IsGesturingEnabled ? Color.DodgerBlue : Color.Firebrick;
+        globalAppItem.ForeColor = settingFormController.IntentStore.GlobalApp.IsGesturingEnabled
+            ? Color.DodgerBlue
+            : Color.Firebrick;
         globalAppItem.Tag = settingFormController.IntentStore.GlobalApp;
         listApps.Items.Add(globalAppItem);
 
@@ -794,24 +807,25 @@ internal partial class SettingsForm : Form
             return;
         }
 
-        var orderedIntents = (from i in app.GestureIntents select new OrderableIntent(i.Value)).OrderBy((o)=>o.Order).ToArray();
+        var orderedIntents = (from i in app.GestureIntents select new OrderableIntent(i.Value)).OrderBy((o) => o.Order)
+            .ToArray();
         app.GestureIntents.Import(orderedIntents, true);
 
-        foreach (var gest in app.GestureIntents)//app.GestureIntents)
+        foreach (var gest in app.GestureIntents) //app.GestureIntents)
         {
             AddGestureIntent(gest.Value);
         }
+
         Debug.WriteLine("LoadGestureIntents");
         //listGestureIntents.Items[0].Selected = true;
         AdjustListGestureIntentsColumnSize();
 
         listGestureIntents.EndUpdate();
-
     }
 
     private ListViewItem AddGestureIntent(GestureIntent intent)
     {
-        var item = new ListViewItem(intent.Name) { Tag = intent };
+        var item = new ListViewItem(intent.Name) {Tag = intent};
 
         var mnemonic = intent.Gesture.ToString();
 
@@ -923,10 +937,10 @@ internal partial class SettingsForm : Form
                 break;
             }
         }
+
         if (!itemMatched) combo_CommandTypes.SelectedIndex = -1;
 
         //SuspendDrawingControl.ResumeDrawing(group_Command);
-
     }
 
     private void UnloadCommand()
@@ -946,15 +960,16 @@ internal partial class SettingsForm : Form
         combo_CommandTypes.BeginUpdate();
         foreach (var kv in settingFormController.SupportedCommands)
         {
-            combo_CommandTypes.Items.Add(new CommandTypesComboBoxItem() { Name = kv.Key, CommandType = kv.Value });
+            combo_CommandTypes.Items.Add(new CommandTypesComboBoxItem() {Name = kv.Key, CommandType = kv.Value});
         }
+
         combo_CommandTypes.EndUpdate();
     }
 
     private void LoadCommandView(GestureIntent intent)
     {
         var cmdView = settingFormController.CommandViewFactory.GetCommandView(intent.Command);
-            
+
         if (cmdView != null)
         {
             //如果目标视图实现了该接口，则注入选中的app
@@ -978,7 +993,7 @@ internal partial class SettingsForm : Form
 
     private void LoadHotCornerCommands()
     {
-        for(var i=0; i< settingFormController.IntentStore.HotCornerCommands.Length; i++)
+        for (var i = 0; i < settingFormController.IntentStore.HotCornerCommands.Length; i++)
         {
             var cmd = settingFormController.IntentStore.HotCornerCommands[i];
             if (cmd == null)
@@ -1004,7 +1019,7 @@ internal partial class SettingsForm : Form
     #endregion
 
     #region utils
-        
+
     private static ScrollBars GetVisibleScrollbars(Control ctl)
     {
         var wndStyle = Native.GetWindowLong(ctl.Handle, Native.GWL_STYLE);
@@ -1042,6 +1057,7 @@ internal partial class SettingsForm : Form
 
         return base.ProcessCmdKey(ref msg, keyData);
     }
+
     /// <summary>
     /// 点击手势tab栏
     /// </summary>
@@ -1049,28 +1065,33 @@ internal partial class SettingsForm : Form
     /// <param name="e"></param>
     private void tabControl_SelectedIndexChanged(object sender, EventArgs e)
     {
-        lb_info.Text = Equals(tabControl.SelectedTab.Tag, "about") ? "Copyright (c) " + DateTime.Now.Year+" 应元东" : "*改动将自动保存并立即生效";
+        lb_info.Text = Equals(tabControl.SelectedTab.Tag, "about")
+            ? "Copyright (c) " + DateTime.Now.Year + " 应元东"
+            : "*改动将自动保存并立即生效";
 
         if (object.Equals(tabControl.SelectedTab.Tag, "gestures"))
         {
             if (listApps.SelectedItems.Count == 0)
             {
                 //第0个项目，必须是(全局)
-                var globalAppItem = new ListViewItem("(全局)");//listApps.Items[0];
-                globalAppItem.ImageKey = settingFormController.IntentStore.GlobalApp.IsGesturingEnabled ? "icon" : "icon_bw";
-                globalAppItem.ForeColor = settingFormController.IntentStore.GlobalApp.IsGesturingEnabled ? Color.DodgerBlue : Color.Firebrick;
+                var globalAppItem = new ListViewItem("(全局)"); //listApps.Items[0];
+                globalAppItem.ImageKey =
+                    settingFormController.IntentStore.GlobalApp.IsGesturingEnabled ? "icon" : "icon_bw";
+                globalAppItem.ForeColor = settingFormController.IntentStore.GlobalApp.IsGesturingEnabled
+                    ? Color.DodgerBlue
+                    : Color.Firebrick;
                 globalAppItem.Tag = settingFormController.IntentStore.GlobalApp;
                 listApps.Items.Add(globalAppItem);
 
                 LoadApps();
                 LoadCommandTypes();
             }
-
-        }else if(object.Equals(tabControl.SelectedTab.Tag, "corners") && combo_hotcornerCmdTypes.Items.Count == 0) //lazy load
+        }
+        else if (object.Equals(tabControl.SelectedTab.Tag, "corners") &&
+                 combo_hotcornerCmdTypes.Items.Count == 0) //lazy load
         {
             LoadHotCornerCommandTypes();
             LoadHotCornerCommands();
-               
         }
     }
 
@@ -1082,23 +1103,27 @@ internal partial class SettingsForm : Form
 
 
     #region Tab about
+
     private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
     {
         var startInfo = new ProcessStartInfo("explorer.exe", AppSettings.ProductHomePage);
         using (Process.Start(startInfo)) { }
     }
+
     #endregion
 
     private void linkLabel2_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
     {
-        var startInfo = new ProcessStartInfo("explorer.exe", "\"http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=HiYnKS0sKCguJ15vbzB9cXM\"");
+        var startInfo = new ProcessStartInfo("explorer.exe",
+            "\"http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=HiYnKS0sKCguJ15vbzB9cXM\"");
         using (Process.Start(startInfo)) { }
     }
 
     #region Gesture tab Menu button
+
     private void pic_menuBtn_Click(object sender, EventArgs e)
     {
-        ctx_gesturesMenu.Show(pic_menuBtn,0, pic_menuBtn.Height);
+        ctx_gesturesMenu.Show(pic_menuBtn, 0, pic_menuBtn.Height);
     }
 
     private void pic_menuBtn_MouseDown(object sender, MouseEventArgs e)
@@ -1126,7 +1151,7 @@ internal partial class SettingsForm : Form
             {
                 settingFormController.Import(args.ConfigAndGestures, importConfig, importGestures, mergeGestures);
                 //如果还没有切换到“手势”tab，则listApps没有app加载。
-                if(listApps.Items.Count > 0) LoadApps();
+                if (listApps.Items.Count > 0) LoadApps();
                 LoadHotCornerCommands();
             }
             finally
@@ -1167,10 +1192,10 @@ internal partial class SettingsForm : Form
         {
             settingFormController.ExportTo(saveTo);
             MessageBox.Show("导出成功。", "WGestures导出", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-        } catch (Exception ex)
+        }
+        catch (Exception ex)
         {
-            MessageBox.Show("导出失败！原因：" + ex.Message,"WGestures导出失败",MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show("导出失败！原因：" + ex.Message, "WGestures导出失败", MessageBoxButtons.OK, MessageBoxIcon.Error);
 #if DEBUG
             throw;
 #endif
@@ -1194,7 +1219,7 @@ internal partial class SettingsForm : Form
     private void listApps_DragOver(object sender, DragEventArgs e)
     {
         var mousePos = listApps.PointToClient(MousePosition);
-        var hoverItem = listApps.GetItemAt(mousePos.X,mousePos.Y);
+        var hoverItem = listApps.GetItemAt(mousePos.X, mousePos.Y);
 
         if (hoverItem != null && hoverItem.Index == 0)
         {
@@ -1236,8 +1261,7 @@ internal partial class SettingsForm : Form
 
     #region inner types
 
-    private class CommandTypesComboBoxItem
-    {
+    private class CommandTypesComboBoxItem {
         public string Name { get; set; }
         public Type CommandType { get; set; }
 
@@ -1246,6 +1270,7 @@ internal partial class SettingsForm : Form
             return Name;
         }
     }
+
     #endregion
 
     private void check_gestBtns_checkedChanged(object sender, EventArgs e)
@@ -1299,9 +1324,10 @@ internal partial class SettingsForm : Form
 
     private void menuItem_resetGestures_Click(object sender, EventArgs e)
     {
-        var confirm = MessageBox.Show(this, "是否将所有手势、触发角和摩擦边恢复为默认值? \n这将使您自定义设置丢失。", "恢复默认", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+        var confirm = MessageBox.Show(this, "是否将所有手势、触发角和摩擦边恢复为默认值? \n这将使您自定义设置丢失。", "恢复默认", MessageBoxButtons.YesNo,
+            MessageBoxIcon.Question);
 
-        if(confirm == DialogResult.Yes)
+        if (confirm == DialogResult.Yes)
         {
             settingFormController.RestoreDefaultGestures();
             if (listApps.Items.Count > 0) LoadApps();
@@ -1311,6 +1337,7 @@ internal partial class SettingsForm : Form
     }
 
     #region HotCorner & RubEdge
+
     /// <summary>
     /// 右上角
     /// </summary>
@@ -1340,7 +1367,6 @@ internal partial class SettingsForm : Form
 
     private void combo_hotcornerCmdTypes_SelectedValueChanged(object sender, EventArgs e)
     {
-
     }
 
     private void HotcornerComandValueChangedHandler(AbstractCommand cmd)
@@ -1355,19 +1381,20 @@ internal partial class SettingsForm : Form
 
     private void combo_hotcornerCmdTypes_SelectedIndexChanged(object sender, EventArgs e)
     {
-        if (combo_hotcornerCmdTypes.SelectedItem == null) return; 
+        if (combo_hotcornerCmdTypes.SelectedItem == null) return;
 
         var cornerBtn = (from btn in _hotCornerRadioBtns where btn.Checked select btn).Single();
-        var corner = int.Parse((string) cornerBtn.Tag);
+        var corner = int.Parse((string)cornerBtn.Tag);
 
         var currentCmd = settingFormController.IntentStore.HotCornerCommands[corner];
-        var cmdType = settingFormController.SupportedHotCornerCommands[(string) combo_hotcornerCmdTypes.SelectedItem];
+        var cmdType = settingFormController.SupportedHotCornerCommands[(string)combo_hotcornerCmdTypes.SelectedItem];
 
         AbstractCommand cmd;
         if (currentCmd.GetType() != cmdType)
         {
-            cmd = (AbstractCommand) Activator.CreateInstance(cmdType);
-        }else
+            cmd = (AbstractCommand)Activator.CreateInstance(cmdType);
+        }
+        else
         {
             cmd = currentCmd;
         }
@@ -1375,10 +1402,7 @@ internal partial class SettingsForm : Form
         settingFormController.IntentStore.HotCornerCommands[corner] = cmd;
         LoadHotCornerCmdView(cmd);
         cornerBtn.Text = cmd.Description();
-
     }
 
     #endregion
-
-       
 }

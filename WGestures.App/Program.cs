@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using WGestures.App.Gui.Windows;
 using WGestures.App.Migrate;
 using WGestures.App.Properties;
+using WGestures.App.Views;
 using WGestures.Common;
 using WGestures.Common.Config.Impl;
 using WGestures.Common.OsSpecific.Windows;
@@ -36,7 +37,7 @@ static class Program {
 
     static bool isFirstRun;
     static JsonGestureIntentStore defaultIntentStore;
- 
+
     static Win32GestrueIntentFinder intentFinder;
 
     static NotifyIcon trayIcon;
@@ -82,7 +83,6 @@ static class Program {
 
 
             Application.Run();
-
         }
 #if !DEBUG
             catch (Exception e)
@@ -91,9 +91,6 @@ static class Program {
             }
 #endif
         finally { Dispose(); }
-
-
-
     }
 
     //TODO: refactor out
@@ -101,34 +98,33 @@ static class Program {
     {
         //todo: impl a set of IPC APIs to perform some cmds. eg.Pause/Resume, Quit...
         //todo: Temporay IPC mechanism.
-        var synCtx = new WindowsFormsSynchronizationContext();//note: won't work with `SynchronizationContext.Current`
+        var synCtx = new WindowsFormsSynchronizationContext(); //note: won't work with `SynchronizationContext.Current`
         var pipeThread = new Thread(() =>
+        {
+            while (true)
             {
-                while (true)
+                using (var server = new System.IO.Pipes.NamedPipeServerStream("WGestures_IPC_API"))
                 {
-                    using (var server = new System.IO.Pipes.NamedPipeServerStream("WGestures_IPC_API"))
+                    server.WaitForConnection();
+
+                    Debug.WriteLine("Clien Connected");
+                    using (var reader = new StreamReader(server))
                     {
-                        server.WaitForConnection();
+                        var cmd = reader.ReadLine();
+                        Debug.WriteLine("Pipe CMD=" + cmd);
 
-                        Debug.WriteLine("Clien Connected");
-                        using (var reader = new StreamReader(server))
+                        if (cmd == "ShowSettings")
                         {
-                            var cmd = reader.ReadLine();
-                            Debug.WriteLine("Pipe CMD=" + cmd);
-
-                            if (cmd == "ShowSettings")
+                            synCtx.Post((s) =>
                             {
-                                synCtx.Post((s) =>
-                                {
-                                    Debug.WriteLine("Thread=" + Thread.CurrentThread.ManagedThreadId);
-                                    ShowSettings();
-                                }, null);
-                            }
+                                Debug.WriteLine("Thread=" + Thread.CurrentThread.ManagedThreadId);
+                                ShowSettings();
+                            }, null);
                         }
                     }
                 }
-            }, maxStackSize: 1)
-            { IsBackground = true };
+            }
+        }, maxStackSize: 1) {IsBackground = true};
         pipeThread.Start();
     }
 
@@ -137,7 +133,7 @@ static class Program {
         using (var pipeClient = new System.IO.Pipes.NamedPipeClientStream("WGestures_IPC_API"))
         {
             pipeClient.Connect();
-            using (var writer = new StreamWriter(pipeClient) { AutoFlush = true })
+            using (var writer = new StreamWriter(pipeClient) {AutoFlush = true})
             {
                 writer.WriteLine(cmd);
             }
@@ -147,9 +143,9 @@ static class Program {
     static void StartParserThread()
     {
         new Thread(() =>
-            {
+        {
 #if DEBUG
-                gestureParser.Start();
+            gestureParser.Start();
 #else
                 try
                 {
@@ -160,9 +156,9 @@ static class Program {
                     ShowFatalError(e);
                 }
 #endif
-            }, maxStackSize: 1)
-            { Name = "Parser线程", Priority = ThreadPriority.Highest, IsBackground = false }.Start();
+        }, maxStackSize: 1) {Name = "Parser线程", Priority = ThreadPriority.Highest, IsBackground = false}.Start();
     }
+
     /// <summary>
     /// 再启动一个wgesture
     /// </summary>
@@ -176,16 +172,18 @@ static class Program {
             mutext.Close();
             return true;
         }
+
         return false;
     }
 
     static void ShowFatalError(Exception e)
     {
-        var frm = new ErrorForm() { Text = Application.ProductName };
+        var frm = new ErrorForm() {Text = Application.ProductName};
         frm.ErrorText = e.ToString();
         frm.ShowDialog();
         Environment.Exit(1);
     }
+
     /// <summary>
     /// 检查是否是第一次运行
     /// </summary>
@@ -193,7 +191,7 @@ static class Program {
     {
         //是否是第一次运行
         bool isFirstRun = config.Dict.IsFirstRun;
-             
+
 
         if (isFirstRun)
         {
@@ -204,12 +202,13 @@ static class Program {
 
             //强制值
             config.Dict.IsFirstRun = false;
-               
+
             config.Dict.AutoCheckForUpdate = true;
-                
+
             config.Dict.AutoStart = true;
-              
-            config.Dict.PathTrackerTriggerButton=(int)(GestureTriggerButton.Right | GestureTriggerButton.Middle | GestureTriggerButton.X);
+
+            config.Dict.PathTrackerTriggerButton =
+                (int)(GestureTriggerButton.Right | GestureTriggerButton.Middle | GestureTriggerButton.X);
 
             config.Save();
 
@@ -217,6 +216,7 @@ static class Program {
             Warning360Safe();
         }
     }
+
     /// <summary>
     /// 初始化
     /// </summary>
@@ -237,8 +237,8 @@ static class Program {
 
         hotkeyMgr = new GlobalHotKeyManager();
     }
-    
-    
+
+
     /// <summary>
     /// 加载配置文件，并支持默认手势与用户自定义手势自动合并
     /// </summary>
@@ -247,18 +247,20 @@ static class Program {
         // 1. 确保基础 config.json 存在
         if (!File.Exists(AppSettings.ConfigFilePath))
         {
-            File.Copy($"{Path.GetDirectoryName(Application.ExecutablePath)}/defaults/config.json", AppSettings.ConfigFilePath);
+            File.Copy($"{Path.GetDirectoryName(Application.ExecutablePath)}/defaults/config.json",
+                AppSettings.ConfigFilePath);
         }
 
         try
-        { 
+        {
             config = new PlistConfig(AppSettings.ConfigFilePath);
         }
         catch (Exception)
         {
             Debug.WriteLine("Program.Main: config文件损坏，重新恢复默认！");
             File.Delete(AppSettings.ConfigFilePath);
-            File.Copy($"{Path.GetDirectoryName(Application.ExecutablePath)}/defaults/config.json", AppSettings.ConfigFilePath);
+            File.Copy($"{Path.GetDirectoryName(Application.ExecutablePath)}/defaults/config.json",
+                AppSettings.ConfigFilePath);
             config = new PlistConfig(AppSettings.ConfigFilePath);
         }
 
@@ -270,23 +272,27 @@ static class Program {
             {
                 throw new FileNotFoundException("找不到出厂默认手势文件：" + AppSettings.DefaultGesturesFilePath);
             }
+
             // 临时实例化一个 Store 用来装载默认配置
-            defaultIntentStore = new JsonGestureIntentStore(AppSettings.DefaultGesturesFilePath, AppSettings.GesturesFileVersion);
+            defaultIntentStore =
+                new JsonGestureIntentStore(AppSettings.DefaultGesturesFilePath, AppSettings.GesturesFileVersion);
 
             // B. 检查用户的手势文件是否存在
             if (File.Exists(AppSettings.GesturesFilePath))
             {
                 // 如果存在，先加载用户的专属手势
-               defaultIntentStore= new JsonGestureIntentStore(AppSettings.GesturesFilePath, AppSettings.GesturesFileVersion);
-                
-        
+                defaultIntentStore =
+                    new JsonGestureIntentStore(AppSettings.GesturesFilePath, AppSettings.GesturesFileVersion);
             }
             else
             {
                 // 如果是第一次运行或用户删除了配置，直接把出厂手势当作用户初始配置
-                File.Copy($"{Path.GetDirectoryName(Application.ExecutablePath)}/defaults/{AppSettings.DefaultConfigGestureFileName}", AppSettings.GesturesFilePath);
+                File.Copy(
+                    $"{Path.GetDirectoryName(Application.ExecutablePath)}/defaults/{AppSettings.DefaultConfigGestureFileName}",
+                    AppSettings.GesturesFilePath);
 
-                defaultIntentStore= new JsonGestureIntentStore(AppSettings.GesturesFilePath, AppSettings.GesturesFileVersion);
+                defaultIntentStore =
+                    new JsonGestureIntentStore(AppSettings.GesturesFilePath, AppSettings.GesturesFileVersion);
             }
 
             // C. 检查版本是否匹配
@@ -297,7 +303,7 @@ static class Program {
             }
 
             // D. 运行时因为做过了 Import 合并，立即将其回写到用户的 gestures.wg2 存档中
-            defaultIntentStore.Save(); 
+            defaultIntentStore.Save();
         }
         catch (Exception e)
         {
@@ -308,8 +314,9 @@ static class Program {
             {
                 if (File.Exists(AppSettings.GesturesFilePath)) File.Delete(AppSettings.GesturesFilePath);
                 File.Copy(AppSettings.DefaultUserGesturesFilePath, AppSettings.GesturesFilePath);
-               defaultIntentStore = new JsonGestureIntentStore(AppSettings.GesturesFilePath, AppSettings.GesturesFileVersion);
-               defaultIntentStore.Save();
+                defaultIntentStore =
+                    new JsonGestureIntentStore(AppSettings.GesturesFilePath, AppSettings.GesturesFileVersion);
+                defaultIntentStore.Save();
             }
             catch (Exception fatalEx)
             {
@@ -317,58 +324,8 @@ static class Program {
                 throw; // 连默认都坏了就只能抛出了
             }
         }
-
-        
     }
-    /// <summary>
-    /// 把defaults文件夹的配置文件复制到local文件夹
-    /// </summary>
-    static void LoadFailSafeConfigFileOld()
-    {
-        if (!File.Exists(AppSettings.ConfigFilePath))
-        {
-            File.Copy($"{Path.GetDirectoryName(Application.ExecutablePath)}/defaults/config.json", AppSettings.ConfigFilePath);
-        }
-        if (!File.Exists(AppSettings.GesturesFilePath))
-        {
-            File.Copy($"{Path.GetDirectoryName(Application.ExecutablePath)}/defaults/{AppSettings.DefaultConfigGestureFileName}", AppSettings.GesturesFilePath);
-        }
 
-        try
-        { 
-            //如果文件损坏，则替换。
-            config = new PlistConfig(AppSettings.ConfigFilePath);
-        }
-        catch (Exception)
-        {
-            Debug.WriteLine("Program.Main: config文件损坏！");
-            File.Delete(AppSettings.ConfigFilePath);
-            File.Copy($"{Path.GetDirectoryName(Application.ExecutablePath)}/defaults/config.json", AppSettings.ConfigFilePath);
-
-            config = new PlistConfig(AppSettings.ConfigFilePath);
-        }
-
-        try
-        {
-            defaultIntentStore = new JsonGestureIntentStore(AppSettings.GesturesFilePath, AppSettings.GesturesFileVersion);
-
-            if (config.Dict.FileVersion != AppSettings.ConfigFileVersion ||
-                defaultIntentStore.FileVersion != AppSettings.GesturesFileVersion)
-            {
-                throw new Exception("配置文件版本不正确");
-            }
-        }
-        catch (Exception e)
-        {
-            Debug.WriteLine("加载配置文件出错：" + e);
-
-            File.Delete(AppSettings.GesturesFilePath);
-            File.Copy(string.Format("{0}/defaults/gestures.wg", Path.GetDirectoryName(Application.ExecutablePath)), AppSettings.GesturesFilePath);
-
-            defaultIntentStore = new JsonGestureIntentStore(AppSettings.GesturesFilePath, AppSettings.GesturesFileVersion);
-        }
-
-    }
 
     /// <summary>
     /// 导入以前版本的配置
@@ -394,20 +351,24 @@ static class Program {
 #endif
         }
     }
+
     public static string Base64Encode(string plainText)
     {
         var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(plainText);
         return System.Convert.ToBase64String(plainTextBytes);
     }
+
     public static string Base64Decode(string base64EncodedData)
     {
         var base64EncodedBytes = System.Convert.FromBase64String(base64EncodedData);
         return System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
     }
+
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     static void ConfigureComponents()
     {
         #region Create Components
+
         intentFinder = new Win32GestrueIntentFinder(defaultIntentStore);
         var pathTracker = new Win32MousePathTracker2();
         gestureParser = new GestureParser(pathTracker, intentFinder);
@@ -418,39 +379,45 @@ static class Program {
         componentsToDispose.Add(gestureView);
         componentsToDispose.Add(pathTracker);
         componentsToDispose.Add(hotkeyMgr);
+
         #endregion
 
         #region pathTracker
-        pathTracker.DisableInFullscreen = config.Dict.PathTrackerDisableInFullScreen ;
-        pathTracker.PreferWindowUnderCursorAsTarget = config.Dict.PathTrackerPreferCursorWindow ;
-        pathTracker.TriggerButton = (GestureTriggerButton)config.Dict.PathTrackerTriggerButton ;
+
+        pathTracker.DisableInFullscreen = config.Dict.PathTrackerDisableInFullScreen;
+        pathTracker.PreferWindowUnderCursorAsTarget = config.Dict.PathTrackerPreferCursorWindow;
+        pathTracker.TriggerButton = (GestureTriggerButton)config.Dict.PathTrackerTriggerButton;
         pathTracker.InitialValidMove = config.Dict.PathTrackerInitialValidMove;
-        pathTracker.StayTimeout = config.Dict.PathTrackerStayTimeout ;
-        pathTracker.StayTimeoutMillis = config.Dict.PathTrackerStayTimeoutMillis ;
-        pathTracker.InitialStayTimeout = config.Dict.PathTrackerInitialStayTimeout ;
-        pathTracker.InitialStayTimeoutMillis = config.Dict.PathTrackerInitialStayTimoutMillis ;
+        pathTracker.StayTimeout = config.Dict.PathTrackerStayTimeout;
+        pathTracker.StayTimeoutMillis = config.Dict.PathTrackerStayTimeoutMillis;
+        pathTracker.InitialStayTimeout = config.Dict.PathTrackerInitialStayTimeout;
+        pathTracker.InitialStayTimeoutMillis = config.Dict.PathTrackerInitialStayTimoutMillis;
         pathTracker.RequestPauseResume += paused => menuItem_pause_Click(null, EventArgs.Empty);
-        pathTracker.EnableWindowsKeyGesturing = config.Dict.EnableWindowsKeyGesturing ;
+        pathTracker.EnableWindowsKeyGesturing = config.Dict.EnableWindowsKeyGesturing;
         pathTracker.RequestShowHideTray += ToggleTrayIconVisibility;
 
         #endregion
 
         #region gestureView
-        gestureView.ShowPath = config.Dict.GestureViewShowPath ;
-        gestureView.ShowCommandName = config.Dict.GestureViewShowCommandName ;
-        gestureView.ViewFadeOut = config.Dict.GestureViewFadeOut ;
-        gestureView.PathMainColor = Color.FromArgb(config.Dict.GestureViewMainPathColor );
-        gestureView.PathAlternativeColor = Color.FromArgb(config.Dict.GestureViewAlternativePathColor );
-        gestureView.PathMiddleBtnMainColor = Color.FromArgb(config.Dict.GestureViewMiddleBtnMainColor  );
-        gestureView.PathXBtnMainColor = Color.FromArgb(config.Dict.GestureViewXBtnPathColor );
+
+        gestureView.ShowPath = config.Dict.GestureViewShowPath;
+        gestureView.ShowCommandName = config.Dict.GestureViewShowCommandName;
+        gestureView.ViewFadeOut = config.Dict.GestureViewFadeOut;
+        gestureView.PathMainColor = Color.FromArgb(config.Dict.GestureViewMainPathColor);
+        gestureView.PathAlternativeColor = Color.FromArgb(config.Dict.GestureViewAlternativePathColor);
+        gestureView.PathMiddleBtnMainColor = Color.FromArgb(config.Dict.GestureViewMiddleBtnMainColor);
+        gestureView.PathXBtnMainColor = Color.FromArgb(config.Dict.GestureViewXBtnPathColor);
+
         #endregion
 
         #region GestureParser
-        gestureParser.EnableHotCorners = config.Dict.GestureParserEnableHotCorners ;
-        gestureParser.Enable8DirGesture = config.Dict.GestureParserEnable8DirGesture ;
-        gestureParser.EnableRubEdge = config.Dict.GestureParserEnableRubEdges ;
+
+        gestureParser.EnableHotCorners = config.Dict.GestureParserEnableHotCorners;
+        gestureParser.Enable8DirGesture = config.Dict.GestureParserEnable8DirGesture;
+        gestureParser.EnableRubEdge = config.Dict.GestureParserEnableRubEdges;
 
         #endregion
+
         //HOt key
         hotkeyMgr.HotKeyPreview += HotkeyMgr_HotKeyPreview;
         hotkeyMgr.HotKeyRegistered += HotkeyMgr_Updated;
@@ -458,10 +425,11 @@ static class Program {
         byte[] pauseHotKey = null;
 
         //workaround for bug introduced last version
-        try {
+        try
+        {
             var t = Base64Decode(config.Dict.PauseResumeHotKey);
             Console.WriteLine(t);
-            pauseHotKey = System.Text.Encoding.Default.GetBytes(Base64Decode(config.Dict.PauseResumeHotKey)) ;
+            pauseHotKey = System.Text.Encoding.Default.GetBytes(Base64Decode(config.Dict.PauseResumeHotKey));
             Console.WriteLine(config.Dict.PauseResumeHotKey);
         }
         catch (InvalidCastException e)
@@ -483,7 +451,6 @@ static class Program {
 
                 //ignore for now ?
             }
-
         }
     }
 
@@ -519,11 +486,11 @@ static class Program {
         trayIcon = CreateNotifyIcon();
         EventHandler handleBalloon = (sender, args) =>
         {
-            var timer = new Timer { Interval = 1000 };
+            var timer = new Timer {Interval = 1000};
             timer.Tick += (sender_1, args_1) =>
             {
                 timer.Stop();
-                trayIcon.Visible = config.Dict.TrayIconVisible ;
+                trayIcon.Visible = config.Dict.TrayIconVisible;
             };
             timer.Start();
         };
@@ -538,23 +505,23 @@ static class Program {
         }
         else
         {
-            var showIcon = config.Dict.TrayIconVisible ;
+            var showIcon = config.Dict.TrayIconVisible;
             if (!showIcon) //隐藏
             {
                 ToggleTrayIconVisibility();
                 //trayIcon.ShowBalloonTip(10* 1000, "WGestures图标将隐藏", "按 Shift+左键+中键 恢复\n再次运行WGestures可打开设置界面", ToolTipIcon.Info);
             }
         }
+
         //是否检查更新
-        if ( config.Dict.AutoCheckForUpdate)
+        if (config.Dict.AutoCheckForUpdate)
         {
-            var checkForUpdateTimer = new Timer { Interval = Constants.AutoCheckForUpdateInterval };
+            var checkForUpdateTimer = new Timer {Interval = Constants.AutoCheckForUpdateInterval};
 
             checkForUpdateTimer.Tick += (sender, args) =>
             {
                 checkForUpdateTimer.Stop();
                 ScheduledUpdateCheck(sender, trayIcon);
-
             };
             checkForUpdateTimer.Start();
         }
@@ -563,6 +530,7 @@ static class Program {
     }
 
     #region event handlers
+
     static void menuItem_settings_Click(object sender, EventArgs eventArgs)
     {
         ShowSettings();
@@ -572,17 +540,18 @@ static class Program {
     {
         TogglePause();
     }
+
     static void menuItem_restart_Click(object sender, EventArgs eventArgs)
     {
         Application.Restart();
     }
+
     static void menuItem_exit_Click(object sender, EventArgs e)
     {
         gestureParser.Stop();
         Application.ExitThread();
         trayIcon.Dispose();
     }
-
 
     #endregion
 
@@ -593,7 +562,7 @@ static class Program {
     /// <param name="tray"></param>
     static void ScheduledUpdateCheck(object sender, NotifyIcon tray)
     {
-        if (!config.Dict.AutoCheckForUpdate ) return;
+        if (!config.Dict.AutoCheckForUpdate) return;
 
         var checker = new VersionChecker(AppSettings.CheckForUpdateUrl);
         checker.Finished += info =>
@@ -605,18 +574,19 @@ static class Program {
                 tray.BalloonTipClicked += (o, args) =>
                 {
                     if (info.Version == Application.ProductVersion) return;
-                    using (var frm = new UpdateInfoForm(ConfigurationManager.AppSettings.Get(Constants.ProductHomePageAppSettingKey), info))
-                    {
-                        frm.ShowDialog();
-                        tray.Visible = config.Dict.TrayIconVisible ;
-                    }
+                    var frm = new UpdateInfoWindow(
+                        ConfigurationManager.AppSettings.Get(Constants.ProductHomePageAppSettingKey), info);
+
+                    frm.ShowDialog();
+                    tray.Visible = config.Dict.TrayIconVisible;
                 };
                 if (!tray.Visible)
                 {
                     tray.Visible = true;
                 }
 
-                tray.ShowBalloonTip(1000 * 15, Application.ProductName + "新版本可用!", "版本:" + info.Version + "\n" + whatsNew, ToolTipIcon.Info);
+                tray.ShowBalloonTip(1000 * 15, Application.ProductName + "新版本可用!",
+                    "版本:" + info.Version + "\n" + whatsNew, ToolTipIcon.Info);
             }
 
             checker.Dispose();
@@ -640,9 +610,9 @@ static class Program {
     static void ToggleTrayIconVisibility()
     {
         //如果图标当前可见， 而config中设置的值是不可见， 则说明是临时显示; 如果不是临时显示， 才需要修改config
-        if (!(trayIcon.Visible && !config.Dict.TrayIconVisible ))
+        if (!(trayIcon.Visible && !config.Dict.TrayIconVisible))
         {
-            config.Dict.TrayIconVisible= !trayIcon.Visible ;
+            config.Dict.TrayIconVisible = !trayIcon.Visible;
             config.Save();
         }
 
@@ -663,14 +633,16 @@ static class Program {
             settingsFormController.BringToFront();
             return;
         }
+
         using (settingsFormController = new SettingsFormController(config, gestureParser,
-                   (Win32MousePathTracker2)gestureParser.PathTracker,  gestureView, hotkeyMgr,defaultIntentStore ))
+                   (Win32MousePathTracker2)gestureParser.PathTracker, gestureView, hotkeyMgr, defaultIntentStore))
         {
             //进程如果优先为Hight，设置窗口上执行手势会响应非常迟钝（原因不明）
             //using (var proc = Process.GetCurrentProcess()) proc.PriorityClass = ProcessPriorityClass.Normal;
             settingsFormController.ShowDialog();
             //using (var proc = Process.GetCurrentProcess()) proc.PriorityClass = ProcessPriorityClass.High;
         }
+
         settingsFormController = null;
     }
 
@@ -704,6 +676,7 @@ static class Program {
 #endif
         }
     }
+
     /// <summary>
     /// 是否在第一次展示quickstart
     /// </summary>
@@ -711,25 +684,24 @@ static class Program {
     static void ShowQuickStartGuide(bool isFirstRun = false)
     {
         var t = new Thread(() =>
+        {
+            var mut = new Mutex(true, Constants.Identifier + "QuickStartGuideWindow", out bool createdNew);
+            if (!createdNew) return;
+
+            using (var frm = new QuickStartGuideForm())
             {
-                var mut = new Mutex(true, Constants.Identifier + "QuickStartGuideWindow", out bool createdNew);
-                if (!createdNew) return;
+                Application.Run(frm);
+                mut.Close();
+            }
 
-                using (var frm = new QuickStartGuideForm())
-                {
-                    Application.Run(frm);
-                    mut.Close();
-                }
+            if (isFirstRun)
+            {
+                //Open again to show settings
+                //Process.Start(Application.ExecutablePath);
+            }
 
-                if (isFirstRun)
-                {
-                    //Open again to show settings
-                    //Process.Start(Application.ExecutablePath);
-                }
-
-                GC.Collect();
-            })
-            { IsBackground = true };
+            GC.Collect();
+        }) {IsBackground = true};
 
         t.SetApartmentState(ApartmentState.STA);
         t.Start();
@@ -751,19 +723,19 @@ static class Program {
 
         var contextMenu1 = new ContextMenuStrip();
 
-        var menuItem_exit = new ToolStripMenuItem() { Text = "退出" };
+        var menuItem_exit = new ToolStripMenuItem() {Text = "退出"};
         menuItem_exit.Click += menuItem_exit_Click;
-        var menuItem_restart = new ToolStripMenuItem() { Text = "重启" };
+        var menuItem_restart = new ToolStripMenuItem() {Text = "重启"};
         menuItem_restart.Click += menuItem_restart_Click;
-        menuItem_pause = new ToolStripMenuItem() { Text = "暂停" };
+        menuItem_pause = new ToolStripMenuItem() {Text = "暂停"};
         menuItem_pause.Click += menuItem_pause_Click;
-        var  menuItem_resume = new ToolStripMenuItem() { Text = "解除按键死锁" };
+        var menuItem_resume = new ToolStripMenuItem() {Text = "解除按键死锁"};
         menuItem_resume.Click += menuItem_resume_Click;
 
-        var menuItem_settings = new ToolStripMenuItem() { Text = "设置" };
+        var menuItem_settings = new ToolStripMenuItem() {Text = "设置"};
         menuItem_settings.Click += menuItem_settings_Click;
 
-        var menuItem_showQuickStart = new ToolStripMenuItem() { Text = "快速入门" };
+        var menuItem_showQuickStart = new ToolStripMenuItem() {Text = "快速入门"};
         menuItem_showQuickStart.Click += (sender, args) => ShowQuickStartGuide();
 
         /*var menuItem_toggleTray = new MenuItem() { Text = "隐藏 (Shift + 左键 + 中键)" };
@@ -772,7 +744,11 @@ static class Program {
            ToggleTrayIconVisibility();
         };*/
 
-        contextMenu1.Items.AddRange(new ToolStripItem[] { /*menuItem_toggleTray, */menuItem_pause,menuItem_resume,menuItem_restart, new ToolStripSeparator(), menuItem_settings, menuItem_showQuickStart, new ToolStripSeparator(), menuItem_exit });
+        contextMenu1.Items.AddRange(new ToolStripItem[]
+        {
+            /*menuItem_toggleTray, */menuItem_pause, menuItem_resume, menuItem_restart, new ToolStripSeparator(),
+            menuItem_settings, menuItem_showQuickStart, new ToolStripSeparator(), menuItem_exit
+        });
         notifyIcon.Icon = Resources.trayIcon;
         //notifyIcon.Text = Application.ProductName;
         notifyIcon.ContextMenuStrip = contextMenu1;
@@ -787,8 +763,7 @@ static class Program {
 
     private static void menuItem_resume_Click(object sender, EventArgs e)
     {
-        Simulate.Events().Release( KeyCode.LWin).Wait(100).Invoke();
-             
+        Simulate.Events().Release(KeyCode.LWin).Wait(100).Invoke();
     }
 
     private static void GestureParser_StateChanged(GestureParser.State s)
