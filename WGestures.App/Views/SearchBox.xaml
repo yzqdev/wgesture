@@ -1,0 +1,81 @@
+﻿<Window x:Class="WGestures.App.Gui.Windows.SearchBox"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:local="clr-namespace:WGestures.App.Gui.Windows"
+        mc:Ignorable="d"
+WindowStyle="None" 
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen" 
+        ShowInTaskbar="False" 
+        Topmost="True"
+        Background="White"
+        Deactivated="SearchBox_Deactivated"
+        Activated="SearchBox_Activated">
+    
+    <Grid Margin="12,12,12,12">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="290"/>
+            <ColumnDefinition Width="61"/> <!-- 包含 WinForms 中的 Margin 间距 -->
+            <ColumnDefinition Width="22"/> <!-- Label 宽度加间距 -->
+            <ColumnDefinition Width="66"/> <!-- 按钮宽度 -->
+        </Grid.ColumnDefinitions>
+
+        <!-- 输入框 -->
+        <TextBox x:Name="txt_content" 
+                  
+                 Width="290" Height="29"
+                 HorizontalAlignment="Left" VerticalAlignment="Top"
+                 BorderBrush="Black" BorderThickness="1"
+                 FontFamily="Microsoft YaHei" FontSize="16"/> <!-- WPF中的FontSize和WinForms计算不同，12pt约等于16px -->
+
+        <!-- 下拉选择框 -->
+        <ComboBox x:Name="comboBox1" 
+                  Grid.Column="1"
+                  Width="55" Height="20"
+                  HorizontalAlignment="Left" VerticalAlignment="Center"
+                  Margin="6,0,0,0"
+                  SelectedIndex="0">
+            <ComboBoxItem Content="Goooo"/>
+            <ComboBoxItem Content="Baiii"/>
+            <ComboBoxItem Content="Taooo"/>
+        </ComboBox>
+
+        <!-- 类似上下箭头的 Label (在WPF中用TextBlock更纯粹) -->
+        <TextBlock x:Name="label1" 
+                   Grid.Column="2"
+                   Width="19" Height="29"
+                   HorizontalAlignment="Left" 
+                   Text="⇅" 
+                   FontFamily="SimSun" FontSize="19" 
+                   Foreground="Gray" 
+                   IsEnabled="False"
+                   TextAlignment="Center" VerticalAlignment="Center"/>
+
+        <!-- 提交按钮 -->
+        <Button x:Name="button1" 
+                Grid.Column="3"
+                Width="66" Height="29"
+                HorizontalAlignment="Left" VerticalAlignment="Top"
+                Content="↩" 
+                FontFamily="SimSun" FontSize="16"
+                Background="Turquoise" Foreground="White" 
+                BorderThickness="0">
+            <!-- 移除WPF按钮默认的鼠标悬停效果，保持扁平化 -->
+            <Button.Resources>
+                <Style TargetType="Button">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="Button">
+                                <Border Background="{TemplateBinding Background}">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </Button.Resources>
+        </Button>
+    </Grid>
+</Window>

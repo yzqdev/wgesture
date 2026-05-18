@@ -1,193 +1,231 @@
-<!doctype html>
-<html>
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
 <head>
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
     <title>WGestures QuickStart</title>
 
-    <meta name="author" content="Ying Yuandong">
-
     <style>
-        html, body,ul {
+        html, body {
             margin: 0;
             padding: 0;
-            background: none;
-        }
-
-        a {
-            cursor: default;
-        }
-
-        body {
             background: whitesmoke;
         }
 
-        #slides {
-            display: none;
+        #app {
             text-align: center;
-            width: 100%;
         }
 
-        #slides>img 
-        {
+        #slides {
+            position: relative;
+            width: 936px;
+            height: 525px;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+
+        /* 图片 */
+        #slides img {
             width: 100%;
             height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
         }
 
+        #slides img.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* 左右按钮 */
         .slidesjs-navigation {
             top: 35%;
             position: absolute;
-            background: none;
             width: 80px;
             height: 100px;
-            display: block;
             z-index: 1024;
         }
 
         .slidesjs-previous {
             left: 0;
-            background: url(img/prev-default.png);
-            filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src="img/prev.png") alpha(opacity=40);
+            background: url("img/prev.png");
         }
-
-            .slidesjs-previous:hover {
-                background: url(img/prev.png);
-                filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src="img/prev.png") alpha(opacity=80);
-            }
 
         .slidesjs-next {
             right: 0;
-            background: url(img/next-default.png);
-            filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src="img/next.png") alpha(opacity=40);
+            background: url("img/next.png");
         }
 
-            .slidesjs-next:hover {
-                background: url(img/next.png);
-                filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src="img/next.png") alpha(opacity=80);
-            }
-
+        /* 分页 */
         .slidesjs-pagination {
-            display: inline-block;
-            *display: inline; /* IE*/
-            *zoom: 1; /* IE*/
-            text-align: left;
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
             list-style: none;
-            overflow: hidden;
-            margin-top: 20px;
+            margin: 0;
+            padding: 0;
         }
 
         .slidesjs-pagination li {
-            float: left;
             margin: 0 8px;
-            width: 20px;
         }
 
-        .slidesjs-pagination li a {
+        .slidesjs-pagination a {
             display: block;
             width: 15px;
-            height: 0;
-            padding-top: 13px;
-            background: url(img/pagination_.png);
-            background-position: 0 0;
-            float: left;
-            overflow: hidden;
+            height: 13px;
+            background: url("img/pagination_.png") 0 0;
         }
 
-        .slidesjs-pagination li a.active,
-        .slidesjs-pagination li a:hover.active {
+        .slidesjs-pagination a.active {
             background-position: 0 -13px;
         }
-
-        .slidesjs-pagination li a:hover {
-            background-position: 0 -26px;
-        }
-
     </style>
-    <!-- End SlidesJS Optional-->
 </head>
 
+<body
+        ondragstart="return false;"
+        onselectionstart="return false;"
+>
 
-<body ondragstart="return false;" onselectionstart="return false;">
+<div id="app">
+    <div
+            id="slides"
+            @mouseenter="pause"
+            @mouseleave="resume"
+            @wheel.prevent="onWheel"
+            @touchstart="touchStart"
+            @touchend="touchEnd"
+    >
+        <img
+                v-for="(img, index) in images"
+                :key="index"
+                :src="img"
+                :class="{ active: currentIndex === index }"
+        >
 
-    <div class="container">
-        <div id="slides">
-            <img src="slides/0.png">
-            <img src="slides/1.png">
-            <img src="slides/2.png">
-            <img src="slides/3.png">
-            <img src="slides/4.png">
-            <img src="slides/5.png">
-            <a href="#" class="slidesjs-previous slidesjs-navigation"></a>
-            <a href="#" class="slidesjs-next slidesjs-navigation"></a>
+        <a
+                class="slidesjs-navigation slidesjs-previous"
+                @click="prev"
+                v-show="currentIndex > 0"
+        ></a>
 
-        </div>
+        <a
+                class="slidesjs-navigation slidesjs-next"
+                @click="next"
+                v-show="currentIndex < images.length - 1"
+        ></a>
 
+        <ul class="slidesjs-pagination">
+            <li v-for="(img, index) in images" :key="index">
+                <a
+                        href="#"
+                        :class="{ active: currentIndex === index }"
+                        @click.prevent="goTo(index)"
+                ></a>
+            </li>
+        </ul>
     </div>
+</div>
 
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
-    <script type="text/javascript" src="js/jquery.min.js"></script>
-    <script type="text/javascript" src="js/jquery.slides.min.js"></script>
+<script>
+    const { createApp, ref, onMounted, onUnmounted } = Vue
 
-    <script>
-        var btnPrev;
-        var btnNext;
+    createApp({
+        setup() {
+            const images = [
+                "slides/0.png",
+                "slides/1.png",
+                "slides/2.png",
+                "slides/3.png",
+                "slides/4.png",
+                "slides/5.png"
+            ]
 
-        $(function () {
-            var imgCount = $("#slides>img").length;
-            btnPrev = $(".slidesjs-previous");
-            btnNext = $(".slidesjs-next");
+            const currentIndex = ref(0)
+            let timer = null
+            const interval = 3000
 
-            $('#slides').slidesjs({
-                width: 936,
-                height: 525,
-                navigation: false,
-                effect: {
-                    slide: {
-                        speed: 300
+            const startAutoPlay = () => {
+                timer = setInterval(() => {
+                    if (currentIndex.value < images.length - 1) {
+                        currentIndex.value++
+                    } else {
+                        currentIndex.value = 0
                     }
-                },
-                callback: {
-                    loaded: function(number) {
-                        // Do something awesome!
-                        // Passes start slide number
-                        btnPrev.css("display", "none");
+                }, interval)
+            }
 
-                        var pagination = $(".slidesjs-pagination");
+            const pause = () => clearInterval(timer)
+            const resume = () => startAutoPlay()
 
-                        var pagerWidth = parseInt(pagination.css("width"),10);
-                        var windowWidth = parseInt($("#slides").css("width"), 10);
+            const prev = () => {
+                if (currentIndex.value > 0) currentIndex.value--
+            }
 
-                        var center = (windowWidth - pagerWidth) >> 1;
-                        pagination.css("position", "absolute");
-                        pagination.css("bottom", "20px");
-                        pagination.css("left", center + "px");
-                    },
-                    start: function(number) {
-                        // Do something awesome!
-                        // Passes slide number at start of animation
-                    },
-                    complete: function(number) {
-                        // Do something awesome!
-                        // Passes slide number at end of animation
-                        if (number == 1) btnPrev.css("display", "none");
-                        else btnPrev.css("display", "block");
+            const next = () => {
+                if (currentIndex.value < images.length - 1) currentIndex.value++
+            }
 
-                        if (number == imgCount) btnNext.css("display", "none");
-                        else btnNext.css("display", "block");
-                    }
-                    
+            const goTo = (index) => {
+                currentIndex.value = index
+            }
+
+            /* 滚轮 */
+            const onWheel = (e) => {
+                e.deltaY > 0 ? next() : prev()
+            }
+
+            /* 触摸 */
+            let touchStartX = 0
+            const touchStart = (e) => {
+                touchStartX = e.changedTouches[0].screenX
+            }
+            const touchEnd = (e) => {
+                const diff = e.changedTouches[0].screenX - touchStartX
+                if (Math.abs(diff) > 50) {
+                    diff > 0 ? prev() : next()
                 }
-            });
+            }
 
-        });
+            /* 键盘 */
+            const onKeyDown = (e) => {
+                if (e.key === "ArrowLeft") prev()
+                if (e.key === "ArrowRight") next()
+            }
 
-        function performPrev() {
-            if (btnPrev != null && btnPrev.css("display") != "none") btnPrev.click();
+            onMounted(() => {
+                startAutoPlay()
+                window.addEventListener("keydown", onKeyDown)
+            })
+
+            onUnmounted(() => {
+                clearInterval(timer)
+                window.removeEventListener("keydown", onKeyDown)
+            })
+
+            return {
+                images,
+                currentIndex,
+                prev,
+                next,
+                goTo,
+                pause,
+                resume,
+                onWheel,
+                touchStart,
+                touchEnd
+            }
         }
-        function performNext() {
-            if (btnNext != null && btnNext.css("display") != "none") btnNext.click();
-        }
-
-    </script>
+    }).mount("#app")
+</script>
 
 </body>
 </html>

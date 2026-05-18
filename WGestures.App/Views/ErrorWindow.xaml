@@ -1,0 +1,92 @@
+﻿<Window x:Class="WGestures.App.Gui.Windows.ErrorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:local="clr-namespace:WGestures.App.Gui.Windows"
+        mc:Ignorable="d"
+Title="WGestures错误" 
+        Height="630" Width="830"
+        MinWidth="830" MinHeight="630"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        ShowInTaskbar="False"
+        Topmost="True"
+        Background="White">
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <!-- 上部主内容区（警告信息、邮箱、文本框） -->
+            <RowDefinition Height="*" />
+            <!-- 底部按钮区 -->
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- 1. 上部白色主背景区 -->
+        <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel Margin="20,15,20,10">
+                
+                <!-- 头部：图标 + 错误简述 -->
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
+                    <!-- 这里的 Source 请根据你 WPF 项目中的图片资源路径调整 -->
+                    <Image Source="/Properties/Resources/logo_error.png" 
+                           Width="65" Height="65" 
+                           Stretch="Uniform" VerticalAlignment="Center"/>
+                    
+                    <TextBlock x:Name="lb_Message" 
+                               Text="抱歉！WGesture遇到了一个意想不到的问题，因而无法继续运行。" 
+                               FontFamily="Microsoft YaHei" FontSize="15" 
+                               Foreground="Red" 
+                               TextWrapping="Wrap" 
+                               VerticalAlignment="Center" 
+                               Width="680" Margin="15,0,0,0"/>
+                </StackPanel>
+
+                <!-- 中部：联系开发者与复制按钮 -->
+                <WrapPanel Margin="0,0,0,10" VerticalAlignment="Center">
+                    <TextBlock Text="请附上以下信息联系开发者:" 
+                               FontFamily="Microsoft YaHei" FontSize="13" 
+                               Foreground="DimGray" 
+                               VerticalAlignment="Center"/>
+                    
+                    <TextBox x:Name="tb_mail" 
+                             Text="yzqdev@outlook.com" 
+                             FontFamily="Microsoft YaHei" FontSize="13" 
+                             Foreground="DodgerBlue" 
+                             IsReadOnly="True" 
+                             Background="White"
+                             BorderBrush="LightGray"
+                             TextAlignment="Center" 
+                             Width="190" Margin="10,0,10,0" Padding="2"/>
+                    
+                    <Button x:Name="copy_error" 
+                            Content="复制错误信息" 
+                            Width="100" Height="26" 
+                            Click="copy_error_Click"/>
+                </WrapPanel>
+
+                <!-- 底部：详细错误堆栈输入框 -->
+                <TextBox x:Name="tb_Detail" 
+                         Height="400" 
+                         AcceptsReturn="True" 
+                         TextWrapping="Wrap" 
+                         VerticalScrollBarVisibility="Auto" 
+                         IsReadOnly="True"
+                         Background="White" 
+                         BorderBrush="LightGray" 
+                         Padding="5"/>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- 2. 底部浅灰色按钮条 -->
+        <Border Grid.Row="1" Background="#F0F0F0" BorderBrush="#E0E0E0" BorderThickness="0,1,0,0">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"  >
+                <Button x:Name="btn_close" 
+                        Content="退出" 
+                        Width="90" Height="30" 
+                        IsCancel="True"
+                        Click="btn_close_Click"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>
