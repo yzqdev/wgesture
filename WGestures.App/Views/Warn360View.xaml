@@ -1,0 +1,70 @@
+﻿<Window x:Class="WGestures.App.Views.Warn360View"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:local="clr-namespace:WGestures.App.Views"
+        mc:Ignorable="d"
+       Title="WGestures" 
+        Height="380" Width="647" 
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        Topmost="True"
+        FontFamily="Microsoft YaHei" FontSize="12"
+        Loaded="Warn360_Load">
+    
+    <Grid Margin="18,20,18,20">
+        <!-- 定义网格行和列 -->
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="60"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        
+        <!-- 左侧图标 -->
+        <Image  VerticalAlignment="Top"
+                Source="pack://application:,,,/Resources/Alert.png"
+               Width="58" Height="59"/>
+
+        <!-- 右侧主要内容区域 -->
+        <Grid Grid.Column="1" Margin="10,0,0,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/> <!-- 标题 -->
+                <RowDefinition Height="Auto"/> <!-- 警告详情 -->
+                <RowDefinition Height="Auto"/> <!-- 建议操作 -->
+                <RowDefinition Height="Auto"/> <!-- 路径行 -->
+                <RowDefinition Height="*"/>    <!-- 底部按钮行 -->
+            </Grid.RowDefinitions>
+
+            <!-- label1: 标题 -->
+            <TextBlock Grid.Row="0" Text="WGestures兼容性警告！" 
+                       FontSize="19" Margin="0,0,0,15" VerticalAlignment="Top"/>
+
+            <!-- label2: 问题描述 -->
+            <TextBlock Grid.Row="1" Text="您正在运行“360安全卫士”，已知其可能导致WGestures在某些情况下失效甚至崩溃。" 
+                       TextWrapping="Wrap" Margin="3,0,0,15" LineHeight="20"/>
+
+            <!-- label3: 解决方案 -->
+            <TextBlock Grid.Row="2" Text="要避免此问题，请确保将 WGestures.exe 添加到360的“信任列表”中，并重启360。&#x0a;（若上一版本已添加过，请删除记录后重新添加）" 
+                       TextWrapping="Wrap" FontWeight="Bold" Margin="3,0,0,15" LineHeight="20"/>
+
+            <!-- 路径输入框区域 (label4 + tb_wgPath) -->
+            <DockPanel Grid.Row="3" Margin="3,0,0,0" LastChildFill="True">
+                <TextBlock Text="WGestures位于" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                <!-- tb_wgPath -->
+                <TextBox x:Name="tb_wgPath" IsReadOnly="True" VerticalAlignment="Center" 
+                         Padding="3" FontFamily="SimSun" FontSize="11"/>
+            </DockPanel>
+
+            <!-- 底部链接与操作按钮 -->
+            <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                <!-- linkLabel1 -->
+                <TextBlock VerticalAlignment="Center" Margin="0,0,20,0">
+                    <Hyperlink  x:Name="ShowDetail" Click="ShowDetail_OnClick">查看具体操作</Hyperlink>
+                </TextBlock>
+                <!-- button1 -->
+                <Button x:Name="button1" Content="明白了" Width="129" Height="39" 
+                        Click="button1_Click"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Window>

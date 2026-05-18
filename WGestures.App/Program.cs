@@ -4,6 +4,7 @@ using System.Configuration;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Reflection;
 using System.Runtime.Versioning;
 using System.Threading;
 using System.Windows.Forms;
@@ -80,9 +81,10 @@ static class Program {
 
             //监听IPC消息
             StartIpcPipe();
+           
+       
 
-
-            Application.Run();
+           Application.Run();
         }
 #if !DEBUG
             catch (Exception e)
@@ -92,6 +94,7 @@ static class Program {
 #endif
         finally { Dispose(); }
     }
+ 
 
     //TODO: refactor out
     static void StartIpcPipe()
@@ -796,10 +799,8 @@ static class Program {
 
         if (proc360.Length + proc360Tray.Length > 0)
         {
-            using (var warn = new Warn360())
-            {
-                warn.ShowDialog();
-            }
+            var warn = new Warn360View();
+            warn.ShowDialog();
         }
     }
 
