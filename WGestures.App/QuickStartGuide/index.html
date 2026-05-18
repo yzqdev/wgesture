@@ -9,6 +9,8 @@
             margin: 0;
             padding: 0;
             background: whitesmoke;
+            overflow: hidden;    
+            height: 100%;       
         }
 
         #app {
@@ -51,11 +53,13 @@
 
         .slidesjs-previous {
             left: 0;
+            cursor: pointer;
             background: url("img/prev.png");
         }
 
         .slidesjs-next {
             right: 0;
+            cursor: pointer;
             background: url("img/next.png");
         }
 
@@ -133,7 +137,7 @@
     </div>
 </div>
 
-<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script src="js/vue.global.prod.js"></script>
 
 <script>
     const { createApp, ref, onMounted, onUnmounted } = Vue
@@ -145,8 +149,7 @@
                 "slides/1.png",
                 "slides/2.png",
                 "slides/3.png",
-                "slides/4.png",
-                "slides/5.png"
+                "slides/4.png" 
             ]
 
             const currentIndex = ref(0)

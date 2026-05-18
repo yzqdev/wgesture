@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net10.0-windows</TargetFramework>
     <OutputType>WinExe</OutputType>
@@ -29,9 +29,7 @@
     <AssemblyOriginatorKeyFile>
     </AssemblyOriginatorKeyFile>
   </PropertyGroup>
-  <PropertyGroup>
-    <StartupObject>WGestures.App.Program</StartupObject>
-  </PropertyGroup>
+
   <PropertyGroup>
     <ApplicationIcon>Resources\icon.ico</ApplicationIcon>
   </PropertyGroup>
@@ -127,9 +125,7 @@
     <Content Include="QuickStartGuide\**\*.*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Gui\Windows\QuickStartGuideForm.cs" />
-    <Content Include="Gui\Windows\QuickStartGuideForm.Designer.cs" />
-    <Content Include="Gui\Windows\QuickStartGuideForm.resx" />
+    
     <Content Include="UpdateLog.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -139,6 +135,7 @@
     <None Include="AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3967.48" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="10.0.8" />
     <PackageReference Include="Lnk" Version="2026.5.3" />
 
@@ -148,6 +145,18 @@
       <PackageReference Include="Serilog.Extensions.Hosting" Version="10.0.0" />
       <PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
       <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Views\ErrorWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <XamlRuntime>Wpf</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\SearchBox.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <XamlRuntime>Wpf</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
   </ItemGroup>
   <PropertyGroup />
 </Project>

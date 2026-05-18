@@ -7,7 +7,7 @@ using Application = System.Windows.Forms.Application;
 using Clipboard = System.Windows.Forms.Clipboard;
 using MessageBox = System.Windows.Forms.MessageBox;
 
-namespace WGestures.App.Gui.Windows;
+namespace WGestures.App.Views;
 
 public partial class ErrorWindow : Window {
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]

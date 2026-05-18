@@ -178,7 +178,12 @@ internal partial class SettingsForm : Form {
 #if DEBUG
                 Console.WriteLine(exception);
 #endif
-
+                MessageBox.Show(
+                    $"检查更新失败，原因：\n{exception.Message}", // 提示内容
+                    "错误",                                // 标题
+                    MessageBoxButtons.OK,                  // 按钮
+                    MessageBoxIcon.Error                   // 错误图标（会有个红叉）
+                );
                 btn_checkUpdateNow.Invoke(new Action(() =>
                 {
                     //btn_checkUpdateNow.Enabled = true;

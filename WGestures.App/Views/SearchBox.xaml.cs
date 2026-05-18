@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows;
 
-namespace WGestures.App.Gui.Windows;
+namespace WGestures.App.Views;
 
 public partial class SearchBox : Window {
     public SearchBox()

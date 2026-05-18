@@ -4,9 +4,25 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:local="clr-namespace:WGestures.App.Views"
+        xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
         mc:Ignorable="d"
-        Title="QuickStartGuideWindow" Height="450" Width="800">
+        Title="WGestures快速入门" 
+        Height="565" Width="950"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        Background="White"
+        HorizontalAlignment="Stretch"
+        VerticalAlignment="Stretch"
+   
+        Loaded="Window_Loaded"
+        PreviewKeyDown="Window_PreviewKeyDown">
+    
     <Grid>
         
+     
+        <wv2:WebView2 x:Name="web_container"
+                      HorizontalAlignment="Stretch"
+                      VerticalAlignment="Stretch"
+                      CoreWebView2InitializationCompleted="Web_container_CoreWebView2InitializationCompleted"/>
     </Grid>
 </Window>

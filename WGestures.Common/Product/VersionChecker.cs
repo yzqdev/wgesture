@@ -1,9 +1,10 @@
 ﻿using System;
-using System.Net;
-using System.Text.RegularExpressions;
-using Newtonsoft.Json;
 using System.Diagnostics;
-using System.ComponentModel;
+using System.Net.Http;
+using System.Net.Http.Json;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace WGestures.Common.Product;
 
@@ -12,130 +13,89 @@ namespace WGestures.Common.Product;
 /// </summary>
 public class VersionChecker : IDisposable
 {
-    private string _url;
-    private TimeOutWebClient _client;
+    // HttpClient 在整个应用程序生命周期内应该重用
+    private static readonly HttpClient _defaultClient = new(new HttpClientHandler { Proxy = null });
+    
+    private readonly HttpClient _httpClient;
+    private readonly string _url;
+    private readonly int _timeoutSeconds;
+    private CancellationTokenSource? _cts;
+    private bool _isBusy;
 
-    public VersionChecker(string url, int timeOutSeconds = 15)
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    /// <param name="url">检查更新的 URL</param>
+    /// <param name="timeOutSeconds">超时时间（秒）</param>
+    /// <param name="customClient">可选：允许外部注入 HttpClient（利于单元测试）</param>
+    public VersionChecker(string url, int timeOutSeconds = 15, HttpClient? customClient = null)
     {
-        _url = url;
-        _client = new TimeOutWebClient(){TimeOutSecs = timeOutSeconds};
-        _client.Proxy = null;
-        _client.Encoding = System.Text.Encoding.UTF8;
+        _url = url ?? throw new ArgumentNullException(nameof(url));
+        _timeoutSeconds = timeOutSeconds;
+        _httpClient = customClient ?? _defaultClient;
+    }
 
-        _client.DownloadStringCompleted += (sender, args) =>
+    // 使用现代的 C# 属性简化写法
+    public event Action<VersionInfo?>? Finished;
+    public event Action? Canceled;
+    public event Action<Exception>? ErrorHappened;
+
+    public bool IsBusy => _isBusy;
+
+    /// <summary>
+    /// 异步开始检查版本
+    /// </summary>
+    public async void CheckAsync()
+    {
+        if (_isBusy) return;
+
+        _isBusy = true;
+        _cts = new CancellationTokenSource();
+        // 设置超时机制
+        _cts.CancelAfter(TimeSpan.FromSeconds(_timeoutSeconds));
+
+        var stopwatch = Stopwatch.StartNew();
+
+        try
         {
-            if (args.Cancelled)
-            {
-                OnCanceled();
-                return;
-            }
-
-            if (args.Error != null)
-            {
-                OnErrorHappened(args.Error);
-                return;
-            }
-
-            VersionInfo versionInfo = null;
-
-            //{"Version":"1.5.2.0","WhatsNew":"Abcd\"efg"}
-            try
-            {
-                versionInfo = JsonConvert.DeserializeObject<VersionInfo>(args.Result);
-
-                /*const string versionPattern = "\"Version\"\\s*:\\s*\"\\d.\\d.\\d.\\d\"";
-                const string whatsNewPattern = "\"WhatsNew\"\\s*:\\s*((?<![\\\\])['\"])((?:.(?!(?<![\\\\])\\1))*.?)\\1";
-
-                var versionMatch = Regex.Match(args.Result, versionPattern);//"^\\{\"Version\":\"\\d.\\d.\\d.\\d\",\"WhatsNew\":\"[^\"]*\"\\}$");
-                var whatsNewMatch = Regex.Match(args.Result, whatsNewPattern);
-                if (versionMatch.Success && whatsNewMatch.Success)
-                {
-                    var versionStr = Regex.Match(versionMatch.Value,"\\d.\\d.\\d.\\d").Value;
-                    var whatsNewStr = whatsNewMatch.Value.Split(':')[1];
-                    whatsNewStr = whatsNewStr.Substring(1,whatsNewStr.Length -2).Replace("\\r\\n","\r\n").Replace("\\\"","\"");
-
-                    versionInfo = new VersionInfo(){Version = versionStr, WhatsNew = whatsNewStr};
-                }
-                else throw new Exception();*/
-
-            }
-            catch (Exception e)
-            {
-                OnErrorHappened(e);
-                return;
-            }
-
-            OnFinished(versionInfo);
-
-        };
-
-
+            // 直接请求并将 JSON 反序列化为对象（使用 .NET 强大的原生 JSON 库）
+            var versionInfo = await _httpClient.GetFromJsonAsync<VersionInfo>(_url, _cts.Token);
+            
+            Finished?.Invoke(versionInfo);
+        }
+        catch (OperationCanceledException)
+        {
+            // 如果是因为 _cts.Token 被取消（包括超时），会抛出此异常
+            Canceled?.Invoke();
+           
+        }
+        catch (Exception ex)
+        {
+            ErrorHappened?.Invoke(ex);
+        }
+        finally
+        {
+            stopwatch.Stop();
+            Debug.WriteLine($"CheckAsync Time used: {stopwatch.Elapsed.TotalSeconds} seconds");
+            
+            _isBusy = false;
+            _cts?.Dispose();
+            _cts = null;
+        }
     }
 
-    public event Action<VersionInfo> Finished;
-    public event Action Canceled;
-    public event Action<Exception> ErrorHappened;
-
-
-    protected virtual void OnFinished(VersionInfo obj)
-    {
-        var handler = Finished;
-        if (handler != null) handler(obj);
-    }
-    protected virtual void OnCanceled()
-    {
-        var handler = Canceled;
-        if (handler != null) handler();
-    }
-    protected virtual void OnErrorHappened(Exception e)
-    {
-        var handler = ErrorHappened;
-        if (handler != null) handler(e);
-    }
-
-    public void CheckAsync()
-    {
-        var now = DateTime.Now;
-        _client.DownloadStringAsync(new Uri(_url));
-        var then = DateTime.Now;
-
-        Debug.WriteLine("CheckAsync Time used: " + (then - now).TotalSeconds);
-    }
-
+    /// <summary>
+    /// 取消当前正在进行的请求
+    /// </summary>
     public void Cancel()
     {
-        _client.CancelAsync();
-            
-    }
-
-    public bool IsBusy
-    {
-        get { return _client.IsBusy; }
+        _cts?.Cancel();
     }
 
     public void Dispose()
     {
-        if(_client.IsBusy) _client.CancelAsync();
-        _client.Dispose();
-        _client = null;
-    }
-}
-
-internal class TimeOutWebClient : WebClient
-{
-    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-    public int TimeOutSecs { get; set; }
-
-    public TimeOutWebClient()
-    {
-        TimeOutSecs = 30;
-    }
-
-    protected override WebRequest GetWebRequest(Uri address)
-    {
-        WebRequest w = base.GetWebRequest(address);
-            
-        w.Timeout = TimeOutSecs * 1000;
-        return w;
+        Cancel();
+        _cts?.Dispose();
+        // 注意：不要在这里释放 _httpClient，因为它是共享的静态实例
     }
 }
