@@ -1682,7 +1682,7 @@ namespace WGestures.App.Gui.Windows
         private TabPage tabPage1;
         private CheckBox check_autoCheckUpdate;
         private Button btn_checkUpdateNow;
-        private GroupBox groupBox2;
+        private System.Windows.Forms.GroupBox groupBox2;
         private GroupBox groupBox1;
         private CheckBox checkGestureViewShowPath;
         private Label label1;

@@ -1,0 +1,117 @@
+<Window x:Class="WGestures.App.Views.ImportWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:local="clr-namespace:WGestures.App.Views"
+        mc:Ignorable="d"
+        Title="导入到WGestures"
+        Height="299" Width="378"
+        MinHeight="299" MinWidth="378"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        ShowInTaskbar="False"
+        Background="White"
+        FontFamily="Microsoft YaHei"
+        FontSize="9">
+
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+    </Window.Resources>
+
+    <Window.TaskbarItemInfo>
+        <TaskbarItemInfo />
+    </Window.TaskbarItemInfo>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel Margin="10,10,10,10">
+
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                    <TextBox x:Name="txt_filePath"
+                             Text="{Binding FilePath, Mode=TwoWay}"
+                             Width="240"
+                             Height="27"
+                             IsReadOnly="True"
+                             VerticalContentAlignment="Center"
+                             Margin="0,4,4,4"/>
+                    <Button x:Name="btn_selectWgb"
+                            Content="选择..."
+                            Width="94"
+                            Height="26"
+                            Margin="4,4,0,4"
+                            Command="{Binding SelectFileCommand}"/>
+                </StackPanel>
+
+                <GroupBox x:Name="group_importOptions"
+                          Header="导入方式"
+                          Visibility="{Binding IsImportOptionsVisible, Converter={StaticResource BoolToVisibilityConverter}}"
+                          Margin="0,16,0,4"
+                          Padding="4">
+                    <StackPanel>
+                        <CheckBox x:Name="check_importGestures"
+                                  Content="导入手势"
+                                  IsChecked="{Binding ImportGesturesChecked, Mode=TwoWay}"
+                                  Margin="0,0,0,4"/>
+
+                        <StackPanel Orientation="Horizontal" Margin="21,0,0,4">
+                            <ComboBox x:Name="combo_importGesturesOption"
+                                      SelectedIndex="{Binding GestureImportOptionIndex, Mode=TwoWay}"
+                                      IsEnabled="{Binding ImportGesturesChecked}"
+                                      Width="189"
+                                      Height="28"
+                                      Margin="0,4,4,4">
+                                <ComboBoxItem Content="合并现有手势"/>
+                                <ComboBoxItem Content="替换现有手势"/>
+                            </ComboBox>
+                        </StackPanel>
+
+                        <CheckBox x:Name="check_importConfig"
+                                  Content="导入WGestures选项"
+                                  IsChecked="{Binding ImportConfigChecked, Mode=TwoWay}"
+                                  Margin="0,4,0,0"/>
+                    </StackPanel>
+                </GroupBox>
+
+                <StackPanel Orientation="Horizontal"
+                            Visibility="{Binding IsErrorVisible, Converter={StaticResource BoolToVisibilityConverter}}"
+                            Margin="0,10,0,0">
+                    <Image Source="/Properties/Resources/Alert.png"
+                           Width="20"
+                           Height="19"
+                           Stretch="Uniform"
+                           Margin="4"/>
+                    <TextBlock x:Name="lb_errMsg"
+                               Text="{Binding ErrorMessage}"
+                               Foreground="Red"
+                               VerticalAlignment="Center"
+                               Margin="8,0,0,0"/>
+                </StackPanel>
+            </StackPanel>
+        </ScrollViewer>
+
+        <Border Grid.Row="1" Background="#F0F0F0" BorderBrush="#E0E0E0" BorderThickness="0,1,0,0">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="8,8,10,10">
+                <Button x:Name="btnCancel"
+                        Content="取消"
+                        Width="90"
+                        Height="32"
+                        Margin="2,0,12,0"
+                        IsCancel="True"
+                        Command="{Binding CancelCommand}"/>
+                <Button x:Name="btnOk"
+                        Content="导入"
+                        Width="90"
+                        Height="32"
+                        Margin="2,0,0,0"
+                        IsEnabled="{Binding IsOkEnabled}"
+                        Command="{Binding OkCommand}"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

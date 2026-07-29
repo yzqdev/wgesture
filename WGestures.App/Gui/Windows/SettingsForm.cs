@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
@@ -1143,12 +1143,12 @@ internal partial class SettingsForm : Form {
 
     private void menuItem_imxport_Click(object sender, EventArgs e)
     {
-        var importForm = new ImportForm();
-        importForm.Import += (o, args) =>
+        var importWindow = new ImportWindow();
+        importWindow.Import += (o, args) =>
         {
-            var importConfig = args.ConfigImportOption != ImportForm.ImportOption.None;
-            var importGestures = args.GesturesImportOption != ImportForm.ImportOption.None;
-            var mergeGestures = args.GesturesImportOption == ImportForm.ImportOption.Merge;
+            var importConfig = args.ConfigImportOption != ImportOption.None;
+            var importGestures = args.GesturesImportOption != ImportOption.None;
+            var mergeGestures = args.GesturesImportOption == ImportOption.Merge;
 
             //冻结绘图，以提升批量修改的性能
             SuspendDrawingControl.SuspendDrawing(this);
@@ -1167,7 +1167,7 @@ internal partial class SettingsForm : Form {
             //settingsFormControllerBindingSource.ResetBindings(true);
         };
 
-        importForm.ShowDialog();
+        importWindow.ShowDialog();
     }
 
     private void menuItem_export_Click(object sender, EventArgs e)
