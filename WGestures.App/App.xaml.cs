@@ -12,6 +12,9 @@ using WGestures.Common;
 using WGestures.Common.Config.Impl;
 using WGestures.Common.OsSpecific.Windows;
 using WGestures.Common.Product;
+using WindowsInput;
+using WindowsInput.Events;
+using WindowsInput.Native;
 using WGestures.Core;
 using WGestures.Core.Impl.Windows;
 using WGestures.Core.Persistence.Impl;
@@ -655,7 +658,7 @@ public partial class App : Application
 
     private void MenuItemResume_Click(object sender, EventArgs e)
     {
-        WindowsInput.Simulate.Events().Release(WindowsInput.Events.KeyCode.LWin).Wait(100).Invoke();
+        Simulate.Events().Release(KeyCode.LWin).Wait(100).Invoke();
     }
 
     private void GestureParser_StateChanged(GestureParser.State s)

@@ -303,7 +303,9 @@ public class CanvasWindow : IDisposable
         }
 
         hwnd = User32.CreateWindowEx(User32.WS_EX.WS_EX_LAYERED | User32.WS_EX.WS_EX_TOPMOST
-                                                                | User32.WS_EX.WS_EX_TOOLWINDOW, wc.lpszClassName, null,
+                                                                 | User32.WS_EX.WS_EX_TOOLWINDOW
+                                                                 | User32.WS_EX.WS_EX_NOACTIVATE
+                                                                 | User32.WS_EX.WS_EX_TRANSPARENT, wc.lpszClassName, null,
             0, _bounds.Left, _bounds.Top,
             _bounds.Width, _bounds.Height, IntPtr.Zero, IntPtr.Zero, wc.hInstance, IntPtr.Zero);
 

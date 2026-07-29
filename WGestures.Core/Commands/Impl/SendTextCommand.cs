@@ -5,12 +5,12 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using WindowsInput;
+using WindowsInput.Native;
 using WGestures.Common.Annotation;
 using WGestures.Common.OsSpecific.Windows;
 using Win32;
 using System.Windows.Forms;
 using System.Text.RegularExpressions;
-
 namespace WGestures.Core.Commands.Impl;
 
 [Named("按键序列"), Serializable]
@@ -38,7 +38,7 @@ public class SendTextCommand : AbstractCommand
                     }
                 }
 
-                SendKeys.SendWait(l);
+                Simulate.Events().Click(l).Invoke();
             }
                 
         }

@@ -566,24 +566,24 @@ public class Win32MousePathTracker2 : IPathTracker {
 
         if (e.key == Keys.LWin)
         {
-            e.Handled = true;
-
             if (e.Type == KeyboardEventType.KeyDown)
             {
                 if (!_captured && !_isVirtualGesturing)
                 {
                     Debug.WriteLine("Begin Virtual Gesturing");
                     _isVirtualGesturing = true;
+                    e.Handled = true;
 
                     return;
                 }
             }
             else
             {
-                if (_isVirtualGesturing) // && _isVirtualGesturing)
+                if (_isVirtualGesturing)
                 {
                     Debug.WriteLine("End Virtual Gesturing!");
                     _isVirtualGesturing = false;
+                    e.Handled = true;
 
                     if (_captured)
                     {
@@ -595,35 +595,29 @@ public class Win32MousePathTracker2 : IPathTracker {
                         new Thread(() =>
                         {
                             _simulatingInput = true;
-                            //var sim = new InputSimulator() { ExtraInfo = new IntPtr(SIMULATED_EVENT_TAG) };
-                            var sim = EventBuilder.Create()
+                            EventBuilder.Create()
                                 .ClickChord(KeyCode.LWin, (KeyCode)e.key)
                                 .Invoke();
-                            //sim.Keyboard.ModifiedKeyStroke(new[] { KeyCode.LWin }, new[] { (KeyCode)e.key });
                             _simulatingInput = false;
                         }).Start();
                     }
                 }
-                else
-                {
-                    e.Handled = false;
-                }
+                // else: 未处于虚拟手势模式时，正常放行Win键（不设e.Handled）
 
             }
         }
         else if (_isVirtualGesturing && e.Type == KeyboardEventType.KeyDown)
         {
             _isVirtualGesturing = false;
+            e.Handled = true;
             new Thread(() =>
             {
                 _simulatingInput = true;
-                var sim = EventBuilder.Create()
-                    .ClickChord(KeyCode.LWin, (KeyCode)e.key);
-                sim.Invoke();
+                EventBuilder.Create()
+                    .ClickChord(KeyCode.LWin, (KeyCode)e.key)
+                    .Invoke();
                 _simulatingInput = false;
             }).Start();
-
-            e.Handled = true;
         }
     }
 
@@ -1052,6 +1046,7 @@ public class Win32MousePathTracker2 : IPathTracker {
                 Debug.WriteLine("Simulating...Win Press");
                 var sim = new EventBuilder()
                     .Click(KeyCode.LWin);
+                sim.Invoke();
                 Debug.WriteLine("End Simulating...Win Press");
                 _simulatingInput = false;
 

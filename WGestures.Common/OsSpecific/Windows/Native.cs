@@ -24,6 +24,7 @@ public static class Native
     public delegate int LowLevelkeyboardHookProc(int code, int wParam, ref keyboardHookStruct lParam);
     public const int WH_MOUSE_LL = 14;
     public const int WH_KEYBOARD_LL = 13;
+    public const int SIMULATED_EVENT_TAG = 19900620;
 
     /// <summary>
     /// 设置鼠标钩子
