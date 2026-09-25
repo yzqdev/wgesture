@@ -1,15 +1,20 @@
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Diagnostics;
 using System.Threading;
 using System.Windows;
 using System.Windows.Forms;
-using WGestures.App.Gui.Windows;
+using Serilog;
+using Serilog.Events;
+using WGestures.App.Configuration;
+using WGestures.App.Gui.Forms;
+using WGestures.App.Infrastructure;
 using WGestures.App.Migrate;
 using WGestures.App.Properties;
 using WGestures.App.Views;
 using WGestures.Common;
-using WGestures.Common.Config.Impl;
+using WGestures.Common.Config;
 using WGestures.Common.OsSpecific.Windows;
 using WGestures.Common.Product;
 using WindowsInput;
@@ -17,10 +22,8 @@ using WindowsInput.Events;
 using WindowsInput.Native;
 using WGestures.Core;
 using WGestures.Core.Impl.Windows;
-using WGestures.Core.Persistence.Impl;
-using WGestures.Core.Persistence.Impl.Windows;
+using WGestures.Core.Persistence;
 using Application = System.Windows.Application;
-using MessageBox = System.Windows.MessageBox;
 
 namespace WGestures.App;
 
@@ -34,53 +37,74 @@ public partial class App : Application
     private SettingsFormController _settingsFormController;
     private bool _isFirstRun;
     private JsonGestureIntentStore _defaultIntentStore;
-    private Win32GestrueIntentFinder _intentFinder;
-    private NotifyIcon _trayIcon;
+    private Win32GestureIntentFinder _intentFinder;
+    private TrayIconController _trayIcon;
     private GlobalHotKeyManager _hotkeyMgr;
-    private ToolStripMenuItem _menuItemPause;
 
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
 
+        ConfigureLogging();
+        Log.Information("WGestures {Version} 启动", typeof(App).Assembly.GetName().Version);
+
         Trace.Listeners.Add(new DetailedConsoleListener());
 
         if (IsDuplicateInstance())
         {
-            PostIpcCmd("ShowSettings");
+            Log.Information("检测到已有实例，经 IPC 唤醒后退出");
+            IpcServer.PostCommand("ShowSettings");
             Shutdown();
             return;
         }
 
-        AppWideInit();
-
         try
         {
+            AppWideInit();
             LoadFailSafeConfigFile();
             SyncAutoStartState();
             CheckAndDoFirstRunStuff();
             ConfigureComponents();
             StartParserThread();
 
-            GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
-            GC.WaitForPendingFinalizers();
-
             ShowTrayIcon();
-            StartIpcPipe();
+            IpcServer.Start(cmd =>
+            {
+                if (cmd == "ShowSettings") ShowSettings();
+            });
 
             Current.Dispatcher.Invoke(() => { });
         }
- 
+
         catch (Exception ex)
         {
             ShowFatalError(ex);
         }
- 
+
+    }
+
+    private static void ConfigureLogging()
+    {
+        System.IO.Directory.CreateDirectory(AppSettings.LogsDirectory);
+
+        // App.config 的 LogLevel 键（Trace/Debug/Information/Warning/Error...），缺省 Information
+        var level = Enum.TryParse<LogEventLevel>(ConfigurationManager.AppSettings.Get("LogLevel"), out var parsed)
+            ? parsed : LogEventLevel.Information;
+
+        Log.Logger = new LoggerConfiguration()
+            .MinimumLevel.Is(level)
+            .WriteTo.File(
+                System.IO.Path.Combine(AppSettings.LogsDirectory, "wgestures-.log"),
+                rollingInterval: RollingInterval.Day,
+                outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
+            .CreateLogger();
     }
 
     protected override void OnExit(ExitEventArgs e)
     {
         Dispose();
+        Log.Information("已退出");
+        Log.CloseAndFlush();
         base.OnExit(e);
     }
 
@@ -100,6 +124,7 @@ public partial class App : Application
 
     private void ShowFatalError(Exception e)
     {
+        Log.Fatal(e, "致命错误");
         Current.Dispatcher.Invoke(() =>
         {
             var frm = new ErrorWindow { Title = typeof(App).Assembly.GetName().Name };
@@ -146,64 +171,6 @@ public partial class App : Application
             }
             _mutex?.Dispose();
         }
-    }
-
-    private void PostIpcCmd(string cmd)
-    {
-        try
-        {
-            using (var pipeClient = new System.IO.Pipes.NamedPipeClientStream("WGestures_IPC_API"))
-            {
-                pipeClient.Connect(1000);
-                using (var writer = new System.IO.StreamWriter(pipeClient) { AutoFlush = true })
-                {
-                    writer.WriteLine(cmd);
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine("PostIpcCmd Error: " + ex.Message);
-        }
-    }
-
-    private void StartIpcPipe()
-    {
-        var synCtx = new WindowsFormsSynchronizationContext();
-        var pipeThread = new Thread(() =>
-        {
-            while (true)
-            {
-                try
-                {
-                    using (var server = new System.IO.Pipes.NamedPipeServerStream("WGestures_IPC_API"))
-                    {
-                        server.WaitForConnection();
-
-                        Debug.WriteLine("Client Connected");
-                        using (var reader = new System.IO.StreamReader(server))
-                        {
-                            var cmd = reader.ReadLine();
-                            Debug.WriteLine("Pipe CMD=" + cmd);
-
-                            if (cmd == "ShowSettings")
-                            {
-                                synCtx.Post(s =>
-                                {
-                                    Debug.WriteLine("Thread=" + Thread.CurrentThread.ManagedThreadId);
-                                    ShowSettings();
-                                }, null);
-                            }
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine("IPC Pipe Error: " + ex.Message);
-                }
-            }
-        }, maxStackSize: 65536) { IsBackground = true };
-        pipeThread.Start();
     }
 
     private void StartParserThread()
@@ -288,7 +255,7 @@ public partial class App : Application
         }
         catch (Exception ex)
         {
-            Debug.WriteLine("加载或合并手势文件出错：" + ex);
+            Log.Error(ex, "加载或合并手势文件出错");
 
             try
             {
@@ -300,7 +267,7 @@ public partial class App : Application
             }
             catch (Exception fatalEx)
             {
-                Debug.WriteLine("安全恢复手势失败: " + fatalEx);
+                Log.Error(fatalEx, "安全恢复手势失败");
                 throw;
             }
         }
@@ -437,7 +404,7 @@ public partial class App : Application
 
     private void ConfigureComponents()
     {
-        _intentFinder = new Win32GestrueIntentFinder(_defaultIntentStore);
+        _intentFinder = new Win32GestureIntentFinder(_defaultIntentStore);
         var pathTracker = new Win32MousePathTracker2();
         _gestureParser = new GestureParser(pathTracker, _intentFinder);
 
@@ -464,7 +431,7 @@ public partial class App : Application
         pathTracker.StayTimeoutMillis = _config.Dict.PathTrackerStayTimeoutMillis;
         pathTracker.InitialStayTimeout = _config.Dict.PathTrackerInitialStayTimeout;
         pathTracker.InitialStayTimeoutMillis = _config.Dict.PathTrackerInitialStayTimoutMillis;
-        pathTracker.RequestPauseResume += paused => MenuItemPause_Click(null, EventArgs.Empty);
+        pathTracker.RequestPauseResume += paused => TogglePause();
         pathTracker.EnableWindowsKeyGesturing = _config.Dict.EnableWindowsKeyGesturing;
         pathTracker.RequestShowHideTray += ToggleTrayIconVisibility;
     }
@@ -531,7 +498,7 @@ public partial class App : Application
 
     private void HotkeyMgr_Updated(string arg1, GlobalHotKeyManager.HotKey arg2)
     {
-        UpdateTray();
+        _trayIcon?.UpdatePauseState();
     }
 
     private void TogglePause()
@@ -541,68 +508,19 @@ public partial class App : Application
 
     private void ShowTrayIcon()
     {
-        _trayIcon = CreateNotifyIcon();
         Current.ShutdownMode = ShutdownMode.OnExplicitShutdown;
-    }
 
-    private NotifyIcon CreateNotifyIcon()
-    {
-        var notifyIcon = new NotifyIcon();
-        notifyIcon.Text = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name + " " +
-                         System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+        _trayIcon = new TrayIconController(_config,
+            isPaused: () => _gestureParser.IsPaused,
+            pauseHotkeyString: GetPauseResumeHotkeyString,
+            togglePause: TogglePause,
+            showSettings: ShowSettings,
+            showQuickStart: () => ShowQuickStartGuide(),
+            releaseKeyLock: () => Simulate.Events().Release(KeyCode.LWin).Wait(100).Invoke(),
+            restart: RestartApp,
+            exit: ExitApp);
 
-        var contextMenu1 = new ContextMenuStrip();
-
-        var menuItemExit = new ToolStripMenuItem { Text = "退出" };
-        menuItemExit.Click += MenuItemExit_Click;
-
-        var menuItemRestart = new ToolStripMenuItem { Text = "重启" };
-        menuItemRestart.Click += MenuItemRestart_Click;
-
-        _menuItemPause = new ToolStripMenuItem { Text = "暂停" };
-        _menuItemPause.Click += MenuItemPause_Click;
-
-        var menuItemResume = new ToolStripMenuItem { Text = "解除按键死锁" };
-        menuItemResume.Click += MenuItemResume_Click;
-
-        var menuItemSettings = new ToolStripMenuItem { Text = "设置" };
-        menuItemSettings.Click += MenuItemSettings_Click;
-
-        var menuItemShowQuickStart = new ToolStripMenuItem { Text = "快速入门" };
-        menuItemShowQuickStart.Click += (sender, args) => ShowQuickStartGuide();
-
-        contextMenu1.Items.AddRange(new ToolStripItem[]
-        {
-            _menuItemPause, menuItemResume, menuItemRestart, new ToolStripSeparator(),
-            menuItemSettings, menuItemShowQuickStart, new ToolStripSeparator(), menuItemExit
-        });
-
-        notifyIcon.Icon = WGestures.App.Properties.Resources.trayIcon;
-        notifyIcon.ContextMenuStrip = contextMenu1;
-        notifyIcon.Visible = true;
-
-        _gestureParser.StateChanged += GestureParser_StateChanged;
-
-        return notifyIcon;
-    }
-
-    private void UpdateTray()
-    {
-        if (_trayIcon == null) return;
-
-        var hotKeyStr = GetPauseResumeHotkeyString();
-        hotKeyStr = string.IsNullOrEmpty(hotKeyStr) ? "" : $"({hotKeyStr})";
-
-        if (_gestureParser?.IsPaused ?? false)
-        {
-            _menuItemPause.Text = "继续 " + hotKeyStr;
-            _trayIcon.Icon = WGestures.App.Properties.Resources.trayIcon_bw;
-        }
-        else
-        {
-            _menuItemPause.Text = "暂停 " + hotKeyStr;
-            _trayIcon.Icon = WGestures.App.Properties.Resources.trayIcon;
-        }
+        _gestureParser.StateChanged += _ => _trayIcon.UpdatePauseState();
     }
 
     private string GetPauseResumeHotkeyString()
@@ -613,115 +531,27 @@ public partial class App : Application
 
     private void ToggleTrayIconVisibility()
     {
-        if (!(_trayIcon.Visible && !_config.Dict.TrayIconVisible))
-        {
-            _config.Dict.TrayIconVisible = !_trayIcon.Visible;
-            _config.Save();
-        }
-
-        if (_trayIcon.Visible)
-        {
-            _trayIcon.ShowBalloonTip(10 * 1000, "WGestures图标将隐藏", "按 Shift+左键+中键 恢复显示\n再次运行程序可打开设置界面", ToolTipIcon.Info);
-        }
-        else
-        {
-            _trayIcon.Visible = true;
-        }
+        _trayIcon?.ToggleVisibility();
     }
 
-    private void MenuItemSettings_Click(object sender, EventArgs e)
-    {
-        ShowSettings();
-    }
-
-    private void MenuItemPause_Click(object sender, EventArgs e)
-    {
-        TogglePause();
-    }
-
-    private void MenuItemRestart_Click(object sender, EventArgs e)
+    private void RestartApp()
     {
         _gestureParser?.Stop();
-        System.Windows.Application.Current.Dispatcher.Invoke(() =>
+        Application.Current.Dispatcher.Invoke(() =>
         {
-            System.Windows.Application.Current.Shutdown();
+            Application.Current.Shutdown();
             System.Diagnostics.Process.Start(System.Reflection.Assembly.GetExecutingAssembly().Location);
         });
     }
 
-    private void MenuItemExit_Click(object sender, EventArgs e)
+    private void ExitApp()
     {
         _gestureParser?.Stop();
         _trayIcon?.Dispose();
         Current.Shutdown();
     }
 
-    private void MenuItemResume_Click(object sender, EventArgs e)
-    {
-        Simulate.Events().Release(KeyCode.LWin).Wait(100).Invoke();
-    }
-
-    private void GestureParser_StateChanged(GestureParser.State s)
-    {
-        UpdateTray();
-    }
-
-    private void ScheduledUpdateCheck(object sender, NotifyIcon tray)
-    {
-        if (!_config.Dict.AutoCheckForUpdate) return;
-
-        var checker = new VersionChecker(AppSettings.CheckForUpdateUrl);
-        checker.Finished += info =>
-        {
-            var whatsNew = info.WhatsNew.Length > 50 ? info.WhatsNew.Substring(0, 50) : info.WhatsNew;
-
-            if (info.Version != System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString())
-            {
-                tray.BalloonTipClicked += (o, args) =>
-                {
-                    if (info.Version == System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString()) return;
-                    var frm = new UpdateInfoWindow(
-                        System.Configuration.ConfigurationManager.AppSettings.Get(Constants.ProductHomePageAppSettingKey), info);
-
-                    Current.Dispatcher.Invoke(() => frm.ShowDialog());
-                    tray.Visible = _config.Dict.TrayIconVisible;
-                };
-                if (!tray.Visible)
-                {
-                    tray.Visible = true;
-                }
-
-                tray.ShowBalloonTip(1000 * 15, System.Reflection.Assembly.GetExecutingAssembly().GetName().Name + "新版本可用!",
-                    "版本:" + info.Version + "\n" + whatsNew, ToolTipIcon.Info);
-            }
-
-            checker.Dispose();
-        };
-        checker.ErrorHappened += ex =>
-        {
-            Debug.WriteLine("App.ScheduledUpdateCheck Error:" + ex.Message);
-            checker.Dispose();
-            Current.Dispatcher.Invoke(() =>
-            {
-                MessageBox.Show(
-                    $"检查更新失败，原因：\n{ex.Message}",
-                    "错误",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error
-                );
-            });
-        };
-
-        checker.CheckAsync();
-    }
-
-    public static string Base64Encode(string plainText)
-    {
-        var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(plainText);
-        return System.Convert.ToBase64String(plainTextBytes);
-    }
-
-    public static string Base64Decode(string base64EncodedData)
+    private static string Base64Decode(string base64EncodedData)
     {
         var base64EncodedBytes = System.Convert.FromBase64String(base64EncodedData);
         return System.Text.Encoding.UTF8.GetString(base64EncodedBytes);

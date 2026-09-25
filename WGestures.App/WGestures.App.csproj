@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net10.0-windows</TargetFramework>
+    <TargetFramework>net10.0-windows10.0.17763.0</TargetFramework>
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
     <OutputType>WinExe</OutputType>
     <AssemblyName>WGestures</AssemblyName>
     <IsWebBootstrapper>false</IsWebBootstrapper>
@@ -21,6 +22,8 @@
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+   <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+   <NoWarn>$(NoWarn);SYSLIB0011</NoWarn>
       <UseWindowsForms>true</UseWindowsForms>
       <UseWpf>true</UseWpf>
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
@@ -40,84 +43,78 @@
     <TargetZone>LocalIntranet</TargetZone>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Update="Gui\Windows\CommandViews\CmdCommandView.cs">
+    <Compile Update="Gui\CommandViews\CmdCommandView.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="Gui\Windows\CommandViews\ScriptCommandView.cs">
+    <Compile Update="Gui\CommandViews\ScriptCommandView.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="Gui\Windows\CommandViews\SendTextCommandView.cs">
+    <Compile Update="Gui\CommandViews\SendTextCommandView.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="Gui\Windows\CommandViews\TaskSwitcherCommandView.cs">
+    <Compile Update="Gui\CommandViews\TaskSwitcherCommandView.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="Gui\Windows\CommandViews\WebSearchCommandView.cs">
+    <Compile Update="Gui\CommandViews\WebSearchCommandView.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="Gui\Windows\CommandViews\WindowControlCommandView.cs">
+    <Compile Update="Gui\CommandViews\WindowControlCommandView.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="Gui\Windows\Controls\ReorderableListView\EventsListBox.cs">
+    <Compile Update="Gui\Controls\ReorderableListView\EventsListBox.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Update="Gui\Windows\Controls\ReorderableListView\ReorderableListView.cs">
+    <Compile Update="Gui\Controls\ReorderableListView\ReorderableListView.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Update="Gui\Windows\Controls\ShortcutRecordButton.cs">
+    <Compile Update="Gui\Controls\ShortcutRecordButton.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Update="Gui\Windows\CommandViews\GeneralNoParameterCommandView.cs">
+    <Compile Update="Gui\CommandViews\GeneralNoParameterCommandView.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="Gui\Windows\CommandViews\GotoUrlCommandView.cs">
+    <Compile Update="Gui\CommandViews\GotoUrlCommandView.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="Gui\Windows\CommandViews\HotKeyCommandView.cs">
+    <Compile Update="Gui\CommandViews\HotKeyCommandView.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="Gui\Windows\CommandViews\OpenFileCommandView.cs">
+    <Compile Update="Gui\CommandViews\OpenFileCommandView.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="Gui\Windows\CommandViews\CommandViewUserControl.cs">
+    <Compile Update="Gui\CommandViews\CommandViewUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="Gui\Windows\Controls\AlwaysSelectedListView.cs">
+    <Compile Update="Gui\Controls\AlwaysSelectedListView.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Update="Gui\Windows\Controls\ColorButton.cs">
+    <Compile Update="Gui\Controls\ColorButton.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Update="Gui\Windows\Controls\LazyPaintButton.cs">
+    <Compile Update="Gui\Controls\LazyPaintButton.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Update="Gui\Windows\Controls\InstantNumericUpDown.cs">
+    <Compile Update="Gui\Controls\InstantNumericUpDown.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Update="Gui\Windows\Controls\LineFlowLayout.cs">
+    <Compile Update="Gui\Controls\LineFlowLayout.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Update="Gui\Windows\Controls\LineLabel.cs">
+    <Compile Update="Gui\Controls\LineLabel.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Update="Gui\Windows\Controls\MacGroupBox.cs">
+    <Compile Update="Gui\Controls\MacGroupBox.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Update="Gui\Windows\Controls\MetroButton.cs">
+    <Compile Update="Gui\Controls\MetroButton.cs">
       <SubType>Component</SubType>
     </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\NativeMultiFileArchiveLib\NativeMultiFileArchiveLib.csproj" />
-    <ProjectReference Include="..\WGestures.Common\WGestures.Common.csproj" />
-    <ProjectReference Include="..\WGestures.Core\WGestures.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\**\*.*" />
   </ItemGroup>
   
   <ItemGroup>
-    <Content Include="appsettings.json" />
     <Content Include="defaults\**\*.*">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -136,23 +133,17 @@
   </ItemGroup>
   <ItemGroup>
 
-	  <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-	  <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.3" />
-
-	  <PackageReference Include="Serilog.Extensions.Hosting" Version="10.0.0" />
-	  <PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
-	  <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3967.48" />
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="10.0.8" />
     <PackageReference Include="Lnk" Version="2026.5.3" />
+    <PackageReference Include="NLua" Version="1.7.9" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+    <PackageReference Include="Serilog" Version="4.4.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
+    <PackageReference Include="Vanara.PInvoke.Gdi32" Version="5.0.5" />
+    <PackageReference Include="Vanara.PInvoke.User32" Version="5.0.5" />
     <PackageReference Include="WindowsInput" Version="6.4.1" />
-
-      <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-      <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.3" />
-
-      <PackageReference Include="Serilog.Extensions.Hosting" Version="10.0.0" />
-      <PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
-      <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
+    <PackageReference Include="WindowsShortcutFactory" Version="1.2.0" />
   </ItemGroup>
   <ItemGroup>
     <Page Update="Views\ErrorWindow.xaml">

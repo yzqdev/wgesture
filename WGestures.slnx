@@ -7,16 +7,7 @@
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
   </Folder>
-  <Project Path="NativeMultiFileArchiveLib/NativeMultiFileArchiveLib.csproj">
-    <Build Solution="*|x86" Project="false" />
-  </Project>
   <Project Path="WGestures.App/WGestures.App.csproj">
-    <Build Solution="*|x86" Project="false" />
-  </Project>
-  <Project Path="WGestures.Common/WGestures.Common.csproj">
-    <Build Solution="*|x86" Project="false" />
-  </Project>
-  <Project Path="WGestures.Core/WGestures.Core.csproj">
     <Build Solution="*|x86" Project="false" />
   </Project>
 </Solution>

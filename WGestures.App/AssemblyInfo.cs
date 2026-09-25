@@ -1,6 +1,9 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
+
+[assembly: SupportedOSPlatform("windows10.0.17763.0")]
 
 // 有关程序集的常规信息通过以下
 // 特性集控制。更改这些特性值可修改

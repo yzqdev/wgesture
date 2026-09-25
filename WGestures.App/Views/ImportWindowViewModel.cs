@@ -58,12 +58,12 @@ public partial class ImportWindowViewModel : ObservableObject
     [ObservableProperty]
     private bool _isOkEnabled;
 
-    private ConfigAndGestures? _configAndGestures;
+    private ConfigAndGestures _configAndGestures;
     private ImportOption _gesturesImportOption = ImportOption.None;
     private ImportOption _configImportOption = ImportOption.None;
 
-    internal event EventHandler<ImportEventArgs>? Import;
-    public event EventHandler? CloseRequest;
+    internal event EventHandler<ImportEventArgs> Import;
+    public event EventHandler CloseRequest;
 
     public ImportWindowViewModel()
     {

@@ -6,11 +6,11 @@ using System.Linq;
 using System.Text;
 using NativeMultiFileArchiveLib;
 using WGestures.Common.Config;
-using WGestures.Common.Config.Impl;
 using WGestures.Core.Persistence;
-using WGestures.Core.Persistence.Impl;
 
 namespace WGestures.App.Migrate;
+
+using WGestures.App.Configuration;
 
 internal static class MigrateService {
     public static ConfigAndGestures ImportPrevousVersion()
