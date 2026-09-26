@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using WGestures.Common.OsSpecific.Windows;
-using Win32;
+using WGestures.Common.OsSpecific.Windows.Win32;
 using WindowsInput;
 using WindowsInput.Events;
 using WindowsInput.Native;

@@ -134,7 +134,7 @@ public class TinyFileArchive
         // save as:
         using (FileStream fs = File.Create(archiveFileName))
         {
-            IO.TinySerializer.Serialize(fs, this, false);
+            TinySerializer.Serialize(fs, this, false);
         }
     }
 
@@ -147,7 +147,7 @@ public class TinyFileArchive
     {
         using (FileStream fs = File.Open(archiveFileName, FileMode.Open))
         {
-            return IO.TinySerializer.DeSerialize<TinyFileArchive>(fs, false);
+            return TinySerializer.DeSerialize<TinyFileArchive>(fs, false);
         }
     }
 

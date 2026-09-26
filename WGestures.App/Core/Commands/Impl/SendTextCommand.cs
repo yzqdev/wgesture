@@ -8,7 +8,7 @@ using WindowsInput;
 using WindowsInput.Native;
 using WGestures.Common.Annotation;
 using WGestures.Common.OsSpecific.Windows;
-using Win32;
+using WGestures.Common.OsSpecific.Windows.Win32;
 using System.Windows.Forms;
 using System.Text.RegularExpressions;
 namespace WGestures.Core.Commands.Impl;

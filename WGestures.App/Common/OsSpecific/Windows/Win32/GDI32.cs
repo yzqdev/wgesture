@@ -1,4 +1,4 @@
-
+﻿
 //This file contains the common Win32 API of the desktop Windows and the Windows CE/Mobile.
 
 //Created by Warren Tang on 8/8/2008
@@ -18,7 +18,7 @@ using System.Runtime.InteropServices;
 using VanaraGdi32 = Vanara.PInvoke.Gdi32;
 using VanaraUser32 = Vanara.PInvoke.User32;
 
-namespace Win32;
+namespace WGestures.Common.OsSpecific.Windows.Win32;
 
 public static partial class GDI32
 {

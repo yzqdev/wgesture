@@ -10,7 +10,7 @@ using WindowsInput;
 using WindowsInput.Native;
 using WGestures.Common.Annotation;
 using WGestures.Common.OsSpecific.Windows;
-using Win32;
+using WGestures.Common.OsSpecific.Windows.Win32;
 using Screen = WGestures.Common.OsSpecific.Windows.Screen;
 using ThreadState = System.Diagnostics.ThreadState;
 using WindowsInput.Events;

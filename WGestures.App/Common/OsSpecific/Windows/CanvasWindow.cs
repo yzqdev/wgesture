@@ -5,7 +5,7 @@ using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-using Win32;
+using WGestures.Common.OsSpecific.Windows.Win32;
 
 namespace WGestures.Common.OsSpecific.Windows;
 

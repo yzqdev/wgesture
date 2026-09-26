@@ -6,7 +6,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Diagnostics;
 using NativeMultiFileArchiveLib;
 
-namespace IO;
+namespace NativeMultiFileArchiveLib;
 
 /// <summary>
 /// Implements compressed binary serialization: designed to fit serialized data into the smallest space possible. 

@@ -4,7 +4,7 @@ using System.Drawing;
 using System.Threading;
 using WGestures.Common.OsSpecific.Windows;
 using WGestures.Common;
-using Win32;
+using WGestures.Common.OsSpecific.Windows.Win32;
 using System.Windows.Forms;
 using System.ComponentModel;
 

@@ -1,4 +1,4 @@
-//------------------------------------------------------------------------------
+﻿//------------------------------------------------------------------------------
 // <copyright file="Screen.cs" company="Microsoft">
 //     Copyright (c) Microsoft Corporation.  All rights reserved.
 // </copyright>                                                                
@@ -13,7 +13,7 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Microsoft.Win32;
-using Win32;
+using WGestures.Common.OsSpecific.Windows.Win32;
 
 namespace WGestures.Common.OsSpecific.Windows;
 

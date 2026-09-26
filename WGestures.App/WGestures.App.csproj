@@ -22,6 +22,7 @@
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+   <RootNamespace>WGestures.App</RootNamespace>
    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
    <NoWarn>$(NoWarn);SYSLIB0011</NoWarn>
       <UseWindowsForms>true</UseWindowsForms>

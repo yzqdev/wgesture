@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using WGestures.Common.OsSpecific.Windows;
-using Win32;
+using WGestures.Common.OsSpecific.Windows.Win32;
 
 namespace WGestures.Core.Impl.Windows;
 

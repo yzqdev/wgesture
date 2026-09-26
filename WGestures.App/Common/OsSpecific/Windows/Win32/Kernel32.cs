@@ -11,7 +11,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace Win32;
+namespace WGestures.Common.OsSpecific.Windows.Win32;
 
 public static partial class Kernel32
 {

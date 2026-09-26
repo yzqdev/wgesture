@@ -13,7 +13,7 @@ using System.Runtime.InteropServices;
 using System.Drawing;
 using VanaraUser32 = Vanara.PInvoke.User32;
 
-namespace Win32;
+namespace WGestures.Common.OsSpecific.Windows.Win32;
 
 public static partial class User32
 {

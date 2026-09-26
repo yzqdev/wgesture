@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using Win32;
+using WGestures.Common.OsSpecific.Windows.Win32;
 
 namespace WGestures.Common.OsSpecific.Windows;
 

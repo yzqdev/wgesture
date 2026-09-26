@@ -8,7 +8,7 @@ using System.Windows.Forms;
 using WGestures.Common.OsSpecific.Windows;
 using WGestures.Core;
 using WGestures.Core.Persistence;
-using Win32;
+using WGestures.Common.OsSpecific.Windows.Win32;
 using System.ComponentModel;
 
 namespace WGestures.App.Gui.Forms;

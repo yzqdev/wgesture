@@ -9,7 +9,7 @@ using System.Timers;
 using System.Windows.Forms;
 using WindowsInput;
 using WGestures.Common.OsSpecific.Windows;
-using Win32;
+using WGestures.Common.OsSpecific.Windows.Win32;
 using Timer = System.Timers.Timer;
 using System.Text;
 using Microsoft.Win32;

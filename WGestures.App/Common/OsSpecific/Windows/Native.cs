@@ -11,7 +11,7 @@ using System.Windows.Forms;
 //using System.Windows.Forms;
 using WindowsInput;
 using WindowsInput.Native;
-using Win32;
+using WGestures.Common.OsSpecific.Windows.Win32;
 using ThreadState = System.Diagnostics.ThreadState;
 using System.IO;
 using WindowsInput.Events;
